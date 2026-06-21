@@ -46,6 +46,8 @@ body {
     linear-gradient(180deg, var(--bg), var(--bg-deep));
   color: var(--ink);
   font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 button,
@@ -609,21 +611,41 @@ h1 {
 
   .mobile-song-picker {
     display: grid;
-    gap: 6px;
+    gap: 8px;
     margin-bottom: 18px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background:
+      linear-gradient(135deg, rgba(215, 199, 161, 0.08), rgba(0, 0, 0, 0.08)),
+      rgba(0, 0, 0, 0.1);
     color: var(--accent);
-    font-size: 0.76rem;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+  }
+
+  .mobile-song-picker span {
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .mobile-song-picker select {
+    appearance: none;
     width: 100%;
     min-width: 0;
-    min-height: 38px;
+    min-height: 42px;
     border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 0 10px;
+    border-radius: 10px;
+    padding: 0 42px 0 14px;
     color: var(--ink);
-    background: var(--bg-deep);
+    background:
+      linear-gradient(45deg, transparent 50%, var(--accent) 50%) calc(100% - 22px) 17px / 7px 7px no-repeat,
+      linear-gradient(135deg, var(--accent) 50%, transparent 50%) calc(100% - 17px) 17px / 7px 7px no-repeat,
+      rgba(3, 47, 42, 0.78);
+    font-family: var(--font-song);
+    font-size: 0.94rem;
+    font-weight: 600;
   }
 
   .lyric-row {
@@ -637,27 +659,46 @@ h1 {
 @media (max-width: 480px) {
   :root {
     --jyutping-row-height: 0.8rem;
-    --jyutping-font-size: 0.58rem;
-    --lyric-font-size: 0.9rem;
-    --token-min-width: 1.1rem;
+    --jyutping-font-size: 0.54rem;
+    --lyric-font-size: 0.82rem;
+    --token-min-width: 1.04rem;
     --token-gap-x: 4px;
-    --char-core-min-width: 1.06rem;
-    --char-core-min-height: 1.16rem;
-    --speak-button-size: 21px;
-    --speak-icon-size: 10px;
-    --singer-col-width: 4.1em;
+    --char-core-min-width: 1rem;
+    --char-core-min-height: 1.1rem;
+    --speak-button-size: 20px;
+    --speak-icon-size: 9px;
+    --singer-col-width: clamp(5.4rem, 24vw, 6.35rem);
   }
 
   .dzw-shell {
-    width: min(100% - 18px, 680px);
+    width: min(100% - 14px, 680px);
   }
 
   .singer {
+    max-width: var(--singer-col-width);
+    overflow: hidden;
+    font-size: clamp(0.68rem, 3.3vw, 0.82rem);
+    font-weight: 600;
+    letter-spacing: 0;
     text-align: right;
+    text-overflow: ellipsis;
   }
 
   .singer.is-continuation {
     opacity: 0;
+  }
+
+  .lyrics-list {
+    gap: 10px;
+  }
+
+  .lyric-row {
+    gap: 8px;
+    padding-block: 6px;
+  }
+
+  .lyric-char {
+    font-weight: 600;
   }
 
 }
