@@ -50,6 +50,22 @@ body {
   font-family: var(--font-ui);
 }
 
+@media (hover: hover) and (pointer: fine) {
+  body.has-dragonfly-cursor,
+  body.has-dragonfly-cursor * {
+    cursor: none !important;
+  }
+}
+
+.dragonfly-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
 button,
 select {
   font: inherit;
@@ -913,6 +929,8 @@ body:not(.js-ready) .app-layout {
     </style>
   </head>
   <body>
+    <canvas class="dragonfly-cursor" id="dragonflyCursor" aria-hidden="true" hidden></canvas>
+
     <div class="dzw-shell">
       <header class="topbar">
         <div>
@@ -29812,6 +29830,7 @@ function init() {
   bindBackToTop();
   bindSidebar();
   bindWordPopover();
+  bindDragonflyCursor();
   renderCurrentSong();
 }
 
@@ -29909,6 +29928,165 @@ function bindWordPopover() {
   });
 
   window.addEventListener("scroll", hideWordPopover, { passive: true });
+}
+
+function bindDragonflyCursor() {
+  const canvas = document.querySelector("#dragonflyCursor");
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (!canvas || !canHover.matches || reduceMotion.matches) {
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  document.body.classList.add("has-dragonfly-cursor");
+  canvas.hidden = false;
+
+  const particles = [];
+  const mouse = { x: -100, y: -100, targetX: -100, targetY: -100 };
+  let wingAngle = 0;
+  let rafId = 0;
+
+  function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.ceil(window.innerWidth * dpr);
+    canvas.height = Math.ceil(window.innerHeight * dpr);
+    canvas.style.width = `${window.innerWidth}px`;
+    canvas.style.height = `${window.innerHeight}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawWing(offsetX, offsetY, x, radiusX, radiusY, rotation, scaleX) {
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scaleX, 1);
+    ctx.beginPath();
+    ctx.ellipse(x, 0, radiusX, radiusY, rotation, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawGoldDragonfly(x, y, angle, wingOpen) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+
+    const tailGrad = ctx.createLinearGradient(0, 0, 0, 25);
+    tailGrad.addColorStop(0, "#d4af37");
+    tailGrad.addColorStop(1, "#524111");
+    ctx.fillStyle = tailGrad;
+
+    ctx.beginPath();
+    ctx.arc(0, 18, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-1, 0);
+    ctx.lineTo(1, 0);
+    ctx.lineTo(0.5, 22);
+    ctx.lineTo(-0.5, 22);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = "#fbe9a3";
+    ctx.arc(0, -4, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(251, 233, 163, 0.45)";
+    ctx.strokeStyle = "rgba(212, 175, 55, 0.6)";
+    ctx.lineWidth = 0.5;
+
+    const wingScaleX = 0.65 + (1 + Math.sin(wingOpen)) * 0.175;
+    const backWingScaleX = 0.65 + (1 + Math.sin(wingOpen + 0.6)) * 0.175;
+    drawWing(-1, -3, -10, 10, 2.2, -Math.PI / 16, wingScaleX);
+    drawWing(-1, 1, -8, 8, 2, -Math.PI / 8, backWingScaleX);
+    drawWing(1, -3, 10, 10, 2.2, Math.PI / 16, wingScaleX);
+    drawWing(1, 1, 8, 8, 2, Math.PI / 8, backWingScaleX);
+
+    ctx.restore();
+  }
+
+  class GoldDust {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.size = Math.random() * 3.5 + 2;
+      this.vx = (Math.random() - 0.5) * 1;
+      this.vy = Math.random() * 0.5 + 0.1;
+      this.alpha = 1;
+      this.decay = Math.random() * 0.005 + 0.005;
+    }
+
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.alpha -= this.decay;
+      if (this.size > 0.5) this.size -= 0.02;
+    }
+
+    draw() {
+      if (this.alpha <= 0) return;
+      ctx.save();
+      ctx.globalCompositeOperation = "screen";
+      const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+      grad.addColorStop(0, `rgba(255, 248, 220, ${this.alpha})`);
+      grad.addColorStop(0.3, `rgba(212, 175, 55, ${this.alpha * 0.6})`);
+      grad.addColorStop(1, "rgba(212, 175, 55, 0)");
+      ctx.beginPath();
+      ctx.fillStyle = grad;
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function handleMouseMove(event) {
+    mouse.targetX = event.clientX;
+    mouse.targetY = event.clientY;
+
+    if (Math.abs(mouse.x - mouse.targetX) > 0.5) {
+      for (let index = 0; index < 2; index += 1) {
+        particles.push(new GoldDust(mouse.x + (Math.random() - 0.5) * 4, mouse.y + (Math.random() - 0.5) * 4));
+      }
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+    for (let index = particles.length - 1; index >= 0; index -= 1) {
+      const particle = particles[index];
+      particle.update();
+      if (particle.alpha <= 0 || particle.size <= 0.5) {
+        particles.splice(index, 1);
+      } else {
+        particle.draw();
+      }
+    }
+
+    const dx = mouse.targetX - mouse.x;
+    const dy = mouse.targetY - mouse.y;
+    const angle = Math.atan2(dy, dx) + Math.PI / 2;
+    mouse.x += dx * 0.45;
+    mouse.y += dy * 0.45;
+    wingAngle += Math.max(0.04, Math.min(0.18, Math.sqrt(dx * dx + dy * dy) * 0.015));
+
+    if (mouse.targetX !== -100) {
+      drawGoldDragonfly(mouse.x, mouse.y, angle, wingAngle);
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("mousemove", handleMouseMove);
+  window.addEventListener("pagehide", () => cancelAnimationFrame(rafId), { once: true });
+  resizeCanvas();
+  animate();
 }
 
 function selectSong(songId) {
