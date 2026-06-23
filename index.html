@@ -1,66 +1,96 @@
 <!doctype html>
 <html lang="zh-CN">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E49LJ5T1V6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-E49LJ5T1V6');
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>vibe-coding</title>
+    <title>音乐剧歌词合集</title>
     <style>
       :root {
         color-scheme: dark;
-        --bg: #15110a;
-        --panel: #21190e;
-        --line: rgba(237, 214, 153, 0.28);
-        --ink: #fff7df;
-        --muted: #cbb985;
-        --gold: #f2d88d;
+        --bg: #14100b;
+        --panel: rgba(255, 255, 255, 0.055);
+        --line: rgba(235, 205, 140, 0.22);
+        --text: #f6efe0;
+        --muted: rgba(246, 239, 224, 0.66);
+        --accent: #d7b464;
       }
-      * { box-sizing: border-box; }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        min-height: 100vh;
         margin: 0;
+        min-height: 100vh;
         background:
-          linear-gradient(120deg, rgba(0, 0, 0, 0.42), transparent 42%),
-          var(--bg);
-        color: var(--ink);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+          radial-gradient(circle at 16% 12%, rgba(215, 180, 100, 0.16), transparent 28%),
+          linear-gradient(135deg, #120d08, #21180f 46%, #100c08);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
+
       main {
-        width: min(920px, calc(100% - 36px));
+        width: min(960px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 72px 0;
+        padding: 56px 0;
       }
+
       h1 {
-        margin: 0 0 10px;
-        font-size: clamp(2rem, 6vw, 4.5rem);
-        letter-spacing: 0.02em;
+        margin: 0;
+        color: var(--accent);
+        font-family: "Songti SC", "Noto Serif CJK SC", serif;
+        font-size: clamp(2.2rem, 7vw, 4.8rem);
+        line-height: 1.05;
+        letter-spacing: 0.08em;
       }
+
       .intro {
-        margin: 0 0 32px;
+        margin: 18px 0 34px;
         color: var(--muted);
-        font-size: 1.05rem;
+        font-size: 1rem;
+        line-height: 1.8;
       }
-      .grid {
+
+      .collection {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 14px;
       }
-      a.card {
-        display: block;
-        min-height: 130px;
+
+      .card {
+        display: grid;
+        gap: 8px;
         padding: 22px;
         border: 1px solid var(--line);
         border-radius: 10px;
-        background: rgba(255, 255, 255, 0.035);
         color: inherit;
+        background: var(--panel);
         text-decoration: none;
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
       }
-      a.card:hover { border-color: rgba(242, 216, 141, 0.7); }
+
+      .card:hover,
+      .card:focus-visible {
+        transform: translateY(-2px);
+        border-color: rgba(215, 180, 100, 0.58);
+        background: rgba(255, 255, 255, 0.08);
+        outline: none;
+      }
+
       .card strong {
-        display: block;
-        margin-bottom: 10px;
-        color: var(--gold);
-        font-size: 1.45rem;
+        font-family: "Songti SC", "Noto Serif CJK SC", serif;
+        font-size: 1.35rem;
+        letter-spacing: 0.06em;
       }
+
       .card span {
         color: var(--muted);
         line-height: 1.6;
@@ -69,12 +99,13 @@
   </head>
   <body>
     <main>
-      <h1>vibe-coding</h1>
-      <p class="intro">本地音乐剧歌词学习页面合集。</p>
-      <section class="grid" aria-label="页面列表">
-        <a class="card" href="./dazhuangwang/">
+      <h1>音乐剧歌词合集</h1>
+      <p class="intro">为音乐剧歌词学习整理的阅读、对照与发音页面。</p>
+
+      <section class="collection" aria-label="音乐剧列表">
+        <a class="card" href="dazhuangwang/">
           <strong>大状王</strong>
-          <span>粤语歌词、粤拼对照与词汇释义。</span>
+          <span>粤语歌词、粤拼对照与逐句朗读。</span>
         </a>
       </section>
     </main>
