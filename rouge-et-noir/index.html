@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E49LJ5T1V6"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-E49LJ5T1V6');
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Le Rouge et le Noir</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas class="rouge-cursor" id="rougeCursor" aria-hidden="true" hidden></canvas>
+
+    <div class="stage-shell">
+      <header class="topbar">
+        <div>
+          <p class="app-kicker">Le Rouge et le Noir, l'Opéra Rock</p>
+        </div>
+        <div class="topbar-tools">
+          <section class="controls" aria-label="显示设置">
+            <button class="toggle is-active" type="button" data-toggle="showZh" aria-pressed="true">
+              中文
+            </button>
+            <button class="toggle" type="button" data-toggle="showEn" aria-pressed="false">
+              English
+            </button>
+            <button class="toggle" type="button" data-toggle="showAnalysis" aria-pressed="false">
+              解析
+            </button>
+            <button class="toggle" type="button" data-toggle="showPhonetics" aria-pressed="false">
+              音标
+            </button>
+          </section>
+        </div>
+      </header>
+
+      <div class="app-layout">
+        <aside class="song-sidebar" aria-label="歌曲导航">
+          <div class="sidebar-section">
+            <div class="sidebar-heading">
+              <h2>歌曲列表</h2>
+              <button class="sidebar-toggle sidebar-toggle-compact" type="button" data-sidebar-toggle aria-expanded="true">
+                收起
+              </button>
+            </div>
+            <nav class="song-nav" id="songNav"></nav>
+          </div>
+        </aside>
+
+        <main class="content-shell">
+          <label class="mobile-song-picker" for="songSelect">
+            <span>选择歌曲</span>
+            <select id="songSelect"></select>
+          </label>
+
+          <header class="hero">
+            <div class="hero-copy">
+              <h1 id="currentSongTitle"></h1>
+              <p class="title-translation" id="currentSongZhTitle"></p>
+              <p class="story-position" id="storyPosition"></p>
+            </div>
+          </header>
+
+          <div class="main-grid">
+            <section class="lyrics-column" aria-label="歌词列表">
+              <div class="list-status" id="listStatus"></div>
+              <div class="lyrics-list" id="lyricsList"></div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部" hidden>
+      ↑
+    </button>
+
+    <script src="songs.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
