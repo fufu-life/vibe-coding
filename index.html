@@ -91,6 +91,21 @@
         letter-spacing: 0.06em;
       }
 
+      .card-title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 8px;
+      }
+
+      .reference-note {
+        color: #fff;
+        font-size: 0.76rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        opacity: 0.82;
+      }
+
       .card span {
         color: var(--muted);
         line-height: 1.6;
@@ -104,11 +119,17 @@
 
       <section class="collection" aria-label="音乐剧列表">
         <a class="card" href="dazhuangwang/">
-          <strong>大状王</strong>
+          <div class="card-title">
+            <strong>大状王</strong>
+            <span class="reference-note">内容仅供参考</span>
+          </div>
           <span>粤语歌词、粤拼对照与逐句朗读。</span>
         </a>
         <a class="card" href="rouge-et-noir/">
-          <strong>摇滚红与黑</strong>
+          <div class="card-title">
+            <strong>摇滚红与黑</strong>
+            <span class="reference-note">内容仅供参考</span>
+          </div>
           <span>法语歌词、中英对照、音标解析与本地法语发音。</span>
         </a>
       </section>

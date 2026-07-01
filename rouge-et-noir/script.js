@@ -411,6 +411,14 @@ const songTransition = {
   settleTimer: null,
 };
 
+const analyticsState = {
+  activeSongId: "",
+  lastTrackedSongId: "",
+  stayTimer: 0,
+  stayTracked: false,
+  scrollTracked: false,
+};
+
 init();
 
 function init() {
@@ -422,6 +430,7 @@ function init() {
   bindHashChange();
   bindPopupDismissal();
   bindBackToTop();
+  bindAnalyticsLifecycle();
   bindRougeCursor();
   updateSidebarState();
   renderCurrentSong();
@@ -468,6 +477,7 @@ function bindControls() {
   refs.toggleButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.toggle;
+      const previousMode = getCurrentDisplayMode();
       appState.settings[key] = !appState.settings[key];
 
       if (key === "showAnalysis") {
@@ -481,6 +491,7 @@ function bindControls() {
       saveSettings();
       updateViewSettings();
       renderCurrentSong();
+      trackDisplayToggle(key, previousMode);
     });
   });
 }
@@ -631,6 +642,7 @@ function renderCurrentSong() {
   refs.storyPosition.textContent = currentSong.storyPosition || "";
 
   renderLyrics(currentSong);
+  enterAnalyticsSong(currentSong);
 }
 
 function renderCurrentSongWithTransition() {
@@ -721,7 +733,11 @@ function renderLyricLine(song, line) {
     if (!didSpeak) {
       sentenceSpeakButton.title = "未找到法语语音";
       sentenceSpeakButton.disabled = true;
+      trackAudioPlayError(song, line, lineNumber, "line", new Error("No French line audio found"));
+      return;
     }
+
+    trackAudioPlay(song, line, lineNumber, "line", line.fr);
   });
   fr.append(document.createTextNode(" "), sentenceSpeakButton);
 
@@ -849,17 +865,21 @@ function toggleExpanded(lineId) {
   }
 
   if (appState.settings.showAnalysis) {
+    trackLineDetailToggle(song, lineId, "analysis", false, "global_override");
     disableGlobalAnalysisForLine(song, lineId);
     return;
   }
 
   const key = expandedKey(song.id, lineId);
+  let isExpanded = false;
   if (appState.expanded.has(key)) {
     appState.expanded.delete(key);
   } else {
     appState.expanded.add(key);
+    isExpanded = true;
   }
 
+  trackLineDetailToggle(song, lineId, "analysis", isExpanded, "line");
   renderCurrentSong();
 }
 
@@ -870,17 +890,21 @@ function togglePhonetics(lineId) {
   }
 
   if (appState.settings.showPhonetics) {
+    trackLineDetailToggle(song, lineId, "phonetics", false, "global_override");
     disableGlobalPhoneticsForLine(song, lineId);
     return;
   }
 
   const key = expandedKey(song.id, lineId);
+  let isExpanded = false;
   if (appState.expandedPhonetics.has(key)) {
     appState.expandedPhonetics.delete(key);
   } else {
     appState.expandedPhonetics.add(key);
+    isExpanded = true;
   }
 
+  trackLineDetailToggle(song, lineId, "phonetics", isExpanded, "line");
   renderCurrentSong();
 }
 
@@ -1329,6 +1353,211 @@ function bindBackToTop() {
   updateBackToTop();
 }
 
+function bindAnalyticsLifecycle() {
+  window.addEventListener("scroll", checkSongScrollDepth, { passive: true });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      clearSongStayTimer();
+      return;
+    }
+
+    startSongStayTimer(getCurrentSong());
+  });
+}
+
+function getViewportType() {
+  if (window.matchMedia("(max-width: 700px)").matches) {
+    return "mobile";
+  }
+
+  if (window.matchMedia("(max-width: 1024px)").matches) {
+    return "tablet";
+  }
+
+  return "desktop";
+}
+
+function getCurrentDisplayMode() {
+  return [
+    appState.settings.showZh ? "zh" : "",
+    appState.settings.showEn ? "en" : "",
+    appState.settings.showAnalysis ? "analysis" : "",
+    appState.settings.showPhonetics ? "phonetics" : "",
+  ]
+    .filter(Boolean)
+    .join("+") || "fr_only";
+}
+
+function getSongAnalyticsPayload(song) {
+  return {
+    song_id: song?.id || "unknown",
+    song_title: song?.title || "unknown",
+    song_title_zh: song?.zhTitle || song?.titleZh || song?.title || "unknown",
+    song_order: song?.order || 0,
+  };
+}
+
+function trackEvent(eventName, params = {}) {
+  try {
+    ensureGtagQueue();
+
+    const payload = {
+      app_name: "rouge_et_noir_lyrics",
+      page_type: "lyrics_learning",
+      viewport_type: getViewportType(),
+      display_mode: getCurrentDisplayMode(),
+      ...params,
+    };
+
+    window.gtag("event", eventName, payload);
+  } catch (error) {
+    console.debug("[analytics failed]", eventName, error);
+  }
+}
+
+function ensureGtagQueue() {
+  window.dataLayer = window.dataLayer || [];
+
+  if (typeof window.gtag !== "function") {
+    window.gtag = function gtag() {
+      window.dataLayer.push(arguments);
+    };
+  }
+}
+
+function enterAnalyticsSong(song) {
+  if (!song || analyticsState.activeSongId === song.id) {
+    return;
+  }
+
+  clearSongStayTimer();
+  analyticsState.activeSongId = song.id;
+  analyticsState.stayTracked = false;
+  analyticsState.scrollTracked = false;
+
+  if (analyticsState.lastTrackedSongId !== song.id) {
+    trackEvent("song_view", getSongAnalyticsPayload(song));
+    analyticsState.lastTrackedSongId = song.id;
+  }
+
+  startSongStayTimer(song);
+}
+
+function clearSongStayTimer() {
+  if (analyticsState.stayTimer) {
+    window.clearTimeout(analyticsState.stayTimer);
+    analyticsState.stayTimer = 0;
+  }
+}
+
+function startSongStayTimer(song) {
+  clearSongStayTimer();
+  if (!song || analyticsState.stayTracked || document.visibilityState === "hidden") {
+    return;
+  }
+
+  analyticsState.stayTimer = window.setTimeout(() => {
+    analyticsState.stayTimer = 0;
+    if (document.visibilityState === "hidden" || analyticsState.activeSongId !== song.id || analyticsState.stayTracked) {
+      return;
+    }
+
+    analyticsState.stayTracked = true;
+    trackEvent("song_stay_30s", {
+      ...getSongAnalyticsPayload(song),
+      stay_seconds: 30,
+    });
+  }, 30000);
+}
+
+function checkSongScrollDepth() {
+  if (analyticsState.scrollTracked || document.visibilityState === "hidden") {
+    return;
+  }
+
+  const song = getCurrentSong();
+  if (!song || analyticsState.activeSongId !== song.id || !refs.lyricsList) {
+    return;
+  }
+
+  const rect = refs.lyricsList.getBoundingClientRect();
+  const contentHeight = Math.max(refs.lyricsList.scrollHeight, rect.height);
+  if (!contentHeight) {
+    return;
+  }
+
+  const contentTop = rect.top + window.scrollY;
+  const viewportBottom = window.scrollY + window.innerHeight;
+  const progress = ((viewportBottom - contentTop) / contentHeight) * 100;
+  if (progress < 75) {
+    return;
+  }
+
+  analyticsState.scrollTracked = true;
+  trackEvent("song_scroll_75", {
+    ...getSongAnalyticsPayload(song),
+    scroll_percent: 75,
+  });
+}
+
+function trackAudioPlay(song, line, lineIndex, audioType, displayText) {
+  trackEvent("audio_play", {
+    ...getSongAnalyticsPayload(song),
+    audio_type: audioType,
+    line_id: line?.id || "",
+    line_index: lineIndex || 0,
+    text_preview: truncateForAnalytics(displayText, 80),
+  });
+}
+
+function trackAudioPlayError(song, line, lineIndex, audioType, error, displayText = "") {
+  trackEvent("audio_play_error", {
+    ...getSongAnalyticsPayload(song),
+    audio_type: audioType,
+    line_id: line?.id || "",
+    line_index: lineIndex || 0,
+    text_preview: truncateForAnalytics(displayText || line?.fr || "", 80),
+    error_message: truncateForAnalytics(error?.message || String(error || "unknown error"), 120),
+  });
+}
+
+function trackDisplayToggle(key, previousMode) {
+  const song = getCurrentSong();
+  trackEvent("display_toggle", {
+    ...getSongAnalyticsPayload(song),
+    toggle_key: key,
+    enabled: Boolean(appState.settings[key]),
+    previous_mode: previousMode,
+    mode: getCurrentDisplayMode(),
+  });
+}
+
+function trackLineDetailToggle(song, lineId, detailType, expanded, source) {
+  const lineIndex = (song?.lines || []).findIndex((line) => line.id === lineId) + 1;
+  trackEvent("line_detail_toggle", {
+    ...getSongAnalyticsPayload(song),
+    detail_type: detailType,
+    expanded,
+    source,
+    line_id: lineId,
+    line_index: lineIndex,
+  });
+}
+
+function trackWordLookup(song, displayWord, entry) {
+  trackEvent("word_lookup", {
+    ...getSongAnalyticsPayload(song),
+    word: truncateForAnalytics(displayWord, 60),
+    lemma: truncateForAnalytics(entry?.lemma || entry?.fr || displayWord, 60),
+    has_ipa: Boolean(entry?.ipa),
+  });
+}
+
+function truncateForAnalytics(value, maxLength) {
+  const text = String(value || "").trim();
+  return text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
+}
+
 function bindRougeCursor() {
   const canvas = document.querySelector("#rougeCursor");
   const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -1483,6 +1712,7 @@ function bindRougeCursor() {
 function showWordPopup(song, displayWord, key, anchor) {
   const entry = getGlossaryEntry(song, key);
   wordPopup.innerHTML = "";
+  trackWordLookup(song, displayWord, entry);
 
   const popoverHead = document.createElement("div");
   popoverHead.className = "popover-head";
@@ -1517,7 +1747,11 @@ function showWordPopup(song, displayWord, key, anchor) {
     if (!didSpeak) {
       speakButton.title = "未找到法语语音";
       speakButton.disabled = true;
+      trackAudioPlayError(song, null, 0, "word", new Error("No French word audio found"), speakText);
+      return;
     }
+
+    trackAudioPlay(song, null, 0, "word", speakText);
   });
 
   popoverHead.append(title, ipa, speakButton);

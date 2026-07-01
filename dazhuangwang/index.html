@@ -319,6 +319,21 @@ h1 {
   letter-spacing: 0.16em;
 }
 
+.musical-title-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.reference-note {
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  opacity: 0.82;
+}
+
 .lyrics-list {
   display: grid;
   gap: 5px;
@@ -948,8 +963,9 @@ body:not(.js-ready) .app-layout {
 
     <div class="dzw-shell">
       <header class="topbar">
-        <div>
+        <div class="musical-title-line">
           <p class="musical-title">大状王</p>
+          <span class="reference-note">内容仅供参考</span>
         </div>
         <section class="controls" aria-label="显示设置">
           <button class="toggle is-active" type="button" data-toggle="showJyutping" aria-pressed="true">
@@ -1732,8 +1748,8 @@ body:not(.js-ready) .app-layout {
         <div class="static-line">
           <div class="static-singer"></div>
           <div class="static-text">
-            <div class="static-jyutping">jau5 dyun3 gu2 jau5 zaak3 jam6</div>
-            <div class="static-lyric">有断估 有责任</div>
+            <div class="static-jyutping">jau5 dyun3 gu2 mou5 zaak3 jam6</div>
+            <div class="static-lyric">有断估 冇责任</div>
           </div>
         </div>
         <div class="static-line">
@@ -6371,8 +6387,8 @@ body:not(.js-ready) .app-layout {
         <div class="static-line">
           <div class="static-singer"></div>
           <div class="static-text">
-            <div class="static-jyutping">jyun4 loi4 si6 leon4 lok6 zoi6 bin1 jyun4</div>
-            <div class="static-lyric">原来是 沦落在边缘</div>
+            <div class="static-jyutping">jyun4 loi4 si6 leon4 lok6 jan4 zoi6 bin1 jyun4</div>
+            <div class="static-lyric">原来是 沦落人在边缘</div>
           </div>
         </div>
         <div class="static-line">
@@ -11820,9 +11836,9 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "有断估 有责任",
-        "simplified": "有断估 有责任",
-        "jyutping": "jau5 dyun3 gu2 jau5 zaak3 jam6",
+        "text": "有断估 冇责任",
+        "simplified": "有断估 冇责任",
+        "jyutping": "jau5 dyun3 gu2 mou5 zaak3 jam6",
         "audio": "audio/01-申冤/dzw-01-106.wav",
         "analysis": {
           "words": [
@@ -22783,9 +22799,9 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "原来是 沦落在边缘",
-        "simplified": "原来是 沦落在边缘",
-        "jyutping": "jyun4 loi4 si6 leon4 lok6 zoi6 bin1 jyun4",
+        "text": "原来是 沦落人在边缘",
+        "simplified": "原来是 沦落人在边缘",
+        "jyutping": "jyun4 loi4 si6 leon4 lok6 jan4 zoi6 bin1 jyun4",
         "audio": "audio/11-莫对我心软/dzw-11-011.wav",
         "analysis": {
           "words": [],
