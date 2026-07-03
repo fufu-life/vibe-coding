@@ -9,6 +9,8 @@ const defaultSettings = {
   showPhonetics: false,
 };
 
+const correctedLinePhonetics = window.rougeLinePhonetics || {};
+
 const COMMON_WORD_GLOSSARY = {
   a: { ipa: "/a/", en: "has / have", zh: "有；已经", speak: "a" },
   "à": { ipa: "/a/", en: "to / at", zh: "向；在；到", speak: "à" },
@@ -720,7 +722,7 @@ function renderLyricLine(song, line) {
 
   const fr = document.createElement("p");
   fr.className = "fr";
-  fr.append(renderFrenchText(song, line.fr, isPhoneticsExpanded));
+  fr.append(renderFrenchText(song, line.fr, isPhoneticsExpanded, line));
 
   const sentenceSpeakButton = document.createElement("button");
   sentenceSpeakButton.className = "sentence-speak";
@@ -932,10 +934,11 @@ function formatChineseLyric(text) {
   return text.replace(/[。.]+$/u, "");
 }
 
-function renderFrenchText(song, text, showPhonetics) {
+function renderFrenchText(song, text, showPhonetics, line = null) {
   const fragment = document.createDocumentFragment();
   const parts = text.match(/\p{L}+(?:['']\p{L}+)*(?:-\p{L}+)*|[^\p{L}]+/gu) || [text];
   const wordParts = parts.filter((part) => /^\p{L}/u.test(part));
+  const correctedParts = getCorrectedLinePhoneticParts(song, line);
   let wordIndex = 0;
 
   parts.forEach((part) => {
@@ -956,7 +959,7 @@ function renderFrenchText(song, text, showPhonetics) {
       const phonetic = document.createElement("span");
       phonetic.className = "word-phonetic";
       phonetic.hidden = !showPhonetics;
-      phonetic.textContent = buildWordPhonetics(song, part, wordIndex, wordParts.length);
+      phonetic.textContent = buildWordPhonetics(song, part, wordIndex, wordParts.length, correctedParts);
 
       token.append(button, phonetic);
       fragment.append(token);
@@ -967,6 +970,15 @@ function renderFrenchText(song, text, showPhonetics) {
   });
 
   return fragment;
+}
+
+function getCorrectedLinePhoneticParts(song, line) {
+  if (!song || !line) {
+    return null;
+  }
+
+  const entry = correctedLinePhonetics[song.id]?.[line.id];
+  return Array.isArray(entry?.parts) ? entry.parts : null;
 }
 
 function normalizeToken(token) {
@@ -1246,13 +1258,30 @@ function formatIpaForText(song, text) {
   return ipa.length ? ipa.join(" ") : "—";
 }
 
-function buildWordPhonetics(song, text, index, total) {
+function buildWordPhonetics(song, text, index, total, correctedParts = null) {
+  if (Array.isArray(correctedParts) && correctedParts.length) {
+    return formatCorrectedWordPhonetics(correctedParts, index);
+  }
+
   const glossary = buildSongGlossary(song);
   const normalized = normalizeToken(text);
   const entry = findGlossaryEntry(glossary, normalized);
   const ipa = trimIpaSlashes(entry?.ipa || approximateFrenchWordIpa(text));
   const prefix = index === 0 ? "/ " : "";
   const suffix = index === total - 1 ? " /" : "";
+  return `${prefix}${ipa}${suffix}`;
+}
+
+function formatCorrectedWordPhonetics(parts, index) {
+  const ipa = parts[index] || "";
+  if (!ipa) {
+    return "";
+  }
+
+  const first = parts.findIndex(Boolean);
+  const last = parts.reduce((result, part, partIndex) => (part ? partIndex : result), -1);
+  const prefix = index === first ? "/ " : "";
+  const suffix = index === last ? " /" : "";
   return `${prefix}${ipa}${suffix}`;
 }
 
