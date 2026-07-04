@@ -951,9 +951,13 @@ function renderFrenchText(song, text, showPhonetics, line = null) {
       button.className = "lyric-word";
       button.type = "button";
       button.textContent = part;
+      const currentWordIndex = wordIndex;
       button.addEventListener("click", (event) => {
         event.stopPropagation();
-        showWordPopup(song, part, key, button);
+        showWordPopup(song, part, key, button, {
+          correctedParts,
+          wordIndex: currentWordIndex,
+        });
       });
 
       const phonetic = document.createElement("span");
@@ -1283,6 +1287,11 @@ function formatCorrectedWordPhonetics(parts, index) {
   const prefix = index === first ? "/ " : "";
   const suffix = index === last ? " /" : "";
   return `${prefix}${ipa}${suffix}`;
+}
+
+function getCorrectedWordIpa(parts, index) {
+  const ipa = Array.isArray(parts) ? parts[index] : "";
+  return ipa ? `/${trimIpaSlashes(ipa)}/` : "";
 }
 
 function approximateFrenchPhraseIpa(text) {
@@ -1738,10 +1747,12 @@ function bindRougeCursor() {
   animate();
 }
 
-function showWordPopup(song, displayWord, key, anchor) {
+function showWordPopup(song, displayWord, key, anchor, phoneticContext = {}) {
   const entry = getGlossaryEntry(song, key);
+  const correctedIpa = getCorrectedWordIpa(phoneticContext.correctedParts, phoneticContext.wordIndex);
+  const displayEntry = correctedIpa ? { ...entry, ipa: correctedIpa } : entry;
   wordPopup.innerHTML = "";
-  trackWordLookup(song, displayWord, entry);
+  trackWordLookup(song, displayWord, displayEntry);
 
   const popoverHead = document.createElement("div");
   popoverHead.className = "popover-head";
@@ -1752,7 +1763,7 @@ function showWordPopup(song, displayWord, key, anchor) {
 
   const ipa = document.createElement("span");
   ipa.className = "popover-ipa";
-  ipa.textContent = entry.ipa;
+  ipa.textContent = displayEntry.ipa;
 
   const zh = document.createElement("span");
   zh.className = "popover-meaning";
