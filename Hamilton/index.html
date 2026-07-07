@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hamilton 中英歌词</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="effectCanvas" aria-hidden="true"></canvas>
+
+    <div class="app-shell">
+      <aside class="song-sidebar" aria-label="歌曲列表">
+        <div class="sidebar-top">
+          <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="收起歌曲列表" aria-expanded="true">‹</button>
+          <div class="sidebar-title">
+            <strong>Hamilton</strong>
+            <span>歌曲列表</span>
+          </div>
+        </div>
+        <nav class="song-list" id="songList"></nav>
+      </aside>
+
+      <main class="content">
+        <header class="hero">
+          <div class="hero-copy">
+            <p class="musical-name">Hamilton</p>
+            <h1 id="songTitle">Hamilton 中英歌词</h1>
+            <div class="toolbar" aria-label="显示设置">
+              <button class="toggle is-active" type="button" data-toggle="showZh" aria-pressed="true">中文</button>
+              <button class="toggle is-active" type="button" data-toggle="showIpa" aria-pressed="true">音标</button>
+            </div>
+          </div>
+          <img class="hero-mark" src="assets/Hamilton-Logo-1.svg" alt="Hamilton Logo" />
+        </header>
+
+        <label class="mobile-picker" for="songSelect">
+          <span>选择歌曲</span>
+          <select id="songSelect"></select>
+        </label>
+
+        <section class="lyrics" id="lyrics" aria-label="歌词"></section>
+      </main>
+    </div>
+
+    <aside class="word-popover" id="wordPopover" hidden></aside>
+    <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部" hidden>↑</button>
+
+    <script src="songs.js"></script>
+    <script src="lyrics-data.js"></script>
+    <script src="word-data.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

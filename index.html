@@ -16,12 +16,14 @@
     <style>
       :root {
         color-scheme: dark;
-        --bg: #14100b;
-        --panel: rgba(255, 255, 255, 0.055);
-        --line: rgba(235, 205, 140, 0.22);
-        --text: #f6efe0;
-        --muted: rgba(246, 239, 224, 0.66);
-        --accent: #d7b464;
+        --bg: #120f0b;
+        --wood: #2b1a10;
+        --wood-deep: #160d08;
+        --ink: #fbf4e6;
+        --muted: rgba(251, 244, 230, 0.66);
+        --line: rgba(238, 206, 145, 0.22);
+        --gold: #d8b15b;
+        --shadow: rgba(0, 0, 0, 0.38);
       }
 
       * {
@@ -31,107 +33,328 @@
       body {
         margin: 0;
         min-height: 100vh;
-        background:
-          radial-gradient(circle at 16% 12%, rgba(215, 180, 100, 0.16), transparent 28%),
-          linear-gradient(135deg, #120d08, #21180f 46%, #100c08);
-        color: var(--text);
+        color: var(--ink);
         font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 72px 72px,
+          linear-gradient(180deg, #1b130d 0%, #0d0a08 58%, #090706 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(115deg, rgba(216, 177, 91, 0.13), transparent 30%),
+          linear-gradient(245deg, rgba(122, 32, 39, 0.16), transparent 34%);
       }
 
       main {
-        width: min(960px, calc(100% - 32px));
+        position: relative;
+        width: min(1160px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 56px 0;
+        padding: 52px 0 64px;
+      }
+
+      .library-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 28px;
+        align-items: end;
+        padding-bottom: 32px;
       }
 
       h1 {
         margin: 0;
-        color: var(--accent);
-        font-family: "Songti SC", "Noto Serif CJK SC", serif;
-        font-size: clamp(2.2rem, 7vw, 4.8rem);
+        color: var(--gold);
+        font-family: "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+        font-size: clamp(2.1rem, 6vw, 4.7rem);
+        font-weight: 700;
         line-height: 1.05;
         letter-spacing: 0.08em;
       }
 
       .intro {
-        margin: 18px 0 34px;
+        max-width: 620px;
+        margin: 16px 0 0;
         color: var(--muted);
         font-size: 1rem;
         line-height: 1.8;
       }
 
+      .counter {
+        display: grid;
+        justify-items: end;
+        gap: 4px;
+        color: rgba(251, 244, 230, 0.72);
+        font-family: "Songti SC", "Noto Serif CJK SC", serif;
+      }
+
+      .counter strong {
+        color: var(--ink);
+        font-size: 2.4rem;
+        line-height: 1;
+      }
+
+      .display-case {
+        position: relative;
+        padding: 22px 20px 30px;
+        border: 1px solid rgba(216, 177, 91, 0.2);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02)),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 20%, transparent 80%, rgba(255, 255, 255, 0.035)),
+          var(--wood-deep);
+        box-shadow: 0 24px 70px var(--shadow);
+      }
+
+      .display-case::after {
+        content: "";
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 14px;
+        height: 14px;
+        border-radius: 4px;
+        background:
+          linear-gradient(180deg, rgba(255, 232, 181, 0.2), rgba(0, 0, 0, 0.22)),
+          linear-gradient(90deg, #28160c, #5a351d 44%, #2b190e);
+        box-shadow: 0 9px 22px rgba(0, 0, 0, 0.42);
+      }
+
       .collection {
+        position: relative;
+        z-index: 1;
         display: grid;
-        gap: 14px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        align-items: stretch;
       }
 
-      .card {
+      .show-card {
+        --accent: #d8b15b;
+        --accent-soft: rgba(216, 177, 91, 0.16);
         display: grid;
-        gap: 8px;
-        padding: 22px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        grid-template-rows: auto 1fr;
+        min-height: 390px;
+        padding: 14px;
+        border: 1px solid color-mix(in srgb, var(--accent), transparent 58%);
+        border-radius: 8px;
         color: inherit;
-        background: var(--panel);
         text-decoration: none;
-        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+          linear-gradient(145deg, var(--accent-soft), rgba(0, 0, 0, 0.2));
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.24);
+        transform-origin: bottom center;
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
       }
 
-      .card:hover,
-      .card:focus-visible {
-        transform: translateY(-2px);
-        border-color: rgba(215, 180, 100, 0.58);
-        background: rgba(255, 255, 255, 0.08);
+      .show-card:hover,
+      .show-card:focus-visible {
+        transform: translateY(-7px);
+        border-color: color-mix(in srgb, var(--accent), white 10%);
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.34);
         outline: none;
       }
 
-      .card strong {
-        font-family: "Songti SC", "Noto Serif CJK SC", serif;
-        font-size: 1.35rem;
-        letter-spacing: 0.06em;
+      .show-card.rouge {
+        --accent: #bf2437;
+        --accent-soft: rgba(191, 36, 55, 0.18);
       }
 
-      .card-title {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
+      .show-card.hamilton {
+        --accent: #d4af37;
+        --accent-soft: rgba(212, 175, 55, 0.17);
+      }
+
+      .show-card.dzw {
+        --accent: #d7c7a1;
+        --accent-soft: rgba(6, 69, 61, 0.58);
+        --cover-deep: #032f2a;
+        --cover-bright: #06453d;
+      }
+
+      .cover {
+        display: grid;
+        place-items: center;
+        aspect-ratio: 4 / 5;
+        min-height: 220px;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 6px;
+        overflow: hidden;
+        background:
+          linear-gradient(155deg, rgba(255, 255, 255, 0.13), transparent 28%),
+          linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.34)),
+          var(--accent-soft);
+      }
+
+      .show-card.dzw .cover {
+        background:
+          linear-gradient(155deg, rgba(215, 199, 161, 0.16), transparent 30%),
+          repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0 1px, transparent 1px 18px),
+          linear-gradient(180deg, var(--cover-bright), var(--cover-deep));
+      }
+
+      .show-card.dzw .cover-title span,
+      .show-card.dzw .show-meta {
+        text-transform: none;
+      }
+
+      .cover-title {
+        display: grid;
         gap: 8px;
+        justify-items: center;
+        padding: 18px;
+        text-align: center;
+        font-family: "Songti SC", "Noto Serif CJK SC", serif;
       }
 
-      .reference-note {
-        color: #fff;
-        font-size: 0.76rem;
-        font-weight: 500;
-        letter-spacing: 0;
-        opacity: 0.82;
+      .cover-title strong {
+        font-size: clamp(1.7rem, 4vw, 2.5rem);
+        line-height: 1.08;
+        letter-spacing: 0.08em;
       }
 
-      .card span {
+      .cover-title span {
+        color: rgba(251, 244, 230, 0.72);
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .hamilton-logo {
+        width: min(78%, 260px);
+        max-height: 76%;
+        object-fit: contain;
+        filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.34));
+      }
+
+      .show-copy {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+        padding: 18px 4px 4px;
+      }
+
+      .show-copy strong {
+        color: var(--ink);
+        font-family: "Songti SC", "Noto Serif CJK SC", serif;
+        font-size: 1.38rem;
+        line-height: 1.25;
+        letter-spacing: 0.04em;
+      }
+
+      .show-copy p {
+        margin: 0;
         color: var(--muted);
-        line-height: 1.6;
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+
+      .show-meta {
+        color: color-mix(in srgb, var(--accent), white 24%);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 860px) {
+        main {
+          width: min(100% - 24px, 620px);
+          padding: 36px 0 46px;
+        }
+
+        .library-head {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+
+        .counter {
+          justify-items: start;
+        }
+
+        .collection {
+          grid-template-columns: 1fr;
+        }
+
+        .show-card {
+          min-height: 0;
+        }
+
+        .cover {
+          min-height: 190px;
+          aspect-ratio: 16 / 10;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .show-card {
+          transition: none;
+        }
+
+        .show-card:hover,
+        .show-card:focus-visible {
+          transform: none;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>音乐剧歌词合集</h1>
-      <p class="intro">为音乐剧歌词学习整理的阅读、对照与发音页面。</p>
+      <header class="library-head">
+        <div>
+          <h1>音乐剧歌词合集</h1>
+          <p class="intro">一个小型歌词学习书架：逐句对照、音标辅助、单词卡片与本地发音都收在各自剧目里。</p>
+        </div>
+        <div class="counter" aria-label="当前收录剧目数量">
+          <strong>03</strong>
+          <span>shows on shelf</span>
+        </div>
+      </header>
 
-      <section class="collection" aria-label="音乐剧列表">
-        <a class="card" href="dazhuangwang/">
-          <div class="card-title">
-            <strong>大状王</strong>
-            <span class="reference-note">内容仅供参考</span>
-          </div>
-          <span>粤语歌词、粤拼对照与逐句朗读。</span>
-        </a>
-        <a class="card" href="rouge-et-noir/">
-          <div class="card-title">
-            <strong>摇滚红与黑</strong>
-            <span class="reference-note">内容仅供参考</span>
-          </div>
-          <span>法语歌词、中英对照、音标解析与本地法语发音。</span>
-        </a>
+      <section class="display-case" aria-label="音乐剧入口展示柜">
+        <div class="collection">
+          <a class="show-card dzw" href="dazhuangwang/">
+            <div class="cover" aria-hidden="true">
+              <div class="cover-title">
+                <strong>大状王</strong>
+                <span>An impossible trial</span>
+              </div>
+            </div>
+            <div class="show-copy">
+              <span class="show-meta">An impossible trial / 粤语 / 粤拼</span>
+              <strong>大状王</strong>
+              <p>粤语歌词、粤拼对照与逐句发音整理，适合按唱段慢慢练。</p>
+            </div>
+          </a>
+
+          <a class="show-card rouge" href="rouge-et-noir/">
+            <div class="cover" aria-hidden="true">
+              <div class="cover-title">
+                <strong>摇滚<br />红与黑</strong>
+                <span>Le Rouge et le Noir</span>
+              </div>
+            </div>
+            <div class="show-copy">
+              <span class="show-meta">法语 / IPA / 中英对照</span>
+              <strong>摇滚红与黑</strong>
+              <p>法语歌词、中英对照、音标解析与本地法语发音。</p>
+            </div>
+          </a>
+
+          <a class="show-card hamilton" href="Hamilton/">
+            <div class="cover" aria-hidden="true">
+              <img class="hamilton-logo" src="Hamilton/assets/Hamilton-Logo-1.svg" alt="" />
+            </div>
+            <div class="show-copy">
+              <span class="show-meta">英语 / IPA / 中文对照</span>
+              <strong>Hamilton</strong>
+              <p>汉密尔顿全剧歌词学习页，包含单词释义、音标切换与本地发音。</p>
+            </div>
+          </a>
+        </div>
       </section>
     </main>
   </body>
