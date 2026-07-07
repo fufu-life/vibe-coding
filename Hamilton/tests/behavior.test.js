@@ -32,6 +32,11 @@ test("phonetics have a toolbar toggle matching the Chinese toggle behavior", () 
   assert.match(scriptJs, /ipa\.hidden\s*=\s*!state\.settings\.showIpa/);
 });
 
+test("page includes the shared Google Analytics tag", () => {
+  assert.match(indexHtml, /https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-E49LJ5T1V6/);
+  assert.match(indexHtml, /gtag\('config', 'G-E49LJ5T1V6'\)/);
+});
+
 test("hero logo uses the transparent svg asset", () => {
   assert.match(indexHtml, /class="hero-mark" src="assets\/Hamilton-Logo-1\.svg"/);
   assert.doesNotMatch(indexHtml, /Hamilton-Logo\.jpg/);
