@@ -166,10 +166,12 @@ body.about-modal-open {
 
 .about-dialog {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: min(720px, 100%);
   max-height: calc(100vh - 40px);
-  overflow: auto;
-  padding: 26px;
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 18px;
   color: var(--ink);
@@ -177,8 +179,18 @@ body.about-modal-open {
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
 }
 
+.about-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 26px 16px;
+  background: var(--bg-deep);
+}
+
 .about-dialog h2 {
-  margin: 0 42px 20px 0;
+  margin: 0;
   color: var(--accent);
   font-family: var(--font-song);
   font-size: 1.4rem;
@@ -186,9 +198,7 @@ body.about-modal-open {
 }
 
 .about-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
+  flex: 0 0 auto;
   display: grid;
   place-items: center;
   width: 36px;
@@ -213,6 +223,10 @@ body.about-modal-open {
 
 .about-content {
   display: grid;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 26px 26px;
   gap: 11px;
   color: rgba(246, 244, 234, 0.9);
   font-size: 0.92rem;
@@ -517,6 +531,23 @@ body.about-modal-open {
   line-height: 1.62;
 }
 
+.annotation-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.annotation-toggle-bottom {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
 .annotation-item {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
@@ -566,6 +597,10 @@ body.about-modal-open {
 }
 
 .song-annotations.is-collapsed .annotation-list {
+  display: none;
+}
+
+.song-annotations.is-collapsed .annotation-footer {
   display: none;
 }
 
@@ -1142,8 +1177,16 @@ h1 {
 
   .about-dialog {
     max-height: calc(100vh - 24px);
-    padding: 20px;
+    max-height: calc(100dvh - 24px);
     border-radius: 16px;
+  }
+
+  .about-header {
+    padding: 16px 20px 14px;
+  }
+
+  .about-content {
+    padding: 0 20px 20px;
   }
 
   .singer {
@@ -1325,11 +1368,13 @@ body:not(.js-ready) .app-layout {
     <aside class="word-popover" id="wordPopover" hidden></aside>
     <div class="about-overlay" id="aboutOverlay" hidden>
       <section class="about-dialog" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
-        <button class="about-close" id="aboutClose" type="button" aria-label="关闭关于弹窗">×</button>
-        <h2 id="aboutTitle">关于</h2>
+        <header class="about-header">
+          <h2 id="aboutTitle">关于</h2>
+          <button class="about-close" id="aboutClose" type="button" aria-label="关闭关于弹窗">×</button>
+        </header>
         <div class="about-content">
           <p>歌词来源：<a href="https://www.westk.hk/tc/performing-arts/house-programmes/the-impossible-trial" target="_blank" rel="noopener noreferrer">《大状王》场刊</a></p>
-          <p>内容整理与网页制作：<a href="https://xhslink.com/m/3Daf2cCrRFx" target="_blank" rel="noopener noreferrer">阿浮</a></p>
+          <p>内容整理与网页制作：<a href="https://xhslink.com/m/3Daf2cCrRFx" target="_blank" rel="noopener noreferrer">阿浮在剧院</a></p>
           <p>粤拼校对：<a href="https://xhslink.com/m/6LcXtrmWzER" target="_blank" rel="noopener noreferrer">晨小魚Vega Chan</a></p>
           <p>注释及典故：<a href="https://xhslink.com/m/6LcXtrmWzER" target="_blank" rel="noopener noreferrer">晨小魚Vega Chan</a>、<a href="https://xhslink.com/m/6T6gOmMV9QF" target="_blank" rel="noopener noreferrer">鱼冻</a></p>
           <p>友情链接：鱼冻老师的<a href="https://bcn3wq3y5frs.feishu.cn/wiki/space/7660416182926789820" target="_blank" rel="noopener noreferrer">粤语歌词本</a></p>
@@ -1338,7 +1383,7 @@ body:not(.js-ready) .app-layout {
           <p>本作品的著作权及相关知识产权完全归属于原作者岑偉宗先生及其版权方香港話劇團所有。</p>
 
           <p class="about-section-title">性质说明</p>
-          <p>粤拼标注及网站由阿浮基于个人兴趣制作。</p>
+          <p>粤拼标注及网站由<a href="https://xhslink.com/m/3Daf2cCrRFx" target="_blank" rel="noopener noreferrer">阿浮在剧院</a>基于个人兴趣制作。</p>
 
           <p class="about-section-title">目的与使用限制</p>
           <ol>
@@ -34399,6 +34444,11 @@ function renderSongAnnotations(song) {
   const collapsed = state.collapsedAnnotations[song.id] !== false;
   refs.songAnnotations.classList.toggle("is-collapsed", collapsed);
 
+  const toggleAnnotations = () => {
+    state.collapsedAnnotations[song.id] = !collapsed;
+    renderSongAnnotations(song);
+  };
+
   const head = document.createElement("div");
   head.className = "annotation-head";
 
@@ -34411,10 +34461,7 @@ function renderSongAnnotations(song) {
   toggle.type = "button";
   toggle.textContent = collapsed ? "展开" : "收起";
   toggle.setAttribute("aria-expanded", String(!collapsed));
-  toggle.addEventListener("click", () => {
-    state.collapsedAnnotations[song.id] = !collapsed;
-    renderSongAnnotations(song);
-  });
+  toggle.addEventListener("click", toggleAnnotations);
 
   head.append(title, toggle);
 
@@ -34458,7 +34505,19 @@ function renderSongAnnotations(song) {
     list.append(item);
   });
 
-  refs.songAnnotations.append(head, summary, list);
+  const footer = document.createElement("div");
+  footer.className = "annotation-footer";
+
+  const bottomToggle = document.createElement("button");
+  bottomToggle.className = "annotation-toggle annotation-toggle-bottom";
+  bottomToggle.type = "button";
+  bottomToggle.textContent = "↑";
+  bottomToggle.setAttribute("aria-label", "收起本首注释");
+  bottomToggle.setAttribute("aria-expanded", "true");
+  bottomToggle.addEventListener("click", toggleAnnotations);
+  footer.append(bottomToggle);
+
+  refs.songAnnotations.append(head, summary, list, footer);
 }
 
 function jumpToAnnotationLine(lineId) {

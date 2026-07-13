@@ -122,12 +122,21 @@ test("dazhuangwang header orders jyutping, feedback, and about controls", () => 
   assert.match(page, /id="aboutOverlay"[\s\S]*role="dialog"/);
   assert.match(page, /《大状王》场刊/);
   assert.match(page, /https:\/\/xhslink\.com\/m\/3Daf2cCrRFx/);
+  assert.match(page, /内容整理与网页制作：[\s\S]*>阿浮在剧院<\/a>/);
+  assert.match(page, /粤拼标注及网站由<a[^>]+3Daf2cCrRFx[^>]*>阿浮在剧院<\/a>基于个人兴趣制作/);
   assert.match(page, /https:\/\/xhslink\.com\/m\/6LcXtrmWzER/);
   assert.match(page, /https:\/\/xhslink\.com\/m\/6T6gOmMV9QF/);
   assert.doesNotMatch(page, />晨小魚<\/a>/);
   assert.match(page, /粤拼校对：[\s\S]*晨小魚Vega Chan<\/a>/);
   assert.match(page, /注释及典故：[\s\S]*晨小魚Vega Chan<\/a>、<a[^>]+6T6gOmMV9QF[^>]*>鱼冻<\/a>/);
   assert.match(page, /https:\/\/bcn3wq3y5frs\.feishu\.cn\/wiki\/space\/7660416182926789820/);
+});
+
+test("dazhuangwang about dialog keeps its close button visible on mobile", () => {
+  const page = fs.readFileSync(path.resolve(__dirname, "../../dazhuangwang/index.html"), "utf8");
+  assert.match(page, /class="about-header"[\s\S]*id="aboutClose"/);
+  assert.match(page, /\.about-dialog\s*\{[\s\S]*max-height:\s*calc\(100dvh - 40px\)[\s\S]*overflow:\s*hidden/);
+  assert.match(page, /\.about-content\s*\{[\s\S]*overflow-y:\s*auto/);
 });
 
 test("dazhuangwang renders collapsible song-level annotations above lyrics", () => {
@@ -161,4 +170,14 @@ test("dazhuangwang renders collapsible song-level annotations above lyrics", () 
     assert.ok(annotation, `M${String(order).padStart(2, "0")} 本首注释缺少 ${term}`);
     assert.match(annotation.meaning, new RegExp(meaningFragment));
   });
+});
+
+test("dazhuangwang renders a second annotation collapse control below the list", () => {
+  const page = fs.readFileSync(path.resolve(__dirname, "../../dazhuangwang/index.html"), "utf8");
+  assert.match(page, /bottomToggle\.className = "annotation-toggle annotation-toggle-bottom"/);
+  assert.match(page, /bottomToggle\.textContent = "↑"/);
+  assert.match(page, /bottomToggle\.setAttribute\("aria-label", "收起本首注释"\)/);
+  assert.match(page, /bottomToggle\.addEventListener\("click", toggleAnnotations\)/);
+  assert.match(page, /refs\.songAnnotations\.append\(head, summary, list, footer\)/);
+  assert.match(page, /\.song-annotations\.is-collapsed \.annotation-footer\s*\{\s*display:\s*none/);
 });
