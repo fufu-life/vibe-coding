@@ -34952,7 +34952,10 @@ function showWordPopover(word, anchor) {
   refs.wordPopover.innerHTML = "";
 
   const title = document.createElement("strong");
-  title.textContent = word.term;
+  const visibleWord = [...anchor.closest(".token-wrap").querySelectorAll(`[data-word-id="${anchor.dataset.wordId}"] .char-core`)]
+    .map((item) => item.textContent)
+    .join("");
+  title.textContent = visibleWord || word.term;
 
   const meaning = document.createElement("p");
   meaning.textContent = word.meaning;

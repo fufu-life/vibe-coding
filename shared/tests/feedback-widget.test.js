@@ -181,3 +181,9 @@ test("dazhuangwang renders a second annotation collapse control below the list",
   assert.match(page, /refs\.songAnnotations\.append\(head, summary, list, footer\)/);
   assert.match(page, /\.song-annotations\.is-collapsed \.annotation-footer\s*\{\s*display:\s*none/);
 });
+
+test("dazhuangwang word cards use the currently visible simplified or traditional term", () => {
+  const page = fs.readFileSync(path.resolve(__dirname, "../../dazhuangwang/index.html"), "utf8");
+  assert.match(page, /const visibleWord = \[\.\.\.anchor\.closest\("\.token-wrap"\)\.querySelectorAll/);
+  assert.match(page, /title\.textContent = visibleWord \|\| word\.term/);
+});
