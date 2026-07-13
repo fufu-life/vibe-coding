@@ -531,6 +531,9 @@ body.about-modal-open {
 
 .annotation-term.is-jump-link {
   cursor: pointer;
+}
+
+.annotation-term.is-jump-link .annotation-term-text {
   text-decoration: underline;
   text-decoration-color: rgba(227, 213, 170, 0.38);
   text-underline-offset: 0.18em;
@@ -540,6 +543,10 @@ body.about-modal-open {
 .annotation-term.is-jump-link:focus-visible {
   color: #fff4cf;
   outline: none;
+}
+
+.annotation-term.is-jump-link:hover .annotation-term-text,
+.annotation-term.is-jump-link:focus-visible .annotation-term-text {
   text-decoration-color: currentColor;
 }
 
@@ -14674,7 +14681,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "输官司会闹我 收監梗会恨我",
-        "simplified": "输官司会闹我，收监梗会恨我",
+        "simplified": "输官司会闹我 收监梗会恨我",
         "jyutping": "syu1 gun1 si1 wui5 naau6 ngo5 sau1 gaam1 gang2 wui5 han6 ngo5",
         "audio": "audio/02-菩提达摩/dzw-02-001.wav",
         "analysis": {
@@ -34424,7 +34431,10 @@ function renderSongAnnotations(song) {
 
     const term = document.createElement("dt");
     term.className = "annotation-term";
-    term.textContent = annotation.term;
+    const termText = document.createElement("span");
+    termText.className = "annotation-term-text";
+    termText.textContent = annotation.term;
+    term.append(termText);
     if (annotation.lineId) {
       term.classList.add("is-jump-link");
       term.tabIndex = 0;
@@ -35122,17 +35132,19 @@ function truncateForAnalytics(value, maxLength) {
     </script>
     <script src="../shared/feedback-widget.js"></script>
     <script>
-      window.MusicalFeedback.mount({
-        id: "dazhuangwang",
-        siteName: "大状王歌词粤拼",
-        recipient: "fulife@agent.qq.com",
-        trigger: "#feedbackButton",
-        songs: (window.dazhuangwangSongs || []).map((song) => ({
-          value: song.id,
-          label: `${song.order}. ${song.title}`,
-        })),
-        getCurrentSongId: () => (typeof getCurrentSong === "function" ? getCurrentSong()?.id : undefined),
-      });
+      if (window.MusicalFeedback) {
+        window.MusicalFeedback.mount({
+          id: "dazhuangwang",
+          siteName: "大状王歌词粤拼",
+          recipient: "fulife@agent.qq.com",
+          trigger: "#feedbackButton",
+          songs: (window.dazhuangwangSongs || []).map((song) => ({
+            value: song.id,
+            label: `${song.order}. ${song.title}`,
+          })),
+          getCurrentSongId: () => (typeof getCurrentSong === "function" ? getCurrentSong()?.id : undefined),
+        });
+      }
 
       (() => {
         const aboutButton = document.getElementById("aboutButton");
