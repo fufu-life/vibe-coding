@@ -1043,8 +1043,10 @@ h1 {
     font-size: 0.8rem;
   }
 
-  .app-layout {
-    grid-template-columns: 1fr;
+  .app-layout,
+  .app-layout.is-sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
   }
 
   .song-sidebar {
@@ -10661,13 +10663,13 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-004",
-        "singer": "群眾",
-        "showSinger": true,
+        "singer": "黎氏",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "呀…呀…呀…呀…呀",
-        "simplified": "呀…呀…呀…呀…呀",
-        "jyutping": "aa3…aa3…aa3…aa3…aa3",
+        "text": "呀呀呀…呀…呀…呀…呀…",
+        "simplified": "呀呀呀…呀…呀…呀…呀…",
+        "jyutping": "aa3 aa3 aa3…aa3…aa3…aa3…aa3",
         "audio": "audio/01-申冤/dzw-01-004.wav",
         "analysis": {
           "words": [],
@@ -11140,9 +11142,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "馬富惡行 放過佢就聼當衰",
-        "simplified": "马富恶行 放过佢就听当衰",
-        "jyutping": "maa5 fu3 ok3 hang4 fong3 gwo3 keoi5 zau6  ting3 dong1 seoi1",
+        "text": "馬富惡行 放過佢就等當衰",
+        "simplified": "马富恶行 放过佢就等当衰",
+        "jyutping": "maa5 fu3 ok3 hang4 fong3 gwo3 keoi5 zau6 dang2 dong1 seoi1",
         "audio": "audio/01-申冤/dzw-01-029.wav",
         "analysis": {
           "words": [
@@ -11421,8 +11423,8 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "一個丫環 半夜會淚滿眶（眾：眶）",
-        "simplified": "一个丫环 半夜会泪满眶（众：眶）",
+        "text": "一個丫嬛 半夜會淚滿眶（眾：眶）",
+        "simplified": "一个丫嬛 半夜会泪满眶（众：眶）",
         "jyutping": "jat1 go3 aa1 waan4 bun3 je6 wui5 leoi6 mun5 hong1 (hong1)",
         "audio": "audio/01-申冤/dzw-01-045.wav",
         "analysis": {
@@ -11611,7 +11613,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-057",
-        "singer": "群眾甲",
+        "singer": "群眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -11631,8 +11633,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-058",
-        "singer": "群眾乙",
-        "showSinger": true,
+        "singer": "群眾",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "馬富惡毒 我要佢呀 墊屍底",
@@ -11839,7 +11841,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "方方方呀 状狀狀呀",
-        "simplified": "方方方呀 状狀狀呀",
+        "simplified": "方方方呀 状状状呀",
         "jyutping": "fong1 fong1 fong1 aa3 zong6 zong6 zong6 aa3",
         "audio": "audio/01-申冤/dzw-01-070.wav",
         "analysis": {
@@ -11854,7 +11856,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "方方方呀 状狀狀呀",
-        "simplified": "方方方呀 状狀狀呀",
+        "simplified": "方方方呀 状状状呀",
         "jyutping": "fong1 fong1 fong1 aa3 zong6 zong6 zong6 aa3",
         "audio": "audio/01-申冤/dzw-01-071.wav",
         "analysis": {
@@ -12401,7 +12403,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "係囉，你有咩就問啦！",
-        "simplified": "系囉，你有咩就问啦！",
+        "simplified": "系啰，你有咩就问啦！",
         "jyutping": "hai6 lo1 nei5 jau5 me1 zau6 man6 laa1",
         "audio": "audio/01-申冤/dzw-01-106.wav",
         "analysis": {
@@ -12417,7 +12419,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "天咁黑佢焉望到人",
+        "text": "天咁黑佢焉會望到人",
         "simplified": "天咁黑佢焉会望到人",
         "jyutping": "tin1 gam3 haak1 keoi5 bin1 wui5 mong6 dou3 jan4",
         "audio": "audio/01-申冤/dzw-01-107.wav",
@@ -12432,7 +12434,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "天咁黑佢焉望到人",
+        "text": "天咁黑佢焉會望到人",
         "simplified": "天咁黑佢焉会望到人",
         "jyutping": "tin1 gam3 haak1 keoi5 bin1 wui5 mong6 dou3 jan4",
         "audio": "audio/01-申冤/dzw-01-108.wav",
@@ -12518,8 +12520,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-114",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "張千",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "馬富確係 殺李四絕冇冤戾",
@@ -12541,7 +12543,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-01-115",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "馬富臂上 刺有駿馬耀武生威",
@@ -12592,8 +12594,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-118",
-        "singer": "張千",
-        "showSinger": false,
+        "singer": "方唐鏡",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "錯喇係",
@@ -12610,7 +12612,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-01-119",
         "singer": "張千",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "記錯係",
@@ -12761,7 +12763,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "而家應該搵受害嘅阿香 前嚟問個偽與真",
-        "simplified": "而家应该搵受害嘅阿香 前来问个伪与真",
+        "simplified": "而家应该揾受害嘅阿香 前来问个伪与真",
         "jyutping": "ji4 gaa1 jing1 goi1 wan2 sau6 hoi6 ge3 aa3 hoeng1 cin4 loi4 man6 go3 ngai6 jyu5 zan1",
         "audio": "audio/01-申冤/dzw-01-126.wav",
         "analysis": {
@@ -12793,8 +12795,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-128",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "何淡如",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "為個凶手要治罪",
@@ -12808,7 +12810,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-129",
-        "singer": "何淡如",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -12829,7 +12831,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-01-130",
         "singer": "何淡如",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "預備等認罪",
@@ -13042,7 +13044,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "周素香作嘔作悶嚼想",
+        "text": "周素香作嘔作悶噃想",
         "simplified": "周素香作呕作闷噃想",
         "jyutping": "zau1 sou3 hoeng1 zok3 au2 zok3 mun6 bo3 soeng2",
         "audio": "audio/01-申冤/dzw-01-143.wav",
@@ -13068,7 +13070,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-145",
-        "singer": "聲音 方唐鏡",
+        "singer": "聲音、鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13226,9 +13228,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "唔會係喜脈嘛！",
-        "simplified": "唔会系喜脉嘛!",
-        "jyutping": "m4 wui5 hai6 hei2 mak6 maa5",
+        "text": "唔會係喜脈啩！",
+        "simplified": "唔会系喜脉啩！",
+        "jyutping": "m4 wui5 hai6 hei2 mak6 gwaa3",
         "audio": "audio/01-申冤/dzw-01-155.wav",
         "analysis": {
           "words": [],
@@ -13287,8 +13289,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-159",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "說書人",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "如果有喜 難避免顧忌",
@@ -13303,12 +13305,12 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-01-160",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "懷胎 趁機",
-        "simplified": "怀胎 趁机",
-        "jyutping": "waai4 toi1 can3 gei1",
+        "text": "懷胎 緣起 從實招供 趁機",
+        "simplified": "怀胎 缘起 从实招供 趁机",
+        "jyutping": "waai4 toi1 jyun4 hei2 cung4 sat6 ziu1 gung1 can3 gei1",
         "audio": "audio/01-申冤/dzw-01-160.wav",
         "analysis": {
           "words": [],
@@ -13317,7 +13319,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-161",
-        "singer": "聲音",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13362,7 +13364,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-164",
-        "singer": "聲音",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13397,7 +13399,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-166",
-        "singer": "聲音",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13452,7 +13454,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-169",
-        "singer": "聲音",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13651,8 +13653,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-181",
-        "singer": "周素香",
-        "showSinger": false,
+        "singer": "何淡如",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "想作嘔 怕係你起勢迫埋牆",
@@ -13683,8 +13685,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-183",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "方、何",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "憑住證供來見真章",
@@ -13704,7 +13706,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-184",
-        "singer": "方唐鏡 何淡如",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13719,7 +13721,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-185",
-        "singer": "群眾",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13734,7 +13736,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-186",
-        "singer": "方唐鏡 何淡如",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13754,7 +13756,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-187",
-        "singer": "群眾",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13769,7 +13771,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-188",
-        "singer": "方唐鏡 何淡如",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13784,7 +13786,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-189",
-        "singer": "群眾",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13799,7 +13801,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-190",
-        "singer": "方唐鏡 何淡如",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13816,7 +13818,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-191",
-        "singer": "方唐鏡 何淡如",
+        "singer": "方唐鏡",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -13831,7 +13833,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-192",
-        "singer": "群眾",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -13846,7 +13848,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-01-193",
-        "singer": "方唐鏡 何淡如",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -14013,9 +14015,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "認 認 認 認 認 認",
-        "simplified": "认 认 认 认 认 认",
-        "jyutping": "jing6 jing6 jing6 jing6 jing6 jing6",
+        "text": "認 認 認 認 認",
+        "simplified": "认 认 认 认 认",
+        "jyutping": "jing6 jing6 jing6 jing6 jing6",
         "audio": "audio/01-申冤/dzw-01-203.wav",
         "analysis": {
           "words": [],
@@ -14791,7 +14793,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "自然係鬥钱多 有钱睬你就傻",
+        "text": "自然係鬥錢多 冇錢睬你就傻",
         "simplified": "自然系斗钱多 冇钱睬你就傻",
         "jyutping": "zi6 jin4 hai6 dau3 cin2 do1 mou5 cin2 coi2 nei5 zau6 so4",
         "audio": "audio/02-菩提达摩/dzw-02-005.wav",
@@ -15000,7 +15002,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "萬都加持",
+        "text": "萬法都加持",
         "simplified": "万法都加持",
         "jyutping": "maan6 faat3 dou1 gaa1 ci4",
         "audio": "audio/02-菩提达摩/dzw-02-016.wav",
@@ -15185,7 +15187,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "摺扇攤開上阵 破破破",
-        "simplified": "摺扇摊开上阵 破破破",
+        "simplified": "折扇摊开上阵 破破破",
         "jyutping": "zip3 sin3 taan1 hoi1 soeng5 zan6 po3 po3 po3",
         "audio": "audio/02-菩提达摩/dzw-02-025.wav",
         "analysis": {
@@ -15200,7 +15202,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "破浪破繭翻波",
-        "simplified": "破浪破繭翻波",
+        "simplified": "破浪破茧翻波",
         "jyutping": "po3 long6 po3 gaan2 faan1 bo1",
         "audio": "audio/02-菩提达摩/dzw-02-026.wav",
         "analysis": {
@@ -15722,16 +15724,16 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "係你！成日喺我耳边讲嘢嗰個！",
-        "simplified": "係你！成日喺我耳边讲嘢嗰個",
-        "jyutping": "hai6  nei5 seng4 jat6 hai6 ngo5 ji5 bin1 gong2 je5 go2 go3",
+        "text": "就係你 成日喺我耳邊講嘢？",
+        "simplified": "就系你 成日喺我耳边讲嘢？",
+        "jyutping": "zau6 hai6 nei5 seng4 jat6 hai2 ngo5 ji5 bin1 gong2 je5",
         "audio": "audio/03-报应/dzw-03-007.wav",
         "analysis": {
           "words": [
             {
-              "term": "嗰個",
-              "meaning": "那个",
-              "note": "粤语远指词。"
+              "term": "講嘢",
+              "meaning": "说话",
+              "note": "粤语口语。"
             },
             {
               "term": "讲嘢",
@@ -16105,8 +16107,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-03-027",
-        "singer": "小细、小镜",
-        "showSinger": false,
+        "singer": "小細",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "直至遺忘名共姓",
@@ -16150,7 +16152,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-03-030",
-        "singer": "大、小细",
+        "singer": "大、小鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -16170,7 +16172,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "話過我知講我知",
-        "simplified": "话过我听讲我知",
+        "simplified": "话过我知讲我知",
         "jyutping": "waa6 gwo3 ngo5 zi1 gong2 ngo5 zi1",
         "audio": "audio/03-报应/dzw-03-031.wav",
         "analysis": {
@@ -16377,7 +16379,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "我若報仇 怎樣來唸咒",
-        "simplified": "我若报仇 怎样来唸咒",
+        "simplified": "我若报仇 怎样来念咒",
         "jyutping": "ngo5 joek6 bou3 sau4 zam2 joeng6 loi4 nim6 zau3",
         "audio": "audio/03-报应/dzw-03-044.wav",
         "analysis": {
@@ -17331,15 +17333,13 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "嗱嗱聲唱隻開心啲嘅啦",
-        "simplified": "嗱嗱声唱只开心啲嘅啦",
-        "jyutping": "naa4 naa4 seng1 coeng3 zek3 hoi1 sam1 di1 ge3 laa1",
+        "text": "嗱嗱聲唱隻開心啲㗎啦。",
+        "simplified": "嗱嗱声唱只开心啲㗎啦。",
+        "jyutping": "naa4 naa4 seng1 coeng3 zek3 hoi1 sam1 di1 gaa3 laa1",
         "audio": "audio/05-福临门/dzw-05-025.wav",
         "analysis": {
           "words": [],
-          "grammar": [
-            "嘅常作结构助词，相当于普通话的“的”。"
-          ]
+          "grammar": []
         }
       },
       {
@@ -17348,15 +17348,13 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "唱隻開心啲嘅",
-        "simplified": "唱只开心啲嘅",
-        "jyutping": "coeng3 zek3 hoi1 sam1 di1 ge3",
+        "text": "唱隻開心啲喎。",
+        "simplified": "唱只开心啲喎。",
+        "jyutping": "coeng3 zek3 hoi1 sam1 di1 wo3",
         "audio": "audio/05-福临门/dzw-05-026.wav",
         "analysis": {
           "words": [],
-          "grammar": [
-            "嘅常作结构助词，相当于普通话的“的”。"
-          ]
+          "grammar": []
         }
       },
       {
@@ -17568,7 +17566,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "我係嚟搵方狀師嘅",
-        "simplified": "我系嚟搵方状师嘅",
+        "simplified": "我系嚟揾方状师嘅",
         "jyutping": "ngo5 hai6 lai4 wan2 fong1 zong6 si1 ge3",
         "audio": "audio/05-福临门/dzw-05-038.wav",
         "analysis": {
@@ -17638,7 +17636,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "我係嚟搵方狀師嘅",
-        "simplified": "我系嚟搵方状师嘅",
+        "simplified": "我系嚟揾方状师嘅",
         "jyutping": "ngo5 hai6 lai4 wan2 fong1 zong6 si1 ge3",
         "audio": "audio/05-福临门/dzw-05-041.wav",
         "analysis": {
@@ -17656,7 +17654,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "噢，你搵我家老爺打官司，係乜嘢官司呢？",
-        "simplified": "噢，你搵我家老爷打官司，系乜嘢官司呢？",
+        "simplified": "噢，你揾我家老爷打官司，系乜嘢官司呢？",
         "jyutping": "ok3，nei5 wan2 ngo5 gaa1 lou5 je4 daa2 gun1 si1，hai6 mat1 je5 gun1 si1 ne1？",
         "audio": "audio/05-福临门/dzw-05-042.wav",
         "analysis": {
@@ -17798,9 +17796,9 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "條命與水相剋 佢自問冇有福來盤查",
+        "text": "條命與水相剋 佢自問冇福來盤查",
         "simplified": "条命与水相克 佢自问冇福来盘查",
-        "jyutping": "tiu4 meng6 jyu5 seoi2 soeng1 hak1 kei5 zi6 man6 mou5 fuk1 loi4 pun4 caa4",
+        "jyutping": "tiu4 meng6 jyu5 seoi2 soeng1 hak1 keoi5 zi6 man6 mou5 fuk1 loi4 pun4 caa4",
         "audio": "audio/05-福临门/dzw-05-050.wav",
         "analysis": {
           "words": [],
@@ -17824,7 +17822,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-052",
-        "singer": "鄭知府",
+        "singer": "鄧知府",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -17842,7 +17840,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-053",
-        "singer": "鄭知府",
+        "singer": "鄧知府",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -17857,7 +17855,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-054",
-        "singer": "鄭知府",
+        "singer": "鄧知府",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -17974,7 +17972,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-060",
-        "singer": "貧客",
+        "singer": "賓客",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -17989,7 +17987,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-061",
-        "singer": "貧客",
+        "singer": "賓客",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -18006,7 +18004,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-062",
-        "singer": "眾貧客",
+        "singer": "眾賓客",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -18023,7 +18021,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-05-063",
-        "singer": "眾貧客",
+        "singer": "眾賓客",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -18564,7 +18562,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "喫幾多未妨事 有酒任君試",
-        "simplified": "喫几多未妨事 有酒任君试",
+        "simplified": "吃几多未妨事 有酒任君试",
         "jyutping": "jaak3 gei2 do1 mei6 fong4 si6 jau5 zau2 jam6 gwan1 si3",
         "audio": "audio/05-福临门/dzw-05-096.wav",
         "analysis": {
@@ -19395,7 +19393,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "若你覺得可悲 須知我亦覺可鄙",
-        "simplified": "若你觉得可悲 須知我亦觉可鄙",
+        "simplified": "若你觉得可悲 须知我亦觉可鄙",
         "jyutping": "joek6 nei5 gok3 dak1 ho2 bei1 seoi1 zi1  ngo5 jik6 gok3 ho2 pei2",
         "audio": "audio/07-最衰都係你/dzw-07-002.wav",
         "analysis": {
@@ -19546,7 +19544,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-011",
-        "singer": "方唐鏡 阿細",
+        "singer": "鏡、細",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -19563,7 +19561,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-012",
-        "singer": "方唐鏡 阿細",
+        "singer": "鏡、細",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -19745,7 +19743,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "當年係我要去水牛嶺，我要捉金蜻蜓吖嗎！",
+        "text": "當年係我要去水牛嶺，我要捉金蜻蜓吖嘛！",
         "simplified": "当年系我要去水牛岭，我要捉金蜻蜓吖嘛！",
         "jyutping": "dong1 nin4 hai6 ngo5 jiu3 heoi3 seoi2 ngau4 ling5, ngo5 jiu3 zuk1 gam1 cing1 ting4 aa3 maa3!",
         "audio": "audio/07-最衰都係你/dzw-07-019.wav",
@@ -19854,7 +19852,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-026",
-        "singer": "方唐鏡 阿細",
+        "singer": "鏡、細",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -20041,7 +20039,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-037",
-        "singer": "方唐鏡 阿細",
+        "singer": "鏡、細",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -20058,7 +20056,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-038",
-        "singer": "方唐鏡 阿細",
+        "singer": "鏡、細",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -20163,8 +20161,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-044",
-        "singer": "阿姑",
-        "showSinger": true,
+        "singer": "方唐鏡",
+        "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
         "text": "阿姑，我想開間客房…",
@@ -20307,7 +20305,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "點解阿香變咗隻鬼嘅？！",
-        "simplified": "点解阿香变咗只鬼㗎？！",
+        "simplified": "点解阿香变咗只鬼嘅？！",
         "jyutping": "dim2 gaai2 aa3 hoeng1 bin3 zo2 zek3 gwai2 ge3",
         "audio": "audio/07-最衰都係你/dzw-07-052.wav",
         "analysis": {
@@ -20343,8 +20341,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-054",
-        "singer": "阿細",
-        "showSinger": true,
+        "singer": "方唐鏡",
+        "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
         "text": "你點死㗎？…",
@@ -20359,7 +20357,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-07-055",
         "singer": "阿細",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
         "text": "一屍兩命好猛㗎！走啦！",
@@ -20583,8 +20581,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-069",
-        "singer": "阿細",
-        "showSinger": true,
+        "singer": "方唐鏡",
+        "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
         "text": "焉有話死過人㗎？點解會出事㗎？",
@@ -20598,13 +20596,13 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-070",
-        "singer": "方唐鏡",
+        "singer": "阿細",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "你有無腦㗎？但粗身大勢點捱三十板呀？",
+        "text": "你有無腦㗎？佢粗身大勢點捱三十板呀？",
         "simplified": "你有冇脑㗎？佢粗身大势点捱三十板呀？",
-        "jyutping": "nei5 jau5 mou4 nou5 gaa3? daan6 cou1 san1 daai6 sai3 dim2 deng2 saam1 sap6 baan2 aa3?",
+        "jyutping": "nei5 jau5 mou5 nou5 gaa3 keoi5 cou1 san1 daai6 sai3 dim2 ngaai4 saam1 sap6 baan2 aa3",
         "audio": "audio/07-最衰都係你/dzw-07-070.wav",
         "analysis": {
           "words": [
@@ -20621,7 +20619,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-07-071",
-        "singer": "阿細",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
@@ -20639,7 +20637,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-07-072",
         "singer": "方唐鏡",
-        "showSinger": true,
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "係你暗通消息 推一個二個送死",
@@ -20674,9 +20672,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "碓實由你教路",
+        "text": "確實由你教路",
         "simplified": "确实由你教路",
-        "jyutping": "deoi3 sat6 jau4 nei5 gaau3 lou6",
+        "jyutping": "kok3 sat6 jau4 nei5 gaau3 lou6",
         "audio": "audio/07-最衰都係你/dzw-07-074.wav",
         "analysis": {
           "words": [],
@@ -20888,7 +20886,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "前世都唔知做錯咩事今世會遇著你！",
-        "simplified": "前世都唔知做错咩事今世会遇著你！",
+        "simplified": "前世都唔知做错咩事今世会遇着你！",
         "jyutping": "cin4 sai3 dou1 m4 zi1 zou6 co3 me1 si6 gam1 sai3 wui5 jyu6 zoek6 nei5!",
         "audio": "audio/07-最衰都係你/dzw-07-087.wav",
         "analysis": {
@@ -20927,7 +20925,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "我成世人最後悔就係識着…",
-        "simplified": "我成世人最后悔就系识著…",
+        "simplified": "我成世人最后悔就系识着…",
         "jyutping": "ngo5 sing4 sai3 jan4 zeoi3 hau6 fui3 zau6 hai6 sik1 zoek6",
         "audio": "audio/07-最衰都係你/dzw-07-089.wav",
         "analysis": {
@@ -20943,9 +20941,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "有甚慶事足以紅眼睛？",
-        "simplified": "有什么事足以红眼睛？",
-        "jyutping": "jau5 sam6 hing3 si6 zuk1 ji5 hung4 ngaan5 zing1",
+        "text": "有甚麼事足以紅眼睛",
+        "simplified": "有什么事足以红眼睛",
+        "jyutping": "jau5 sam6 mo1 si6 zuk1 ji5 hung4 ngaan5 zing1",
         "audio": "audio/07-最衰都係你/dzw-07-090.wav",
         "analysis": {
           "words": [],
@@ -20973,7 +20971,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "来到最後 誰會有內心安寧？",
+        "text": "來到最後 誰會有內心安寧？",
         "simplified": "来到最后 谁会有内心安宁？",
         "jyutping": "loi4 dou3 zeoi3 hau6 seoi4 wui5 jau5 noi6 sam1 on1 ning4?",
         "audio": "audio/07-最衰都係你/dzw-07-092.wav",
@@ -20988,9 +20986,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "嗚…呀…咿呀呀",
-        "simplified": "呜…呀…咿呀呀",
-        "jyutping": "wu1 aa3 ji1 aa3 aa3",
+        "text": "嗚…呀…呀咿呀",
+        "simplified": "呜…呀…呀咿呀",
+        "jyutping": "wu1 aa3 aa3 ji1 aa3",
         "audio": "audio/07-最衰都係你/dzw-07-093.wav",
         "analysis": {
           "words": [],
@@ -21375,7 +21373,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-08-021",
-        "singer": "宋大媽",
+        "singer": "宋、細",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -21390,7 +21388,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-08-022",
-        "singer": "宋大媽",
+        "singer": "宋、細",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -21406,7 +21404,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-08-023",
         "singer": "宋大媽",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "門外有香一炷",
@@ -22264,7 +22262,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "出嫁嘅麗人 竟會係賤人",
-        "simplified": "出嫁嘅丽人 竟会係贱人",
+        "simplified": "出嫁嘅丽人 竟会系贱人",
         "jyutping": "ceot1 gaa3 ge3 lai6 jan4 ging2 wui5 hai6 zin6 jan4",
         "audio": "audio/10-翻案/dzw-10-011.wav",
         "analysis": {
@@ -22308,7 +22306,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "房裏面洞房 得佢地二人",
-        "simplified": "房裏面洞房 得佢地二人",
+        "simplified": "房里面洞房 得佢地二人",
         "jyutping": "fong4 leoi5 min6 dung6 fong4 dak1 keoi5 dei6 ji6 jan4",
         "audio": "audio/10-翻案/dzw-10-013.wav",
         "analysis": {
@@ -22492,8 +22490,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-024",
-        "singer": "群眾",
-        "showSinger": true,
+        "singer": "鄔玉圓",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "你有殺佢(秀秀:冇冇冇冇)",
@@ -22508,7 +22506,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-025",
         "singer": "群眾",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "啊…啊…啊…啊…",
@@ -22522,8 +22520,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-026",
-        "singer": "秀秀",
-        "showSinger": true,
+        "singer": "群眾",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "啊…啊…啊…啊…",
@@ -22538,7 +22536,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-027",
         "singer": "秀秀",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "心向善做人 心冇話害人",
@@ -22657,8 +22655,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-035",
-        "singer": "秀秀",
-        "showSinger": false,
+        "singer": "鄔玉圓",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "佢兩隻眼詐喊喎(眾:哼)",
@@ -22677,8 +22675,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-036",
-        "singer": "群眾",
-        "showSinger": true,
+        "singer": "鄔玉圓",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "咪個當我冇腦噃(眾:啱)",
@@ -22703,7 +22701,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-037",
-        "singer": "秀秀",
+        "singer": "群眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -22721,7 +22719,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-038",
         "singer": "秀秀",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "人人想喊打 仍然不害怕",
@@ -22765,8 +22763,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-041",
-        "singer": "鄔玉圓",
-        "showSinger": true,
+        "singer": "秀秀",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "真相待有誰來 推磚敲瓦",
@@ -22781,7 +22779,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-042",
         "singer": "鄔玉圓",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "毒殺親夫(眾:冇錯冇錯)",
@@ -22810,8 +22808,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-044",
-        "singer": "群眾",
-        "showSinger": true,
+        "singer": "鄔玉圓",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "若變有錢 威風八面",
@@ -22825,7 +22823,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-045",
-        "singer": "鄔玉圓",
+        "singer": "眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -22841,7 +22839,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-046",
         "singer": "鄔玉圓",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "然後出手對付阿姑(眾:姑奶好孤苦)",
@@ -22869,7 +22867,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "佢分明就係想謀我地鄔家嘅田產！",
-        "simplified": "佢分明就係想谋我地邬家嘅田产！",
+        "simplified": "佢分明就系想谋我地邬家嘅田产！",
         "jyutping": "keoi5 fan1 ming4 zau6 hai6 soeng2 mau4 ngo5 dei6 wu1 gaa1 ge3 tin4 caan2",
         "audio": "audio/10-翻案/dzw-10-047.wav",
         "analysis": {
@@ -22887,7 +22885,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "唔係呀，大人！",
-        "simplified": "唔係呀，大人！",
+        "simplified": "唔系呀，大人！",
         "jyutping": "m4 hai6 aa3 daai6 jan4",
         "audio": "audio/10-翻案/dzw-10-048.wav",
         "analysis": {
@@ -22962,7 +22960,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "月光光照地唐鄔家有隻大豺狼",
-        "simplified": "月光光 照地唐 邬家有隻大豺狼",
+        "simplified": "月光光 照地唐 邬家有只大豺狼",
         "jyutping": "jyut6 gwong1 gwong1 ziu3 dei6 tong4 wu1 gaa1 jau5 zek3 daai6 caai4 long4",
         "audio": "audio/10-翻案/dzw-10-052.wav",
         "analysis": {
@@ -23017,7 +23015,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "床下底收埋隻貪心鬼",
-        "simplified": "床下底 收埋隻贪心鬼",
+        "simplified": "床下底 收埋只贪心鬼",
         "jyutping": "cong4 haa6 dai2 sau1 maai4 zek3 taam1 sam1 gwai2",
         "audio": "audio/10-翻案/dzw-10-055.wav",
         "analysis": {
@@ -23027,8 +23025,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-056",
-        "singer": "群眾",
-        "showSinger": true,
+        "singer": "方唐鏡",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "鬼鬼鬼鬼鬼鬼鬼鬼",
@@ -23043,11 +23041,11 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-057",
         "singer": "群眾",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "呢個男人係焉個走上公堂搞焉科",
-        "simplified": "呢個男人係焉個 走上公堂搞焉科",
+        "simplified": "呢个男人系焉个 走上公堂搞焉科",
         "jyutping": "ni1 go3 naam4 jan4 hai6 bin1 go3 zau2 soeng5 gung1 tong4 gaau2 bin1 fo1",
         "audio": "audio/10-翻案/dzw-10-057.wav",
         "analysis": {
@@ -23075,7 +23073,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "佢係焉個佢係焉個",
-        "simplified": "佢係焉個 佢係焉個",
+        "simplified": "佢系焉个 佢系焉个",
         "jyutping": "keoi5 hai6 bin1 go3 keoi5 hai6 bin1 go3",
         "audio": "audio/10-翻案/dzw-10-058.wav",
         "analysis": {
@@ -23107,7 +23105,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "廣東宋世傑！",
-        "simplified": "广东宋世傑！",
+        "simplified": "广东宋世杰！",
         "jyutping": "gwong2 dung1 sung3 sai3 git6",
         "audio": "audio/10-翻案/dzw-10-060.wav",
         "analysis": {
@@ -23168,7 +23166,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "相信大人必須確認疑惑求問個清",
-        "simplified": "相信大人 必須确认 疑惑求问个清",
+        "simplified": "相信大人 必须确认 疑惑求问个清",
         "jyutping": "soeng1 seon3 daai6 jan4 bit1 seoi1 kok3 jing6 ji4 waak6 kau4 man6 go3 cing1",
         "audio": "audio/10-翻案/dzw-10-063.wav",
         "analysis": {
@@ -23183,7 +23181,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "阿細，幫我睇下佢有乜古怪！",
-        "simplified": "阿細，帮我睇下佢有乜古怪！",
+        "simplified": "阿细，帮我睇下佢有乜古怪！",
         "jyutping": "aa3 sai3，bong1 ngo5 tai2 haa5 keoi5 jau5 mat1 gu2 gwaai3",
         "audio": "audio/10-翻案/dzw-10-064.wav",
         "analysis": {
@@ -23219,7 +23217,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "益我好過益你隻地底泥",
-        "simplified": "益我好过益你隻地底泥",
+        "simplified": "益我好过益你只地底泥",
         "jyutping": "jik1 ngo5 hou2 gwo3 jik1 nei5 zek3 dei6 dai2 nai4",
         "audio": "audio/10-翻案/dzw-10-066.wav",
         "analysis": {
@@ -23239,7 +23237,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "如有你在而我會係好濕滯",
-        "simplified": "如有你在 而我会係好湿滞",
+        "simplified": "如有你在 而我会系好湿滞",
         "jyutping": "jyu4 jau5 nei5 zoi6 ji4 ngo5 wui5 hai6 hou2 sap1 zai6",
         "audio": "audio/10-翻案/dzw-10-067.wav",
         "analysis": {
@@ -23382,9 +23380,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "我 哎吔吔 也含恨血未洗",
-        "simplified": "我 哎吔吔 也含恨血未洗",
-        "jyutping": "ngo5 aai1 jaa1 jaa1 jaa5 ham4 han6 hyut3 mei6 sai2",
+        "text": "我 哎吔吔 含恨血未洗",
+        "simplified": "我 哎吔吔 含恨血未洗",
+        "jyutping": "ngo5 aai1 jaa1 jaa1 ham4 han6 hyut3 mei6 sai2",
         "audio": "audio/10-翻案/dzw-10-075.wav",
         "analysis": {
           "words": [],
@@ -23398,7 +23396,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "秀秀你講，當晚到底係點嘅一回事？",
-        "simplified": "秀秀你讲，当晚到底係点嘅一回事？",
+        "simplified": "秀秀你讲，当晚到底系点嘅一回事？",
         "jyutping": "sau3 sau3 nei5 gong2，dong1 maan5 dou3 dai2 hai6 dim2 ge3 jat1 wui4 si6",
         "audio": "audio/10-翻案/dzw-10-076.wav",
         "analysis": {
@@ -23460,7 +23458,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-079",
-        "singer": "鄢蛟騰",
+        "singer": "鄔蛟騰",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
@@ -23580,7 +23578,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-087",
-        "singer": "方唐鏡",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
@@ -23596,7 +23594,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-10-088",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
         "text": "且慢！",
@@ -23648,7 +23646,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "假使心入面有隻鬼 咬到底 已慣例",
-        "simplified": "假使心入面有隻鬼 咬到底 已惯例",
+        "simplified": "假使心入面有只鬼 咬到底 已惯例",
         "jyutping": "gaa2 si2 sam1 jap6 min6 jau5 zek3 gwai2 ngaau5 dou3 dai2 ji5 gwaan3 lai6",
         "audio": "audio/10-翻案/dzw-10-091.wav",
         "analysis": {
@@ -23663,7 +23661,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "好心急直落到尾位成王敗寇係兩睇",
-        "simplified": "好心急直落到尾 位成王败寇係两睇",
+        "simplified": "好心急直落到尾 位成王败寇系两睇",
         "jyutping": "hou2 sam1 gap1 zik6 lok6 dou3 mei5 wai6 sing4 wong4 baai6 kau3 hai6 loeng5 tai2",
         "audio": "audio/10-翻案/dzw-10-092.wav",
         "analysis": {
@@ -23684,8 +23682,8 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "頭先你話喺佢床下底搵到包砒霜，所以認定秀秀落毒毒死你細佬！",
-        "simplified": "头先你话喺佢床下底搵到包砒霜，所以认定秀秀落毒毒死你细佬！",
+        "text": "頭先你話喺佢床下底搵到包砒礵，所以認定秀秀落毒毒死你細佬！",
+        "simplified": "头先你话喺佢床下底揾到包砒礵，所以认定秀秀落毒毒死你细佬！",
         "jyutping": "tau4 sin1 nei5 waa6 hai2 keoi5 cong4 haa6 dai2 wan2 dou3 baau1 pei1 soeng1，so2 ji5 jing6 ding6 sau3 sau3 lok6 duk6 duk6 sei2 nei5 sai3 lou2",
         "audio": "audio/10-翻案/dzw-10-093.wav",
         "analysis": {
@@ -23700,7 +23698,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "好明顯係啦！",
-        "simplified": "好明显係啦！",
+        "simplified": "好明显系啦！",
         "jyutping": "hou2 ming4 hin2 hai6 laa1",
         "audio": "audio/10-翻案/dzw-10-094.wav",
         "analysis": {
@@ -23717,7 +23715,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "但係秀秀根本就無餵到藥俾鄔蛟騰！",
-        "simplified": "但係秀秀根本就无喂到药俾邬蛟腾！",
+        "simplified": "但系秀秀根本就无喂到药俾邬蛟腾！",
         "jyutping": "daan6 hai6 sau3 sau3 gan1 bun2 zau6 mou5 wai3 dou3 joek6 bei2 wu1 gaau1 tang4",
         "audio": "audio/10-翻案/dzw-10-095.wav",
         "analysis": {
@@ -23744,7 +23742,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "呢啲只係佢一面之詞！焉個知呀？",
-        "simplified": "呢啲只係佢一面之词！焉個知呀？",
+        "simplified": "呢啲只系佢一面之词！焉个知呀？",
         "jyutping": "ni1 di1 zi2 hai6 keoi5 jat1 min6 zi1 ci4! bin1 go3 zi1 aa3",
         "audio": "audio/10-翻案/dzw-10-096.wav",
         "analysis": {
@@ -23761,8 +23759,8 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "啊，即係按你説法，你細佬攞住碗藥入房，跟手秀秀再喺床下底攞包砒霜出嚟，倒落碗藥道，然後細佬就成碗啪咗落肚…",
-        "simplified": "啊，即係按你说法，你细佬攞住碗药入房，跟手秀秀再喺床下底攞包砒霜出来，倒落碗药道，然后细佬就成碗啪咗落肚…",
+        "text": "啊，即係按你説法，你細佬攞住碗藥入房，跟手秀秀再喺床下底攞包砒礵出嚟，倒落碗藥道，然後細佬就成碗啪咗落肚…",
+        "simplified": "啊，即系按你说法，你细佬攞住碗药入房，跟手秀秀再喺床下底攞包砒礵出来，倒落碗药道，然后细佬就成碗啪咗落肚…",
         "jyutping": "aa3，zik1 hai6 on3 nei5 syut3 faat3，nei5 sai3 lou2 lo2 zyu6 wun2 joek6 jap6 fong4，gan1 sau2 sau3 sau3 zoi3 hai2 cong4 haa6 dai2 lo2 baau1 pei1 soeng1 ceot1 lai4，dou2 lok6 wun2 joek6 dou6，jin4 hau6 sai3 lou2 zau6 seng4 wun2 paak1 zo2 lok6 tou5",
         "audio": "audio/10-翻案/dzw-10-097.wav",
         "analysis": {
@@ -23786,12 +23784,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-098",
-        "singer": "鄢玉圓",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
         "text": "係囉！",
-        "simplified": "係囉！",
+        "simplified": "系啰！",
         "jyutping": "hai6 lo1",
         "audio": "audio/10-翻案/dzw-10-098.wav",
         "analysis": {
@@ -23807,7 +23805,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "你細佬肺痨啫，乜原來佢弱智㗎咩？",
+        "text": "你細佬肺癆啫，乜原來佢弱智㗎咩？",
         "simplified": "你细佬肺痨啫，乜原来佢弱智㗎咩？",
         "jyutping": "nei5 sai3 lou2 fai3 lou4 ze1，mat1 jyun4 loi4 keoi5 joek6 zi3 gaa4 me1",
         "audio": "audio/10-翻案/dzw-10-099.wav",
@@ -23834,7 +23832,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "包砒礵係咪當葛粉你細佬會咁笨點解跟住又有你份隨時突發現了身相當之醒瞓",
-        "simplified": "包砒礵係咪当葛粉 你细佬 会咁笨 点解跟住又有你份 随时突发现了身 相当之醒瞓",
+        "simplified": "包砒礵系咪当葛粉 你细佬 会咁笨 点解跟住又有你份 随时突发现了身 相当之醒瞓",
         "jyutping": "baau1 pei1 soeng1  hai6 mai6 dong1 got3 fan2 nei5 sai3 lou2 wui5 gam3 ban6 dim2 gaai2 gan1 zyu6 jau6 jau5 nei5 fan6 ceoi4 si4 dat6 faat3 jin2 liu5 san1 soeng1 dong1 zi1 seng2 fan3",
         "audio": "audio/10-翻案/dzw-10-100.wav",
         "analysis": {
@@ -23851,7 +23849,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-101",
-        "singer": "鄢玉圓",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -23886,12 +23884,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-103",
-        "singer": "鄢玉圓",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "實係啦重問",
-        "simplified": "实係啦重问",
+        "simplified": "实系啦重问",
         "jyutping": "sat6 hai6 laa1 zung6 man6",
         "audio": "audio/10-翻案/dzw-10-103.wav",
         "analysis": {
@@ -23918,7 +23916,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-105",
-        "singer": "鄢玉圓",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -23960,7 +23958,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-107",
-        "singer": "鄢玉圓",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -23980,7 +23978,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-108",
-        "singer": "鏡丶鄢",
+        "singer": "鏡、鄔",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -23995,12 +23993,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-10-109",
-        "singer": "鄢玉圓",
+        "singer": "鄔玉圓",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
         "text": "衙門師爺秦先生證明我細佬係俾佢毒死㗎，係唔係呀秦先生？",
-        "simplified": "衙门师爷秦先生证明我细佬係俾佢毒死㗎，係唔係呀秦先生？",
+        "simplified": "衙门师爷秦先生证明我细佬系俾佢毒死㗎，系唔系呀秦先生？",
         "jyutping": "ngaa4 mun4 si1 je4 ceon4 sin1 saang1 zing3 ming4 ngo5 sai3 lou2 hai6 bei2 keoi5 duk6 sei2 gaa3 hai6 m4 hai6 aa3 ceon4 sin1 saang1",
         "audio": "audio/10-翻案/dzw-10-109.wav",
         "analysis": {
@@ -24017,7 +24015,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "秦先生",
+        "text": "秦先生！",
         "simplified": "秦先生！",
         "jyutping": "ceon4 sin1 saang1",
         "audio": "audio/10-翻案/dzw-10-110.wav",
@@ -24047,9 +24045,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "撈得好掂係有眼睇 似你咁 發咁滯",
-        "simplified": "捞得好掂係有眼睇 似你咁 发咁滞",
-        "jyutping": "lou4 dak1 hou2 dim6 hai6 jau5 ngaan5 tai2 ci5 nei5 gam3 faat3 gam3 zai6",
+        "text": "撈得好扂係有眼睇 似你咁 發咁滯",
+        "simplified": "捞得好扂系有眼睇 似你咁 发咁滞",
+        "jyutping": "laau1 dak1 hou2 dim6 hai6 jau5 ngaan5 tai2 ci5 nei5 gam3 faat3 gam3 zai6",
         "audio": "audio/10-翻案/dzw-10-112.wav",
         "analysis": {
           "words": [],
@@ -24097,7 +24095,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "驗到砒礵確實係",
-        "simplified": "验到砒礵确实係",
+        "simplified": "验到砒礵确实系",
         "jyutping": "jim6 dou3 pei1 soeng1 kok3 sat6 hai6",
         "audio": "audio/10-翻案/dzw-10-115.wav",
         "analysis": {
@@ -24114,7 +24112,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "實係佢落毒",
-        "simplified": "实係佢落毒",
+        "simplified": "实系佢落毒",
         "jyutping": "sat6 hai6 keoi5 lok6 duk6",
         "audio": "audio/10-翻案/dzw-10-116.wav",
         "analysis": {
@@ -24131,7 +24129,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "係就一定係",
-        "simplified": "係就一定係",
+        "simplified": "系就一定系",
         "jyutping": "hai6 zau6 jat1 ding6 hai6",
         "audio": "audio/10-翻案/dzw-10-117.wav",
         "analysis": {
@@ -24163,7 +24161,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "就冇贔屭",
-        "simplified": "就冇贔屭",
+        "simplified": "就冇赑屭",
         "jyutping": "zau6 mou5  bai3  ai3",
         "audio": "audio/10-翻案/dzw-10-119.wav",
         "analysis": {
@@ -24198,7 +24196,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "講去焉我話我絕唔係",
-        "simplified": "讲去焉 我话我 绝唔係",
+        "simplified": "讲去焉 我话我 绝唔系",
         "jyutping": "gong2 heoi3 bin1 ngo5 waa6 ngo5 zyut6 m4 hai6",
         "audio": "audio/10-翻案/dzw-10-121.wav",
         "analysis": {
@@ -24216,7 +24214,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "講到底似係佢搦隻碗埋嚟",
-        "simplified": "讲到底 似係佢 搦隻碗埋嚟",
+        "simplified": "讲到底 似系佢 搦只碗埋嚟",
         "jyutping": "gong2 dou3 dai2 ci5 hai6 keoi5 nik1 zek3 wun2 maai4 lai4",
         "audio": "audio/10-翻案/dzw-10-122.wav",
         "analysis": {
@@ -24238,7 +24236,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "其實佢都的確係",
-        "simplified": "其实佢都的确係",
+        "simplified": "其实佢都的确系",
         "jyutping": "kei4 sat6 keoi5 dou1 dik1 kok3 hai6",
         "audio": "audio/10-翻案/dzw-10-123.wav",
         "analysis": {
@@ -24269,7 +24267,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "咦，我忽然間諗起我阿娘撚手嘅糯米鷄呀！",
+        "text": "咦，我忽然間諗起我阿娘撚手嘅糯米雞呀！",
         "simplified": "咦，我忽然间谂起我阿娘撚手嘅糯米鸡呀！",
         "jyutping": "ji2 ngo5 fat1 jin4 gaan1 nam2 hei2 ngo5 aa3 noeng4 nan2 sau2 ge3 no6 mai5 gai1 aa3",
         "audio": "audio/10-翻案/dzw-10-125.wav",
@@ -24301,8 +24299,8 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "叫作糯米鷄 入面要係",
-        "simplified": "叫作糯米鸡 入面要係",
+        "text": "叫作糯米雞 入面要係",
+        "simplified": "叫作糯米鸡 入面要系",
         "jyutping": "giu3 zok3 no6 mai5 gai1 jap6 min6 jiu3 hai6",
         "audio": "audio/10-翻案/dzw-10-127.wav",
         "analysis": {
@@ -24363,7 +24361,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "先得可稱作 糯米鷄",
+        "text": "先得可稱作 糯米雞",
         "simplified": "先得可称作 糯米鸡",
         "jyutping": "sin1 dak1 ho2 cing1 zok3 no6 mai5 gai1",
         "audio": "audio/10-翻案/dzw-10-131.wav",
@@ -24465,7 +24463,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "先得可稱作 糯米鷄",
+        "text": "先得可稱作 糯米雞",
         "simplified": "先得可称作 糯米鸡",
         "jyutping": "sin1 dak1 ho2 cing1 zok3 no6 mai5 gai1",
         "audio": "audio/10-翻案/dzw-10-137.wav",
@@ -24480,7 +24478,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "當佢驗藥時 尸身可否有",
+        "text": "當佢驗藥時 屍身可否有",
         "simplified": "当佢验药时 尸身可否有",
         "jyutping": "dong1 keoi5 jim6 joek6 si4 si1 san1 ho2 fau2 jau5",
         "audio": "audio/10-翻案/dzw-10-138.wav",
@@ -24540,8 +24538,8 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "佢根本就係肺痨病死！",
-        "simplified": "佢根本就係肺痨病死！",
+        "text": "佢根本就係肺癆病死！",
+        "simplified": "佢根本就系肺痨病死！",
         "jyutping": "keoi5 gan1 bun2 zau6 hai6 fai3 lou4 beng6 sei2",
         "audio": "audio/10-翻案/dzw-10-142.wav",
         "analysis": {
@@ -24603,7 +24601,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "誰不曾犯錯 遇過朝夕之間怯懦",
-        "simplified": "誰不曾犯错 遇过朝夕之间怯懦",
+        "simplified": "谁不曾犯错 遇过朝夕之间怯懦",
         "jyutping": "seoi4 bat1 cang4 faan6 co3 jyu6 gwo3 ziu1 zik6 zi1 gaan1 hip3 no6",
         "audio": "audio/10-翻案/dzw-10-146.wav",
         "analysis": {
@@ -24618,7 +24616,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "誰不逃避過 直到遇着劫與禍",
-        "simplified": "誰不逃避过 直到遇着劫与祸",
+        "simplified": "谁不逃避过 直到遇着劫与祸",
         "jyutping": "seoi4 bat1 tou4 bei4 gwo3 zik6 dou3 jyu6 zoek6 gip3 jyu5 wo6",
         "audio": "audio/10-翻案/dzw-10-147.wav",
         "analysis": {
@@ -24959,7 +24957,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "最衰我往陣時 腠 腹 腹",
+        "text": "最衰我往陣時 賤 賤 賤",
         "simplified": "最衰我往阵时 贱 贱 贱",
         "jyutping": "zeoi3 seoi1 ngo5 wong5 zan6 si4 zin6 zin6 zin6",
         "audio": "audio/11-莫对我心软/dzw-11-002.wav",
@@ -25415,7 +25413,7 @@ const dazhuangwangSongs = [
         "text": "Cittavarana Paragate Parasamgate",
         "simplified": "Cittavarana Paragate Parasamgate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-001.wav",
+        "audio": "",
         "analysis": {
           "words": [
             {
@@ -25439,7 +25437,7 @@ const dazhuangwangSongs = [
         "text": "Sarva Duhkha Sarupam",
         "simplified": "Sarva Duhkha Sarupam",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-002.wav",
+        "audio": "",
         "analysis": {
           "words": [
             {
@@ -25459,7 +25457,7 @@ const dazhuangwangSongs = [
         "text": "Paragate Bodhi Svaha",
         "simplified": "Paragate Bodhi Svaha",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-003.wav",
+        "audio": "",
         "analysis": {
           "words": [
             {
@@ -25529,8 +25527,8 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "在心裹幾多問題",
-        "simplified": "在心裹几多问题",
+        "text": "在心裏幾多問題",
+        "simplified": "在心里几多问题",
         "jyutping": "zoi6 sam1 leoi5 gei2 do1 man6 tai4",
         "audio": "audio/12-撒一场白米/dzw-12-007.wav",
         "analysis": {
@@ -25733,7 +25731,7 @@ const dazhuangwangSongs = [
         "text": "Cittavarana Paragate Parasamgate",
         "simplified": "Cittavarana Paragate Parasamgate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-020.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25748,7 +25746,7 @@ const dazhuangwangSongs = [
         "text": "Sarva Duhkha Sarupam",
         "simplified": "Sarva Duhkha Sarupam",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-021.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25763,7 +25761,7 @@ const dazhuangwangSongs = [
         "text": "Paragate Bodhi Svaha",
         "simplified": "Paragate Bodhi Svaha",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-022.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25823,7 +25821,7 @@ const dazhuangwangSongs = [
         "text": "Paragate",
         "simplified": "Paragate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-026.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25868,7 +25866,7 @@ const dazhuangwangSongs = [
         "text": "Sava Duhkha",
         "simplified": "Sava Duhkha",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-029.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25913,7 +25911,7 @@ const dazhuangwangSongs = [
         "text": "Cittavarana Paragate",
         "simplified": "Cittavarana Paragate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-032.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25943,7 +25941,7 @@ const dazhuangwangSongs = [
         "text": "Paraparasamgate",
         "simplified": "Paraparasamgate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-034.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -25973,7 +25971,7 @@ const dazhuangwangSongs = [
         "text": "Parapara Samgate",
         "simplified": "Parapara Samgate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-036.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -26018,7 +26016,7 @@ const dazhuangwangSongs = [
         "text": "Bodhi Bodhi",
         "simplified": "Bodhi Bodhi",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-039.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -26033,7 +26031,7 @@ const dazhuangwangSongs = [
         "text": "Cittavarana Paragate Parasamgate",
         "simplified": "Cittavarana Paragate Parasamgate",
         "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-040.wav",
+        "audio": "",
         "analysis": {
           "words": [],
           "grammar": []
@@ -26045,8 +26043,8 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "在心裹幾多問題",
-        "simplified": "在心裹几多问题",
+        "text": "在心裏幾多問題",
+        "simplified": "在心里几多问题",
         "jyutping": "zoi6 sam1 leoi5 gei2 do1 man6 tai4",
         "audio": "audio/12-撒一场白米/dzw-12-041.wav",
         "analysis": {
@@ -26064,51 +26062,6 @@ const dazhuangwangSongs = [
         "simplified": "未能洞悉也许等再世",
         "jyutping": "mei6 nang4 dung6 sik1 jaa5 heoi2 dang2 zoi3 sai3",
         "audio": "audio/12-撒一场白米/dzw-12-042.wav",
-        "analysis": {
-          "words": [],
-          "grammar": []
-        }
-      },
-      {
-        "id": "dzw-12-043",
-        "singer": "群眾",
-        "showSinger": true,
-        "isSpoken": false,
-        "noJyutping": true,
-        "text": "Cittavarana Paragate Parasamgate",
-        "simplified": "Cittavarana Paragate Parasamgate",
-        "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-043.wav",
-        "analysis": {
-          "words": [],
-          "grammar": []
-        }
-      },
-      {
-        "id": "dzw-12-044",
-        "singer": "群眾",
-        "showSinger": false,
-        "isSpoken": false,
-        "noJyutping": true,
-        "text": "Sarva Duhkha Sarupam",
-        "simplified": "Sarva Duhkha Sarupam",
-        "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-044.wav",
-        "analysis": {
-          "words": [],
-          "grammar": []
-        }
-      },
-      {
-        "id": "dzw-12-045",
-        "singer": "群眾",
-        "showSinger": false,
-        "isSpoken": false,
-        "noJyutping": true,
-        "text": "Paragate Bodhi Svaha",
-        "simplified": "Paragate Bodhi Svaha",
-        "jyutping": "",
-        "audio": "audio/12-撒一场白米/dzw-12-045.wav",
         "analysis": {
           "words": [],
           "grammar": []
@@ -26318,7 +26271,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "伴那暗黑永在 孽海浸鳳臺",
+        "text": "伴那暗黑永在 孽海浸鳳台",
         "simplified": "伴那暗黑永在 孽海浸凤台",
         "jyutping": "bun6 naa5 am3 hak1 wing5 zoi6 jip6 hoi2 zam3 fung6 toi4",
         "audio": "audio/13-有借有还/dzw-13-012.wav",
@@ -26368,7 +26321,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "良心成為负擔 前進阻限",
+        "text": "良心成為負擔 前進阻限",
         "simplified": "良心成为负担 前进阻限",
         "jyutping": "loeng4 sam1 sing4 wai4 fu6 daam1 cin4 zeon3 zo2 haan6",
         "audio": "audio/13-有借有还/dzw-13-015.wav",
@@ -26818,9 +26771,9 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "呢位大姐，你係點識得宋狀師喋?",
-        "simplified": "呢位大姐，你係点识得宋状师喋?",
-        "jyutping": "ni1 wai6 daai6 ze2 nei5 hai6 dim2 sik1 dak1 sung3 zong6 si1 ze3",
+        "text": "呢位大姐，你係點識得宋狀師㗎？",
+        "simplified": "呢位大姐，你系点识得宋状师㗎？",
+        "jyutping": "ni1 wai6 daai6 ze2 nei5 hai6 dim2 sik1 dak1 sung3 zong6 si1 gaa3",
         "audio": "audio/14-正义朋友/dzw-14-006.wav",
         "analysis": {
           "words": [
@@ -27089,7 +27042,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "宋狀師 憑言諂 勸善懲惡不經意",
+        "text": "宋狀師 憑言語 勸善懲惡不經意",
         "simplified": "宋状师 凭言语 劝善惩恶不经意",
         "jyutping": "sung3 zong6 si1 pang4 jin4 jyu5 hyun3 sin6 cing4 ok3 bat1 ging1 ji3",
         "audio": "audio/14-正义朋友/dzw-14-021.wav",
@@ -27135,7 +27088,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "原來佢去怡春閣係幫青樓嘅姑娘狀告欺負佢",
-        "simplified": "原来佢去怡春阁係帮青楼嘅姑娘状告欺负佢",
+        "simplified": "原来佢去怡春阁系帮青楼嘅姑娘状告欺负佢",
         "jyutping": "jyun4 loi4 keoi5 heoi3 ji4 ceon1 gok3 hai6 bong1 cing1 lau4 ge3 gu1 noeng4 zong6 gou3 hei1 fu6 keoi5",
         "audio": "audio/14-正义朋友/dzw-14-024.wav",
         "analysis": {
@@ -27186,7 +27139,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "好!第三回就叫做「青樓紅燭胭脂淚，白扇横出救風塵」!",
+        "text": "好!第三回就叫做「青樓紅燭胭脂淚，白扇橫出救風塵」!",
         "simplified": "好!第三回就叫做「青楼红烛胭脂泪，白扇横出救风尘」!",
         "jyutping": "hou2 dai6 saam1 wui4 zau6 giu3 zou6「cing1 lau4 hung4 zuk1 jin1 zi1 leoi6 baak6 sin3 waang4 ceot1 gau3 fung1 can4」",
         "audio": "audio/14-正义朋友/dzw-14-026.wav",
@@ -27216,7 +27169,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "去告狀 个个怕惹事",
+        "text": "去告狀 個個怕惹事",
         "simplified": "去告状 个个怕惹事",
         "jyutping": "heoi3 gou3 zong6 go3 go3 paa3 je5 si6",
         "audio": "audio/14-正义朋友/dzw-14-028.wav",
@@ -27475,7 +27428,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "一諗起宋狀師",
-        "simplified": "一念起宋状师",
+        "simplified": "一谂起宋状师",
         "jyutping": "jat1 nam2 hei2 sung3 zong6 si1",
         "audio": "audio/14-正义朋友/dzw-14-044.wav",
         "analysis": {
@@ -27531,7 +27484,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "原來又係借意",
-        "simplified": "原来又係借意",
+        "simplified": "原来又系借意",
         "jyutping": "jyun4 loi4 jau6 hai6 ze3 ji3",
         "audio": "audio/14-正义朋友/dzw-14-047.wav",
         "analysis": {
@@ -27548,12 +27501,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-14-048",
-        "singer": "漣漪",
+        "singer": "眾人",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "一個字 將本性暗示",
-        "simplified": "一个字 將本性暗示",
+        "simplified": "一个字 将本性暗示",
         "jyutping": "jat1 go3 zi6 zoeng3 bun2 sing3 am3 si6",
         "audio": "audio/14-正义朋友/dzw-14-048.wav",
         "analysis": {
@@ -27563,7 +27516,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-14-049",
-        "singer": "漣漪",
+        "singer": "眾人",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -27582,7 +27535,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "就怪我當初 亲生仔有一個",
+        "text": "就怪我當初 親生仔有一個",
         "simplified": "就怪我当初 亲生仔有一个",
         "jyutping": "zau6 gwaai3 ngo5 dong1 co1 can1 saang1 zai2 jau5 jat1 go3",
         "audio": "audio/14-正义朋友/dzw-14-050.wav",
@@ -27647,7 +27600,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "諗返當初 我亦嘆奈何",
-        "simplified": "念返当初 我亦叹奈何",
+        "simplified": "谂返当初 我亦叹奈何",
         "jyutping": "nam2 faan1 dong1 co1 ngo5 jik6 taan3 noi6 ho4",
         "audio": "audio/14-正义朋友/dzw-14-053.wav",
         "analysis": {
@@ -27703,13 +27656,13 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "誠邀狀師今晚喫飯",
-        "simplified": "诚邀状师今晚喫饭",
+        "simplified": "诚邀状师今晚吃饭",
         "jyutping": "sing4 jiu1 zong6 si1 gam1 maan5 jaak3 faan6",
         "audio": "audio/14-正义朋友/dzw-14-056.wav",
         "analysis": {
           "words": [
             {
-              "term": "喫饭",
+              "term": "吃饭",
               "meaning": "吃饭。"
             }
           ],
@@ -27782,7 +27735,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "你咪認屎認屁喔!",
+        "text": "你咪認屎認屁喎!",
         "simplified": "你咪认屎认屁喔!",
         "jyutping": "nei5 mai5 jing6 si2 jing6 pei3 wo2",
         "audio": "audio/14-正义朋友/dzw-14-061.wav",
@@ -27808,7 +27761,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "咩唔係呀?宋狀師同我當年失散個臊孲生得一模一樣㗎!",
-        "simplified": "咩唔係呀?宋状师同我当年失散个臊孲生得一模一樣㗎!",
+        "simplified": "咩唔系呀?宋状师同我当年失散个臊孲生得一模一样㗎!",
         "jyutping": "me1 m4 hai6 aa3? sung3 zong6 si1 tung4 ngo5 dong1 nin4 sat1 saan3 go3 sou1 aa1 saang1 dak1 jat1 mou4 jat1 joeng6 gaa3!",
         "audio": "audio/14-正义朋友/dzw-14-062.wav",
         "analysis": {
@@ -27841,7 +27794,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "婆婆，你再係咁嘅話，我搵宋狀師告你㗎!",
-        "simplified": "婆婆，你再係咁嘅话，我搵宋状师告你㗎!",
+        "simplified": "婆婆，你再系咁嘅话，我揾宋状师告你㗎!",
         "jyutping": "po4 po4 nei5 zoi3 hai6 gam2 ge3 waa6 ngo5 wan2 sung3 zong6 si1 gou3 nei5 gaa3",
         "audio": "audio/14-正义朋友/dzw-14-063.wav",
         "analysis": {
@@ -28484,7 +28437,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "問我係探何人家",
-        "simplified": "问我係探何人家",
+        "simplified": "问我系探何人家",
         "jyutping": "man6 ngo5 hai6 taam3 ho4 jan4 gaa1",
         "audio": "audio/15-踏上清源/dzw-15-030.wav",
         "analysis": {
@@ -28863,7 +28816,7 @@ const dazhuangwangSongs = [
         "isSpoken": false,
         "noJyutping": false,
         "text": "淡然輕身上路 路遙遙段接段",
-        "simplified": "淡然轻身上路 路遙遙段接段",
+        "simplified": "淡然轻身上路 路遥遥段接段",
         "jyutping": "daam6 jin4 heng1 san1 soeng5 lou6 lou6 jiu4 jiu4 dyun6 zip3 dyun6",
         "audio": "audio/16-雪地寒山/dzw-16-006.wav",
         "analysis": {
@@ -29023,7 +28976,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-16-017",
-        "singer": "阿细",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -29039,7 +28992,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-16-018",
         "singer": "方唐鏡",
-        "showSinger": true,
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "來年目睹雪花 沾上亂麻",
@@ -29053,8 +29006,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-16-019",
-        "singer": "三人",
-        "showSinger": true,
+        "singer": "方唐鏡",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "誰伴你喝啖茶 記住何處淚下",
@@ -29069,7 +29022,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-16-020",
         "singer": "方唐鏡",
-        "showSinger": true,
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "沿路錯過幾多個落霞",
@@ -29098,9 +29051,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "未求他生碰面 但求延續記念",
-        "simplified": "未求他生碰面 但求延续记念",
-        "jyutping": "mei6 kau4 taa1 saang1 pung3 min6  daan6 kau4 jin4 zuk6 gei3 nim6",
+        "text": "未求他生碰面 路但求延續記念",
+        "simplified": "未求他生碰面 路但求延续记念",
+        "jyutping": "mei6 kau4 taa1 saang1 pung3 min6 lou6 daan6 kau4 jin4 zuk6 gei3 nim6",
         "audio": "audio/16-雪地寒山/dzw-16-021.wav",
         "analysis": {
           "words": [],
@@ -29109,7 +29062,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-16-022",
-        "singer": "方唐鏡",
+        "singer": "秀秀",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -29124,12 +29077,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-16-023",
-        "singer": "阿细",
+        "singer": "三人",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "淡然輕身上路 路遙遙段接段",
-        "simplified": "淡然轻身上路 路遙遙段接段",
+        "simplified": "淡然轻身上路 路遥遥段接段",
         "jyutping": "daam6 jin4 heng1 san1 soeng5 lou6 lou6 jiu4 jiu4 dyun6 zip3 dyun6",
         "audio": "audio/16-雪地寒山/dzw-16-023.wav",
         "analysis": {
@@ -29139,7 +29092,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-16-024",
-        "singer": "阿细",
+        "singer": "三人",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -29229,7 +29182,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "刹那間 連步履都放慢 如墨汁水中飄泛",
+        "text": "剎那間 連步履都放慢 如墨汁水中飄泛",
         "simplified": "刹那间 连步履都放慢 如墨汁水中飘泛",
         "jyutping": "saat3 naa5 gaan1 lin4 bou6 lei5 dou1 fong3 maan6 jyu4 mak6 zap1 seoi2 zung1 piu1 faan6",
         "audio": "audio/17-道德经/dzw-17-001.wav",
@@ -29244,7 +29197,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "茫然問 随墨浮沉是我 變清要怎辦",
+        "text": "茫然問 隨墨浮沉是我 變清要怎辦",
         "simplified": "茫然问 随墨浮沉是我 变清要怎办",
         "jyutping": "mong4 jin4 man6 ceoi4 mak6 fau4 cam4 si6 ngo5 bin3 cing1 jiu3 zam2 baan6",
         "audio": "audio/17-道德经/dzw-17-002.wav",
@@ -29259,7 +29212,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "刹那間 回望往昔錯犯 無道德經書撕爛",
+        "text": "剎那間 回望往昔錯犯 無道德經書撕爛",
         "simplified": "刹那间 回望往昔错犯 无道德经书撕烂",
         "jyutping": "saat3 naa5 gaan1 wui4 mong6 wong5 sik1 co3 faan6 mou4 dou6 dak1 ging1 syu1 si1 laan6",
         "audio": "audio/17-道德经/dzw-17-003.wav",
@@ -29310,7 +29263,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "如夢如幻 成就每日荒诞",
+        "text": "如夢如幻 成就每日荒誕",
         "simplified": "如梦如幻 成就每日荒诞",
         "jyutping": "jyu4 mung6 jyu4 waan6 sing4 zau6 mui5 jat6 fong1 daan6",
         "audio": "audio/17-道德经/dzw-17-006.wav",
@@ -29325,7 +29278,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "半生作蘭 態度強硬",
+        "text": "半生作繭 態度強硬",
         "simplified": "半生作茧 态度强硬",
         "jyutping": "bun3 saang1 zok3 gaan2 taai3 dou6 koeng4 ngaang6",
         "audio": "audio/17-道德经/dzw-17-007.wav",
@@ -29586,7 +29539,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "虚與實 過千關",
+        "text": "虛與實 過千關",
         "simplified": "虚与实 过千关",
         "jyutping": "heoi1 jyu5 sat6 gwo3 cin1 gwaan1",
         "audio": "audio/17-道德经/dzw-17-024.wav",
@@ -29783,7 +29736,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "我要告狀有 血有淚有唏嘘",
+        "text": "我要告狀有 血有淚有唏噓",
         "simplified": "我要告状 有血有泪有唏嘘",
         "jyutping": "ngo5 jiu3 gou3 zong6 jau5 hyut3 jau5 leoi6 jau5 hei1 heoi1",
         "audio": "audio/18-终审/dzw-18-005.wav",
@@ -29793,6 +29746,11 @@ const dazhuangwangSongs = [
               "term": "告狀",
               "meaning": "向官府控告",
               "note": "古装语境里的告状有正式诉讼意味，不只是日常抱怨。"
+            },
+            {
+              "term": "唏噓",
+              "meaning": "叹息、感慨",
+              "note": "这里是围观者看见老妇告状时的情绪反应。"
             }
           ],
           "grammar": []
@@ -29870,8 +29828,8 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "我有冇罪 靠判決定靠吹嘘",
-        "simplified": "我有冇罪 靠判決定靠吹嘘",
+        "text": "我有冇罪 靠判決定靠吹噓",
+        "simplified": "我有冇罪 靠判决定靠吹嘘",
         "jyutping": "ngo5 jau5 mou5 zeoi6 kaau3 pun3 kyut3 ding6 kaau3 ceoi1 heoi1",
         "audio": "audio/18-终审/dzw-18-010.wav",
         "analysis": {
@@ -30092,9 +30050,9 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "認…認…認…認…認…認…認",
-        "simplified": "认…认…认…认…认…认…认",
-        "jyutping": "jing6…jing6…jing6…jing6…jing6…jing6…jing6",
+        "text": "認…認…認…認…認…認…認…認",
+        "simplified": "认…认…认…认…认…认…认…认",
+        "jyutping": "jing6…jing6…jing6…jing6…jing6…jing6…jing6…jing6",
         "audio": "audio/18-终审/dzw-18-024.wav",
         "analysis": {
           "words": [],
@@ -30158,8 +30116,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-028",
-        "singer": "方唐鏡",
-        "showSinger": true,
+        "singer": "阿細",
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "公開當罪證 出招斬殺對家",
@@ -30174,7 +30132,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-029",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "混賬荒唐 都知道必定有詐",
@@ -30222,7 +30180,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "我就當做台大戲 用刑鋤對家",
+        "text": "我就當做台大戲 用刑鍘對家",
         "simplified": "我就当做台大戏 用刑铡对家",
         "jyutping": "ngo5 zau6 dong3 zou6 toi4 daai6 hei3 jung6 jing4 zaap6 deoi3 gaa1",
         "audio": "audio/18-终审/dzw-18-032.wav",
@@ -30334,8 +30292,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-039",
-        "singer": "福全",
-        "showSinger": false,
+        "singer": "群眾",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "方方方呀 狀狀狀呀",
@@ -30350,7 +30308,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-040",
         "singer": "群眾",
-        "showSinger": true,
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
         "text": "衰衰衰呀 狀狀狀呀",
@@ -30368,7 +30326,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "師呀 狀呀 呀 狀呀師",
+        "text": "師呀 狀呀 師呀 狀呀師",
         "simplified": "师呀 状呀 师呀 状呀师",
         "jyutping": "si1 aa3 zong6 aa3 si1 aa3 zong6 aa3 si1",
         "audio": "audio/18-终审/dzw-18-041.wav",
@@ -30814,8 +30772,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-068",
-        "singer": "福全",
-        "showSinger": false,
+        "singer": "方唐鏡",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "睇下 係唔係咯",
@@ -30849,7 +30807,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-069",
         "singer": "福全",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "睇錯 莫嚟恨我",
@@ -30894,8 +30852,29 @@ const dazhuangwangSongs = [
         }
       },
       {
-        "id": "dzw-18-071",
+        "id": "dzw-18-231",
         "singer": "說書人",
+        "showSinger": true,
+        "isSpoken": true,
+        "noJyutping": false,
+        "text": "方狀師！今日上堂所為何事？",
+        "simplified": "方状师！今日上堂所为何事？",
+        "jyutping": "fong1 zong6 si1 gam1 jat6 soeng5 tong4 so2 wai6 ho4 si6",
+        "audio": "audio/18-终审/dzw-18-231.wav",
+        "analysis": {
+          "words": [
+            {
+              "term": "狀師",
+              "meaning": "替人写状、出主意打官司的人",
+              "note": "古代状师未必等同现代律师，常带聪明、油滑、善辩的戏曲形象。"
+            }
+          ],
+          "grammar": []
+        }
+      },
+      {
+        "id": "dzw-18-071",
+        "singer": "福全",
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
@@ -30965,11 +30944,6 @@ const dazhuangwangSongs = [
         "analysis": {
           "words": [
             {
-              "term": "狀師",
-              "meaning": "替人写状、出主意打官司的人",
-              "note": "古代状师未必等同现代律师，常带聪明、油滑、善辩的戏曲形象。"
-            },
-            {
               "term": "呢",
               "meaning": "这",
               "note": "常见于呢个、呢啲，表示近指。"
@@ -30998,8 +30972,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-076",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福全",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "公道有天知",
@@ -31014,7 +30988,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-077",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "藥效有參差",
@@ -31028,8 +31002,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-078",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福全",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "誹謗也太易",
@@ -31044,7 +31018,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-079",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "若讀過詩書",
@@ -31058,8 +31032,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-080",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福全",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "真偽信醫師",
@@ -31074,7 +31048,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-081",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "用義理深思",
@@ -31088,8 +31062,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-082",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福全",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "公道兩個字",
@@ -31104,10 +31078,10 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-083",
         "singer": "福全",
-        "showSinger": true,
+        "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "福老板 耗費心神製藥",
+        "text": "福老闆 耗費心神製藥",
         "simplified": "福老板 耗费心神制药",
         "jyutping": "fuk1 lou5 baan2 hou3 fai3 sam1 san4 zai3 joek6",
         "audio": "audio/18-终审/dzw-18-083.wav",
@@ -31133,11 +31107,11 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-085",
-        "singer": "方唐鏡",
+        "singer": "群眾",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "方唐鏡 方唐镜 半生作孽",
+        "text": "方唐鏡 方唐鏡 半生作孽",
         "simplified": "方唐镜 方唐镜 半生作孽",
         "jyutping": "fong1 tong4 geng3 fong1 tong4 geng3  bun3 saang1 zok3 jip6",
         "audio": "audio/18-终审/dzw-18-085.wav",
@@ -31148,12 +31122,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-086",
-        "singer": "方唐鏡",
+        "singer": "群眾",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "混賬唐事 荒唐 是未了未完",
-        "simplified": "混账荒唐事 荒唐 是未了未完",
+        "text": "混賬 荒唐事 荒唐 是未了未完",
+        "simplified": "混账 荒唐事 荒唐 是未了未完",
         "jyutping": "wan6 zoeng3 fong1 tong4 si6 fong1 tong4 si6 mei6 liu5 mei6 jyun4",
         "audio": "audio/18-终审/dzw-18-086.wav",
         "analysis": {
@@ -31163,8 +31137,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-087",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福全",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "其實千萬個小童 食到好壯健",
@@ -31178,7 +31152,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-088",
-        "singer": "方唐鏡",
+        "singer": "福全",
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
@@ -31259,8 +31233,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-093",
-        "singer": "阿細",
-        "showSinger": false,
+        "singer": "群眾",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "啊…",
@@ -31293,7 +31267,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "福老板口口聲聲話遭人誣告，咁不如請佢同大家當場對質好嘛？",
+        "text": "福老闆口口聲聲話遭人誣告，咁不如請佢同大家當場對質好嘛？",
         "simplified": "福老板口口声声话遭人诬告，咁不如请佢同大家当场对质好嘛？",
         "jyutping": "fuk1 lou5 baan2 hau2 hau2 seng1 seng1 waa6 zou1 jan4 mou4 gou3 gam3 bat1 jyu4 cing2 keoi5 tung4 daai6 gaa1 dong1 coeng4 deoi3 zat1 hou2 maa3",
         "audio": "audio/18-终审/dzw-18-095.wav",
@@ -31308,7 +31282,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "對質就無謂喇 今日我為求清白：决定親身試藥！",
+        "text": "對質就無謂喇 今日我為求清白：決定親身試藥！",
         "simplified": "对质就无谓喇 今日我为求清白：决定亲身试药！",
         "jyutping": "deoi3 zat1 zau6 mou4 wai6 laa3 gam1 jat6 ngo5 wai6 kau4 cing1 baak6 kyut3 ding6 can1 san1 si3 joek6",
         "audio": "audio/18-终审/dzw-18-096.wav",
@@ -31323,7 +31297,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "等一阵！福老板肯親身試得嘅藥當然唔會有問題啦！但係宜家出事嘅，係賣俾人嘅藥吖嘛！",
+        "text": "等一陣！福老闆肯親身試得嘅藥當然唔會有問題啦！但係宜家出事嘅，係賣俾人嘅藥吖嘛！",
         "simplified": "等一阵！福老板肯亲身试得嘅药当然唔会有问题啦！但系宜家出事嘅，系卖俾人嘅药吖嘛！",
         "jyutping": "dang2 jat1 zan6 fuk1 lou5 baan2 hang2 can1 san1 si3 dak1 ge3 joek6 dong1 jin4 m4 wui5 jau5 man6 tai4 laa1 daan6 hai6 ji4 gaa1 ceot1 si6 ge3 hai6 maai6 bei2 jan4 ge3 joek6 aa1 maa3",
         "audio": "audio/18-终审/dzw-18-097.wav",
@@ -31368,7 +31342,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "福老板你唔怕有報應咩？",
+        "text": "福老闆你唔怕有報應咩？",
         "simplified": "福老板你唔怕有报应咩？",
         "jyutping": "fuk1 lou5 baan2 nei5 m4 paa3 jau5 bou3 jing3 me1",
         "audio": "audio/18-终审/dzw-18-099.wav",
@@ -31458,8 +31432,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-105",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福端康",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "係喇 不若你嚟",
@@ -31476,7 +31450,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-106",
         "singer": "方唐鏡",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "係 嘩",
@@ -31492,8 +31466,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-107",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "福端康",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "一樣可行 食過即刻見功兼轉運",
@@ -31507,8 +31481,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-108",
-        "singer": "方唐鏡",
-        "showSinger": false,
+        "singer": "群眾",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "出乜法子可對陣",
@@ -31528,7 +31502,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-109",
-        "singer": "福端康",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -31566,12 +31540,12 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-111",
-        "singer": "福端康",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "有你餵佢試下 喫呢隻藥照計你最放心",
-        "simplified": "有你喂佢试下 喫呢只药照计你最放心",
+        "simplified": "有你喂佢试下 吃呢只药照计你最放心",
         "jyutping": "jau5 nei5 wai3 keoi5 si3 haa5 jaak3 ni1 zek3 joek6 ziu3 gai3 nei5 zeoi3 fong3 sam1",
         "audio": "audio/18-终审/dzw-18-111.wav",
         "analysis": {
@@ -31603,7 +31577,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-113",
-        "singer": "福端康",
+        "singer": "方唐鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -31637,8 +31611,8 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "並唔係皤 一試就能服眾 佢係老竇",
-        "simplified": "並唔系皤 一试就能服众 佢系老窦",
+        "text": "並唔係噃 一試就能服眾 佢係老竇",
+        "simplified": "并唔系噃 一试就能服众 佢系老窦",
         "jyutping": "bing6 m4 hai6 bo3 jat1 si3 zau6 nang4 fuk6 zung3 keoi5 hai6 lou5 dau6",
         "audio": "audio/18-终审/dzw-18-115.wav",
         "analysis": {
@@ -31677,7 +31651,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "福老闆 要試就叫你個仔出嚟試",
-        "simplified": "福老板 要试就叫你个仔出嚟试。",
+        "simplified": "福老板 要试就叫你个仔出嚟试",
         "jyutping": "fuk1 lou5 baan2 jiu3 si3 zau6 giu3 nei5 go3 zai2 ceot1 lei4 si3",
         "audio": "audio/18-终审/dzw-18-117.wav",
         "analysis": {
@@ -31921,7 +31895,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "好囉喔，你哋班刁民笑夠未呀？",
+        "text": "好囉喎，你哋班刁民笑夠未呀？",
         "simplified": "好啰喔，你哋班刁民笑够未呀？",
         "jyutping": "hou2 lo4 wo3 nei5 dei6 baan1 diu1 man4 siu3 gau3 mei6 aa3",
         "audio": "audio/18-终审/dzw-18-132.wav",
@@ -32330,7 +32304,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "最终聽落去",
+        "text": "最終聽落去",
         "simplified": "最终听落去",
         "jyutping": "zeoi3 zung1 teng1 lok6 heoi3",
         "audio": "audio/18-终审/dzw-18-158.wav",
@@ -32662,7 +32636,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "年月帶着情緒 随住腳步磨碎",
+        "text": "年月帶着情緒 隨住腳步磨碎",
         "simplified": "年月带着情绪 随住脚步磨碎",
         "jyutping": "nin4 jyut6 daai3 zoek6 cing4 seoi5 ceoi4 zyu6 goek3 bou6 mo4 seoi3",
         "audio": "audio/18-终审/dzw-18-180.wav",
@@ -32722,7 +32696,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "肅静！肅静！",
+        "text": "肅靜！肅静！",
         "simplified": "肃静！肃静！",
         "jyutping": "suk1 zing6 suk1 zing6",
         "audio": "audio/18-终审/dzw-18-184.wav",
@@ -32827,8 +32801,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-191",
-        "singer": "說書人",
-        "showSinger": true,
+        "singer": "方唐鏡",
+        "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
         "text": "大家先至情緒激動咗些少，請大人見諒。",
@@ -32845,7 +32819,7 @@ const dazhuangwangSongs = [
       {
         "id": "dzw-18-192",
         "singer": "說書人",
-        "showSinger": false,
+        "showSinger": true,
         "isSpoken": true,
         "noJyutping": false,
         "text": "宋狀師，既然福老闆都釋出最大善意：",
@@ -32908,7 +32882,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": true,
         "noJyutping": false,
-        "text": "以後都可以放心服用我哋萬籌堂嘅藥",
+        "text": "以後都可以放心服用我哋萬壽堂嘅藥",
         "simplified": "以后都可以放心服用我哋万寿堂嘅药",
         "jyutping": "ji5 hau6 dou1 ho2 ji5 fong3 sam1 fuk6 jung6 ngo5 dei6 maan6 sau6 tong4 ge3 joek6",
         "audio": "audio/18-终审/dzw-18-196.wav",
@@ -32945,7 +32919,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "你根本就將天下百姓當成為你嘅搖錢樹！",
-        "simplified": "你根本就將天下百姓當成為你嘅摇钱树！",
+        "simplified": "你根本就将天下百姓当成为你嘅摇钱树！",
         "jyutping": "nei5 gan1 bun2 zau6 zoeng1 tin1 haa6 baak3 sing3 dong3 sing4 wai4 nei5 ge3 jiu4 cin4 syu6",
         "audio": "audio/18-终审/dzw-18-198.wav",
         "analysis": {
@@ -33056,7 +33030,7 @@ const dazhuangwangSongs = [
         "isSpoken": true,
         "noJyutping": false,
         "text": "當然。",
-        "simplified": "当然",
+        "simplified": "当然。",
         "jyutping": "dong1 jin4",
         "audio": "audio/18-终审/dzw-18-205.wav",
         "analysis": {
@@ -33229,7 +33203,7 @@ const dazhuangwangSongs = [
         "showSinger": false,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "赔上性命 才見到內心安定",
+        "text": "賠上性命 才見到內心安定",
         "simplified": "赔上性命 才见到内心安定",
         "jyutping": "pui4 soeng5 sing3 ming6 coi4 gin3 dou3 noi6 sam1 on1 ding6",
         "audio": "audio/18-终审/dzw-18-216.wav",
@@ -33304,7 +33278,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "懷缅那日 寻過燦爛 金蜻蜓",
+        "text": "懷緬那日 尋過燦爛 金蜻蜓",
         "simplified": "怀缅那日 寻过灿烂 金蜻蜓",
         "jyutping": "waai4 min5 naa5 jat6 cam4 gwo3 caan3 laan6 gam1 cing1 ting4",
         "audio": "audio/18-终审/dzw-18-221.wav",
@@ -33315,7 +33289,7 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-222",
-        "singer": "小鏡、小細",
+        "singer": "小鏡",
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
@@ -33330,8 +33304,8 @@ const dazhuangwangSongs = [
       },
       {
         "id": "dzw-18-223",
-        "singer": "小鏡、小細",
-        "showSinger": false,
+        "singer": "小細",
+        "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
         "text": "我再睜開雙眼睛",
@@ -33887,7 +33861,7 @@ const dazhuangwangSongs = [
         "showSinger": true,
         "isSpoken": false,
         "noJyutping": false,
-        "text": "Hmm…",
+        "text": "嗯…",
         "simplified": "嗯…",
         "jyutping": "hm4…",
         "audio": "audio/19-倾听/dzw-19-028.wav",
@@ -34659,7 +34633,9 @@ function renderTokenWrap(song, line, lineIndex) {
     wrap.append(item);
   });
 
-  wrap.append(renderSpeakToken(song, line, displayText, lineIndex));
+  if (line.audio) {
+    wrap.append(renderSpeakToken(song, line, displayText, lineIndex));
+  }
   return wrap;
 }
 
