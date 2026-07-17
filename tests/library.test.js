@@ -68,10 +68,42 @@ test("every show card links directly to its page instead of a folder", () => {
   }
 });
 
-test("online library hides show pages that are not deployed", () => {
+test("online library renders only explicitly deployed shows without network probes", () => {
+  assert.deepEqual(
+    libraryShows.filter((show) => show.deployed).map((show) => show.id),
+    ["dazhuangwang", "hamilton", "rouge-et-noir"],
+  );
   assert.match(libraryScript, /window\.location\.protocol === "file:"/);
-  assert.match(libraryScript, /fetch\(show\.href, \{ method: "HEAD", cache: "no-store" \}\)/);
-  assert.match(libraryScript, /availableShows = window\.libraryShows\.filter/);
+  assert.match(libraryScript, /window\.libraryShows\.filter\(\(show\) => show\.deployed\)/);
+  assert.doesNotMatch(libraryScript, /\bfetch\s*\(/);
+  assert.doesNotMatch(libraryScript, /method: "HEAD"/);
+});
+
+test("homepage logos decode asynchronously and show links prefetch on intent", () => {
+  assert.match(libraryScript, /image\.loading = "lazy"/);
+  assert.match(libraryScript, /image\.decoding = "async"/);
+  assert.match(libraryScript, /link\.rel = "prefetch"/);
+  assert.match(libraryScript, /card\.addEventListener\("pointerenter"/);
+  assert.match(libraryScript, /card\.addEventListener\("focus"/);
+});
+
+test("all raster logos stay within the homepage delivery budget", () => {
+  libraryShows.filter((show) => show.image.endsWith(".png")).forEach((show) => {
+    const file = path.join(root, show.image);
+    const size = fs.statSync(file).size;
+    const png = fs.readFileSync(file);
+    const width = png.readUInt32BE(16);
+    const height = png.readUInt32BE(20);
+    assert.ok(size < 250_000, `${show.id}: ${(size / 1024).toFixed(1)} KiB`);
+    assert.ok(Math.max(width, height) <= 520, `${show.id}: ${width}×${height}`);
+  });
+});
+
+test("deployed cards prefetch their first-screen data without probing undeployed shows", () => {
+  const deployed = libraryShows.filter((show) => show.deployed);
+  assert.ok(deployed.every((show) => show.prefetch?.length === 1));
+  assert.match(libraryScript, /\[show\.href, \.\.\.\(show\.prefetch \|\| \[\]\)\]/);
+  assert.doesNotMatch(libraryScript, /window\.libraryShows\.flatMap\([^)]*prefetch/);
 });
 
 test("library and all twenty show pages keep the shared Google Analytics tag", () => {

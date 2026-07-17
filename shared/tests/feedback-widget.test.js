@@ -100,7 +100,7 @@ test("Hamilton and Rouge et Noir mount feedback next to display controls", () =>
   assert.match(hamilton, /data-toggle="showIpa"[\s\S]*id="feedbackButton"[^>]*>反馈<\/button>/);
   assert.match(hamilton, /\.\.\/shared\/feedback-widget\.js/);
   assert.match(hamilton, /window\.MusicalFeedback\.mount/);
-  assert.match(hamilton, /window\.hamiltonSongs/);
+  assert.match(hamilton, /window\.hamiltonLyricsRows/);
   assert.match(hamilton, /getCurrentSong\(\)\?\.id/);
 
   const rouge = fs.readFileSync(path.resolve(__dirname, "../../rouge-et-noir/index.html"), "utf8");
@@ -141,11 +141,12 @@ test("dazhuangwang about dialog keeps its close button visible on mobile", () =>
 
 test("dazhuangwang renders collapsible song-level annotations above lyrics", () => {
   const page = fs.readFileSync(path.resolve(__dirname, "../../dazhuangwang/index.html"), "utf8");
+  const songsSource = fs.readFileSync(path.resolve(__dirname, "../../dazhuangwang/songs.js"), "utf8");
   assert.match(page, /id="songAnnotations"[^>]+aria-label="本首歌注释"/);
   assert.match(page, /function renderSongAnnotations/);
   assert.match(page, /function collectSongAnnotations/);
   assert.match(page, /song\.annotations \|\| song\.notes \|\| song\.footnotes/);
-  assert.match(page, /"annotations": \[/);
+  assert.match(songsSource, /"annotations":\[/);
   assert.doesNotMatch(page, /const dazhuangwangSongAnnotations =/);
   assert.doesNotMatch(page, /normalizeAnnotationEntries\(line\.analysis\?\.words\)/);
   assert.match(page, /className = "annotation-toggle"/);
@@ -156,9 +157,9 @@ test("dazhuangwang renders collapsible song-level annotations above lyrics", () 
   assert.match(page, /className = "annotation-term-text"/);
   assert.match(page, /\.annotation-term\.is-jump-link \.annotation-term-text/);
 
-  const songsStart = page.indexOf("const dazhuangwangSongs = ") + "const dazhuangwangSongs = ".length;
-  const songsEnd = page.indexOf(";\n\nwindow.dazhuangwangSongs = dazhuangwangSongs;", songsStart);
-  const songs = JSON.parse(page.slice(songsStart, songsEnd));
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(songsSource, sandbox);
+  const songs = sandbox.window.dazhuangwangSongs;
   const expected = [
     [1, "郇", "郇嘢"],
     [5, "打小人", "心理转运"],

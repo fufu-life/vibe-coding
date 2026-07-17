@@ -9,7 +9,7 @@ const defaultSettings = {
   showPhonetics: false,
 };
 
-const correctedLinePhonetics = window.rougeLinePhonetics || {};
+let correctedLinePhonetics = {};
 
 const COMMON_WORD_GLOSSARY = {
   a: { ipa: "/a/", en: "has / have", zh: "有；已经", speak: "a" },
@@ -446,6 +446,26 @@ function init() {
   bindRougeCursor();
   updateSidebarState();
   renderCurrentSong();
+  loadDeferredPhonetics().catch((error) => {
+    console.error("Deferred Rouge et Noir phonetics failed to load", error);
+  });
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => reject(new Error(`Failed to load ${src}`)), { once: true });
+    document.head.append(script);
+  });
+}
+
+async function loadDeferredPhonetics() {
+  await loadScript("line-phonetics.js");
+  correctedLinePhonetics = window.rougeLinePhonetics || {};
+  if (appState.settings.showPhonetics) renderCurrentSong();
 }
 
 function loadJson(key, fallback) {
@@ -749,10 +769,14 @@ function renderLyricLine(song, line) {
   sentenceSpeakButton.type = "button";
   sentenceSpeakButton.setAttribute("aria-label", `朗读整句：${line.fr}`);
   sentenceSpeakButton.append(createSpeakerIcon());
+  const lineAudioPath = getLineAudioPath(song, line);
+  const primeLineAudio = () => window.MusicalAudio.preloadLocalAudio(lineAudioPath);
+  sentenceSpeakButton.addEventListener("pointerenter", primeLineAudio, { once: true });
+  sentenceSpeakButton.addEventListener("focus", primeLineAudio, { once: true });
   sentenceSpeakButton.addEventListener("click", () => audioController.runUserAction(
     sentenceSpeakButton,
     async () => {
-      const didSpeak = await playFrenchAudio(getLineAudioPath(song, line), line.fr);
+      const didSpeak = await playFrenchAudio(lineAudioPath, line.fr);
 
       if (!didSpeak) {
         sentenceSpeakButton.title = "未找到法语语音";
@@ -1802,11 +1826,13 @@ function showWordPopup(song, displayWord, key, anchor, phoneticContext = {}) {
   speakButton.title = "播放发音";
   speakButton.setAttribute("aria-label", `播放发音：${displayWord}`);
   speakButton.append(createSpeakerIcon());
+  const wordAudioPath = getWordAudioPath(entry?.speak || displayWord);
+  window.MusicalAudio.preloadLocalAudio(wordAudioPath);
   speakButton.addEventListener("click", (event) => {
     event.stopPropagation();
     audioController.runUserAction(speakButton, async () => {
       const speakText = entry?.speak || displayWord;
-      const didSpeak = await playFrenchAudio(getWordAudioPath(speakText), speakText);
+      const didSpeak = await playFrenchAudio(wordAudioPath, speakText);
 
       if (!didSpeak) {
         speakButton.title = "未找到法语语音";
@@ -1897,8 +1923,8 @@ function playLocalAudio(src, waitForEnd) {
     return Promise.reject(new Error("Missing audio source"));
   }
   stopCurrentPlayback();
-  const audio = new Audio(src);
-  audio.preload = "auto";
+  const audio = window.MusicalAudio.getCachedAudio(src);
+  if (!audio) return Promise.reject(new Error("Audio playback unavailable"));
   audioState.current = audio;
   if (!waitForEnd) return audio.play();
 
@@ -1925,11 +1951,11 @@ function playLocalAudio(src, waitForEnd) {
 }
 
 function getLineAudioPath(song, line) {
-  return `audio/lines/${encodeURIComponent(song.id)}/${encodeURIComponent(line.id)}.wav`;
+  return `audio/lines/${encodeURIComponent(song.id)}/${encodeURIComponent(line.id)}.mp3`;
 }
 
 function getWordAudioPath(text) {
-  return `audio/words/${hashFrenchAudioText(text)}.wav`;
+  return `audio/words/${hashFrenchAudioText(text)}.mp3`;
 }
 
 function hashFrenchAudioText(text) {
@@ -2013,9 +2039,7 @@ function toggleCurrentSongPlayback() {
 }
 
 function preloadLineAudio(song, line) {
-  const audio = new Audio(getLineAudioPath(song, line));
-  audio.preload = "auto";
-  audio.load();
+  const audio = window.MusicalAudio.preloadLocalAudio(getLineAudioPath(song, line));
   audioState.preload = audio;
 }
 

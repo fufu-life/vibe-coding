@@ -110,7 +110,7 @@ def main() -> None:
     song_count = len({row["song_order"] for row in rows})
 
     payload = "window.hamiltonLyricsRows = "
-    payload += json.dumps(rows, ensure_ascii=False, indent=2)
+    payload += json.dumps(rows, ensure_ascii=False, separators=(",", ":"))
     payload += ";\n"
     OUTPUT_JS.write_text(payload, encoding="utf-8")
 

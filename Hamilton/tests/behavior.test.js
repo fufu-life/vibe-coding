@@ -42,9 +42,20 @@ test("page mounts the shared feedback widget with current song selection", () =>
   assert.match(indexHtml, /\.\.\/shared\/feedback-widget\.js/);
   assert.match(indexHtml, /window\.MusicalFeedback\.mount/);
   assert.match(indexHtml, /trigger:\s*"#feedbackButton"/);
-  assert.match(indexHtml, /window\.hamiltonSongs/);
+  assert.match(indexHtml, /window\.hamiltonLyricsRows/);
   assert.match(indexHtml, /getCurrentSongId:\s*\(\) =>/);
   assert.match(indexHtml, /getCurrentSong\(\)\?\.id/);
+});
+
+test("lyrics render before noncritical analysis and word data load", () => {
+  assert.match(indexHtml, /<link rel="preload" href="word-data\.js" as="script" fetchpriority="low" \/>/);
+  assert.doesNotMatch(indexHtml, /<script src="songs\.js"><\/script>/);
+  assert.doesNotMatch(indexHtml, /<script src="word-data\.js"><\/script>/);
+  assert.match(scriptJs, /renderCurrentSong\(\);\s*wordDictionaryReady = loadWordDictionary/);
+  assert.match(scriptJs, /await loadScript\("word-data\.js", "high"\)/);
+  assert.match(scriptJs, /await loadScript\("songs\.js", "low"\)/);
+  assert.match(scriptJs, /showLoadingPopover\(part, button\);\s*await wordDictionaryReady/);
+  assert.doesNotMatch(scriptJs, /await\s+(?:analysisDataReady|loadAnalysisData)/);
 });
 
 test("page includes the shared Google Analytics tag", () => {
@@ -101,10 +112,12 @@ test("sentence and word pronunciation prefer local audio files", () => {
   assert.match(scriptJs, /const audioState\s*=\s*\{\s*current:\s*null,/);
   assert.match(scriptJs, /function renderLine\(song, line\)/);
   assert.match(scriptJs, /renderLine\(song, line\)/);
-  assert.match(scriptJs, /playEnglishAudio\(getLineAudioPath\(song, line\), line\.en\)/);
-  assert.match(scriptJs, /playEnglishAudio\(getWordAudioPath\(text\), text\)/);
+  assert.match(scriptJs, /playEnglishAudio\(lineAudioPath, line\.en\)/);
+  assert.match(scriptJs, /playEnglishAudio\(wordAudioPath, text\)/);
   assert.match(scriptJs, /function playLocalAudio\(src, waitForEnd\)/);
-  assert.match(scriptJs, /new Audio\(src\)/);
+  assert.match(scriptJs, /MusicalAudio\.getCachedAudio\(src\)/);
+  assert.match(scriptJs, /MusicalAudio\.preloadLocalAudio/);
+  assert.match(scriptJs, /\.mp3/);
   assert.match(scriptJs, /audio\/lines\/\$\{encodeURIComponent\(song\.id\)\}/);
   assert.match(scriptJs, /audio\/words\/\$\{encodeURIComponent\(key\)\}/);
   assert.match(indexHtml, /\.\.\/shared\/audio-playback\.js/);

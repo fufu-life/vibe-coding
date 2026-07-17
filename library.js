@@ -1,6 +1,7 @@
 (function () {
   const groupsRoot = document.querySelector("#languageGroups");
   const countNode = document.querySelector("#showCount");
+  const prefetchedPages = new Set();
 
   function appendCoverTitle(cover, show) {
     if (show.image) {
@@ -8,6 +9,8 @@
       image.className = "show-logo";
       image.src = show.image;
       image.alt = "";
+      image.loading = "lazy";
+      image.decoding = "async";
       cover.append(image);
       return;
     }
@@ -23,6 +26,19 @@
     originalTitle.textContent = show.originalTitle;
     title.append(strong, originalTitle);
     cover.append(title);
+  }
+
+  function prefetchShowPage(show) {
+    if (window.location.protocol === "file:") return;
+
+    [show.href, ...(show.prefetch || [])].forEach((href) => {
+      if (prefetchedPages.has(href)) return;
+      const link = document.createElement("link");
+      link.rel = "prefetch";
+      link.href = href;
+      document.head.append(link);
+      prefetchedPages.add(href);
+    });
   }
 
   function createCard(show) {
@@ -44,6 +60,8 @@
     title.textContent = show.title;
     copy.append(meta, title);
     card.append(cover, copy);
+    card.addEventListener("pointerenter", () => prefetchShowPage(show), { once: true });
+    card.addEventListener("focus", () => prefetchShowPage(show), { once: true });
     return card;
   }
 
@@ -71,20 +89,10 @@
     return section;
   }
 
-  async function pageExists(show) {
-    if (window.location.protocol === "file:") return true;
-
-    try {
-      const response = await fetch(show.href, { method: "HEAD", cache: "no-store" });
-      return response.ok;
-    } catch (_error) {
-      return false;
-    }
-  }
-
-  async function renderLibrary() {
-    const availability = await Promise.all(window.libraryShows.map(pageExists));
-    const availableShows = window.libraryShows.filter((_show, index) => availability[index]);
+  function renderLibrary() {
+    const availableShows = window.location.protocol === "file:"
+      ? window.libraryShows
+      : window.libraryShows.filter((show) => show.deployed);
 
     countNode.textContent = String(availableShows.length);
     const groups = window.libraryLanguages.flatMap((language) => {

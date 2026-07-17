@@ -344,7 +344,7 @@ def main() -> None:
         }
 
     payload = "window.hamiltonWordEntries = "
-    payload += json.dumps(word_entries, ensure_ascii=False, indent=2)
+    payload += json.dumps(word_entries, ensure_ascii=False, separators=(",", ":"))
     payload += ";\n"
     OUTPUT_JS.write_text(payload, encoding="utf-8")
     print(f"Wrote {OUTPUT_JS} with {len(word_entries)} word entries")

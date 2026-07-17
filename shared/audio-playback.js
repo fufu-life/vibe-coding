@@ -1,6 +1,52 @@
 (function initMusicalAudio(globalScope) {
   const MINIMUM_INTERVAL_MS = 800;
   const SEQUENCE_GAP_MS = 500;
+  const BUSY_DELAY_MS = 160;
+  const AUDIO_CACHE_LIMIT = 96;
+  const audioCache = new Map();
+  const preloadRequests = new WeakSet();
+
+  function trimAudioCache() {
+    for (const [key, audio] of audioCache) {
+      if (audioCache.size <= AUDIO_CACHE_LIMIT) break;
+      if (!audio.paused && !audio.ended) continue;
+      audioCache.delete(key);
+    }
+  }
+
+  function getCachedAudio(src) {
+    if (!src) return null;
+    const key = String(src);
+    let audio = audioCache.get(key);
+    if (audio?.error) {
+      audioCache.delete(key);
+      audio = null;
+    }
+    if (!audio) {
+      if (typeof globalScope.Audio !== "function") return null;
+      audio = new globalScope.Audio(key);
+      audio.preload = "auto";
+    } else {
+      audioCache.delete(key);
+    }
+    audioCache.set(key, audio);
+    trimAudioCache();
+    return audio;
+  }
+
+  function preloadLocalAudio(src) {
+    const audio = getCachedAudio(src);
+    if (audio?.readyState === 0 && !preloadRequests.has(audio)) {
+      preloadRequests.add(audio);
+      audio.load?.();
+    }
+    return audio;
+  }
+
+  function clearAudioCache() {
+    audioCache.forEach((audio) => audio.pause?.());
+    audioCache.clear();
+  }
 
   function setButtonBusy(button, busy) {
     if (!button) return;
@@ -24,6 +70,9 @@
     const minimumIntervalMs = options.minimumIntervalMs ?? MINIMUM_INTERVAL_MS;
     const now = options.now || (() => globalScope.performance.now());
     const delay = options.delay || ((ms) => new Promise((resolve) => globalScope.setTimeout(resolve, ms)));
+    const busyDelayMs = options.busyDelayMs ?? BUSY_DELAY_MS;
+    const schedule = options.schedule || ((callback, ms) => globalScope.setTimeout(callback, ms));
+    const cancelSchedule = options.cancelSchedule || ((timer) => globalScope.clearTimeout(timer));
     const stopCurrent = options.stopCurrent || (() => {});
     let lastAcceptedAt = Number.NEGATIVE_INFINITY;
     let userRequestPending = false;
@@ -60,11 +109,20 @@
       lastAcceptedAt = acceptedAt;
       stopSequence();
       userRequestPending = true;
-      setButtonBusy(button, true);
+      let busyTimer = null;
+      if (busyDelayMs <= 0) {
+        setButtonBusy(button, true);
+      } else {
+        busyTimer = schedule(() => {
+          busyTimer = null;
+          if (userRequestPending) setButtonBusy(button, true);
+        }, busyDelayMs);
+      }
       try {
         await action();
         return true;
       } finally {
+        if (busyTimer !== null) cancelSchedule(busyTimer);
         userRequestPending = false;
         setButtonBusy(button, false);
       }
@@ -137,7 +195,16 @@
     };
   }
 
-  const api = { MINIMUM_INTERVAL_MS, SEQUENCE_GAP_MS, createController };
+  const api = {
+    MINIMUM_INTERVAL_MS,
+    SEQUENCE_GAP_MS,
+    BUSY_DELAY_MS,
+    AUDIO_CACHE_LIMIT,
+    createController,
+    getCachedAudio,
+    preloadLocalAudio,
+    clearAudioCache,
+  };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   globalScope.MusicalAudio = api;
 })(typeof window !== "undefined" ? window : globalThis);

@@ -7,6 +7,8 @@ const ROOT = path.resolve(__dirname, "..");
 const SONGS_FILE = path.join(ROOT, "songs.js");
 const SCRIPT_FILE = path.join(ROOT, "script.js");
 const TEMP_ROOT = path.join(ROOT, ".audio-tmp");
+const MASTER_ROOT = process.env.MUSICAL_AUDIO_MASTER_ROOT
+  || path.resolve(ROOT, "..", "..", "audio-masters", "vibe-coding-current", path.basename(ROOT));
 const VOICE = process.env.ROUGE_TTS_VOICE || "Audrey";
 const FORCE = process.argv.includes("--force");
 const LIST_ONLY = process.argv.includes("--list");
@@ -37,12 +39,20 @@ function hashFrenchAudioText(text) {
   return `fr-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
 
-function getLineAudioPath(song, line) {
-  return path.join(ROOT, "audio", "lines", encodeURIComponent(song.id), `${encodeURIComponent(line.id)}.wav`);
+function getLineAudioPaths(song, line) {
+  const relative = path.join("audio", "lines", encodeURIComponent(song.id), encodeURIComponent(line.id));
+  return {
+    master: path.join(MASTER_ROOT, `${relative}.wav`),
+    output: path.join(ROOT, `${relative}.mp3`),
+  };
 }
 
-function getWordAudioPath(text) {
-  return path.join(ROOT, "audio", "words", `${hashFrenchAudioText(text)}.wav`);
+function getWordAudioPaths(text) {
+  const relative = path.join("audio", "words", hashFrenchAudioText(text));
+  return {
+    master: path.join(MASTER_ROOT, `${relative}.wav`),
+    output: path.join(ROOT, `${relative}.mp3`),
+  };
 }
 
 function lyricWords(text) {
@@ -72,7 +82,7 @@ function collectLineJobs() {
       jobs.push({
         id: line.id,
         text: line.fr,
-        output: getLineAudioPath(song, line),
+        ...getLineAudioPaths(song, line),
       });
     });
   });
@@ -111,12 +121,12 @@ function collectWordJobs() {
     .map((text) => ({
       id: hashFrenchAudioText(text),
       text,
-      output: getWordAudioPath(text),
+      ...getWordAudioPaths(text),
     }));
 }
 
 function shouldSkip(file) {
-  return !FORCE && fs.existsSync(file) && fs.statSync(file).size > 4096;
+  return !FORCE && fs.existsSync(file) && fs.statSync(file).size > 512;
 }
 
 function run(command, args, id) {
@@ -137,26 +147,44 @@ function assertAudio(file, id) {
   }
 }
 
+function assertDelivery(file, id) {
+  const size = fs.existsSync(file) ? fs.statSync(file).size : 0;
+  if (size < 512) throw new Error(`Empty or invalid MP3 delivery for ${id}: ${file}`);
+}
+
 function buildAudio(jobs, label) {
   let generated = 0;
   let skipped = 0;
   let failed = 0;
 
   jobs.forEach((job) => {
-    fs.mkdirSync(path.dirname(job.output), { recursive: true });
-
     if (shouldSkip(job.output)) {
       skipped += 1;
       return;
     }
 
     const tempAiff = path.join(TEMP_ROOT, `${label}-${job.id}.aiff`);
+    const tempMp3 = `${job.output}.tmp`;
 
     try {
-      run("say", ["-v", VOICE, "-o", tempAiff, job.text], job.id);
-      assertAudio(tempAiff, job.id);
-      run("afconvert", [tempAiff, job.output, "-f", "WAVE", "-d", "LEI16"], job.id);
-      assertAudio(job.output, job.id);
+      if (FORCE || !fs.existsSync(job.master) || fs.statSync(job.master).size < 4096) {
+        fs.mkdirSync(path.dirname(job.master), { recursive: true });
+        run("say", ["-v", VOICE, "-o", tempAiff, job.text], job.id);
+        assertAudio(tempAiff, job.id);
+        run("afconvert", [tempAiff, job.master, "-f", "WAVE", "-d", "LEI16"], job.id);
+        assertAudio(job.master, job.id);
+      }
+      fs.mkdirSync(path.dirname(job.output), { recursive: true });
+      run("ffmpeg", [
+        "-hide_banner", "-loglevel", "error", "-nostdin", "-y",
+        "-i", job.master,
+        "-vn", "-map_metadata", "-1",
+        "-ac", "1", "-ar", "22050",
+        "-c:a", "libmp3lame", "-b:a", "64k",
+        "-f", "mp3", tempMp3,
+      ], job.id);
+      assertDelivery(tempMp3, job.id);
+      fs.renameSync(tempMp3, job.output);
       generated += 1;
       if (generated % 100 === 0) {
         console.log(`${label}: generated ${generated} files...`);
@@ -167,6 +195,7 @@ function buildAudio(jobs, label) {
       fs.rmSync(job.output, { force: true });
     } finally {
       fs.rmSync(tempAiff, { force: true });
+      fs.rmSync(tempMp3, { force: true });
     }
   });
 

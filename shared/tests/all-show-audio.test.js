@@ -25,10 +25,16 @@ function readShowFiles(show) {
 
 function readSongData(show) {
   const directory = path.join(root, getShowDirectory(show));
-  if (show.id === "dazhuangwang") {
-    return fs.readFileSync(path.join(directory, "index.html"), "utf8");
-  }
   return fs.readFileSync(path.join(directory, "songs.js"), "utf8");
+}
+
+function listAudioFiles(directory) {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const target = path.join(directory, entry.name);
+    if (entry.isDirectory()) return listAudioFiles(target);
+    return entry.isFile() ? [target] : [];
+  });
 }
 
 function readDisplayedLyricText(show) {
@@ -44,10 +50,7 @@ function readDisplayedLyricText(show) {
     ]).join("\n");
   }
   if (show.id === "dazhuangwang") {
-    const index = fs.readFileSync(path.join(directory, "index.html"), "utf8");
-    const songsSource = index.match(/const dazhuangwangSongs = (\[[\s\S]*?\]);\s*window\.dazhuangwangSongs/)?.[1];
-    assert.ok(songsSource, `${show.id}: displayed lyric data`);
-    vm.runInNewContext(`window.dazhuangwangSongs = ${songsSource}`, sandbox);
+    vm.runInNewContext(fs.readFileSync(path.join(directory, "songs.js"), "utf8"), sandbox);
     return sandbox.window.dazhuangwangSongs.flatMap((song) => [
       song.title,
       song.titleSimplified,
@@ -73,6 +76,9 @@ test("all twenty show pages load the shared audio guard and expose a playlist bu
     assert.match(index, /playlist-lines-mark/, `${show.id}: non-speaker playlist icon`);
     assert.match(index, /playlist-stop-mark" x="8"/, `${show.id}: centered stop icon`);
     assert.match(script, /MusicalAudio\.createController/, `${show.id}: controller initialization`);
+    assert.match(script, /MusicalAudio\.getCachedAudio/, `${show.id}: cached repeated playback`);
+    assert.match(script, /MusicalAudio\.preloadLocalAudio/, `${show.id}: shared preload cache`);
+    assert.doesNotMatch(script, /new Audio\(/, `${show.id}: no per-click media reconstruction`);
     assert.match(script, /audioController\.runUserAction/, `${show.id}: guarded manual playback`);
     assert.match(script, /audioController\.toggleSequence/, `${show.id}: sequential playback`);
     assert.match(script, /audioController\.stopAll/, `${show.id}: song-change cleanup`);
@@ -86,6 +92,31 @@ test("all twenty show pages load the shared audio guard and expose a playlist bu
   });
 });
 
+test("all show deployment trees contain only compact MP3 audio", () => {
+  let total = 0;
+  libraryShows.forEach((show) => {
+    const directory = path.join(root, getShowDirectory(show), "audio");
+    const files = listAudioFiles(directory);
+    assert.ok(files.length > 0, `${show.id}: deployment audio exists`);
+    files.forEach((file) => assert.equal(path.extname(file).toLowerCase(), ".mp3", `${show.id}: ${file}`));
+    total += files.length;
+  });
+  assert.equal(total, 53751);
+});
+
+test("future audio builds write external WAV masters and deploy MP3 automatically", () => {
+  const builder = fs.readFileSync(path.join(root, "shared/build-natural-audio.js"), "utf8");
+  const pruner = fs.readFileSync(path.join(root, "shared/prune-generated-audio.js"), "utf8");
+  const validator = fs.readFileSync(path.join(root, "shared/validate-audio-library.js"), "utf8");
+
+  assert.match(builder, /audio-masters/);
+  assert.match(builder, /vibe-coding-current/);
+  assert.match(builder, /libmp3lame/);
+  assert.match(builder, /\.mp3/);
+  assert.match(pruner, /\.mp3/);
+  assert.match(validator, /\.mp3/);
+});
+
 test("the three independent pages keep their own audio and fallback implementations", () => {
   const hamilton = readShowFiles(libraryShows.find((show) => show.id === "hamilton")).script;
   const rouge = readShowFiles(libraryShows.find((show) => show.id === "rouge-et-noir")).script;
@@ -97,6 +128,59 @@ test("the three independent pages keep their own audio and fallback implementati
   assert.match(rouge, /speakFrench\(line\.fr, true\)/);
   assert.match(dazhuangwang, /function playDazhuangwangLineToEnd/);
   assert.match(dazhuangwang, /function speakCantoneseToEnd/);
+});
+
+test("dazhuangwang excludes the non-Chinese Hmm vocalization from phonetics and playback", () => {
+  const show = libraryShows.find((item) => item.id === "dazhuangwang");
+  const directory = path.join(root, getShowDirectory(show));
+  const sandbox = { window: {} };
+  vm.runInNewContext(fs.readFileSync(path.join(directory, "songs.js"), "utf8"), sandbox);
+  const line = sandbox.window.dazhuangwangSongs
+    .flatMap((song) => song.lines)
+    .find((item) => item.id === "dzw-19-001");
+  const { script } = readShowFiles(show);
+
+  assert.equal(line.text, "Hmm…Hmm…Hmm…Hmm…Hmm…Hmm…Hmm…Hmm…Hmm…");
+  assert.equal(line.noJyutping, true);
+  assert.equal(line.noAudio, true);
+  assert.equal(line.jyutping, "");
+  assert.equal(line.audio, "");
+  assert.match(script, /items: song\.lines\.filter\(\(line\) => !line\.noAudio\)/);
+  assert.equal(fs.existsSync(path.join(directory, "audio/19-倾听/dzw-19-001.wav")), false);
+});
+
+test("dazhuangwang uses the complete Jyutping initial for 啱", () => {
+  const show = libraryShows.find((item) => item.id === "dazhuangwang");
+  const directory = path.join(root, getShowDirectory(show));
+  const sandbox = { window: {} };
+  vm.runInNewContext(fs.readFileSync(path.join(directory, "songs.js"), "utf8"), sandbox);
+  const firstSong = sandbox.window.dazhuangwangSongs.find((song) => song.order === 1);
+  const target = firstSong.lines.find((line) => line.id === "dzw-01-032");
+
+  assert.equal(target.text, "啱");
+  assert.equal(target.jyutping, "ngaam1");
+  assert.equal(firstSong.lines.some((line) => line.text === "啱" && line.jyutping === "aam1"), false);
+});
+
+test("dazhuangwang deploys compact MP3 sentence audio without stale WAV references", () => {
+  const show = libraryShows.find((item) => item.id === "dazhuangwang");
+  const directory = path.join(root, getShowDirectory(show));
+  const sandbox = { window: {} };
+  vm.runInNewContext(fs.readFileSync(path.join(directory, "songs.js"), "utf8"), sandbox);
+  const audioLines = sandbox.window.dazhuangwangSongs
+    .flatMap((song) => song.lines)
+    .filter((line) => line.audio);
+
+  assert.equal(audioLines.length, 1351);
+  audioLines.forEach((line) => {
+    assert.match(line.audio, /\.mp3$/i, `${line.id}: compact web audio path`);
+    assert.equal(fs.existsSync(path.join(directory, line.audio)), true, `${line.id}: audio file exists`);
+  });
+  assert.equal(
+    fs.readdirSync(path.join(directory, "audio"), { recursive: true })
+      .some((name) => typeof name === "string" && name.toLowerCase().endsWith(".wav")),
+    false,
+  );
 });
 
 test("all song changes reset the new page to the top", () => {

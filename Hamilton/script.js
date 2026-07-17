@@ -5,10 +5,11 @@ const CSV_PATH = "hamilton_lyrics_en_based.csv";
 
 let songs = [];
 let wordLookup = new Map();
+let analysisSongs = [];
+let analysisByLine = new Map();
+let generatedWordEntries = {};
+let wordDictionaryReady = Promise.resolve();
 const audioState = { current: null, finish: null, speechFinish: null, preload: null };
-const analysisSongs = [...(window.hamiltonSongs || [])];
-const analysisByLine = buildAnalysisLookup(analysisSongs);
-const generatedWordEntries = window.hamiltonWordEntries || {};
 const state = {
   settings: { showZh: true, showIpa: true, ...sanitizeSettings(loadJson(SETTINGS_KEY, {})) },
   currentSongId: "",
@@ -126,11 +127,42 @@ async function init() {
     songs = await loadSongs();
     state.currentSongId = resolveInitialSongId();
     renderCurrentSong();
+    wordDictionaryReady = loadWordDictionary().catch((error) => {
+      console.error("Deferred Hamilton word dictionary failed to load", error);
+    });
+    loadAnalysisData().catch((error) => {
+      console.error("Deferred Hamilton analysis data failed to load", error);
+    });
   } catch (error) {
     console.error(error);
     refs.songTitle.textContent = "Hamilton 中英歌词";
     refs.lyrics.innerHTML = '<p class="empty">没有读到歌词数据。</p>';
   }
+}
+
+function loadScript(src, fetchPriority = "auto") {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.fetchPriority = fetchPriority;
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => reject(new Error(`Failed to load ${src}`)), { once: true });
+    document.head.append(script);
+  });
+}
+
+async function loadWordDictionary() {
+  await loadScript("word-data.js", "high");
+  generatedWordEntries = window.hamiltonWordEntries || {};
+  songs = buildSongsFromRows(window.hamiltonLyricsRows || []);
+}
+
+async function loadAnalysisData() {
+  await loadScript("songs.js", "low");
+  analysisSongs = [...(window.hamiltonSongs || [])];
+  analysisByLine = buildAnalysisLookup(analysisSongs);
+  songs = buildSongsFromRows(window.hamiltonLyricsRows || []);
 }
 
 async function loadSongs() {
@@ -523,9 +555,13 @@ function renderLine(song, line) {
   speak.title = "朗读这一句";
   speak.setAttribute("aria-label", `朗读：${line.en}`);
   speak.append(createSpeakerIcon());
+  const lineAudioPath = getLineAudioPath(song, line);
+  const primeLineAudio = () => window.MusicalAudio.preloadLocalAudio(lineAudioPath);
+  speak.addEventListener("pointerenter", primeLineAudio, { once: true });
+  speak.addEventListener("focus", primeLineAudio, { once: true });
   speak.addEventListener("click", () => audioController.runUserAction(
     speak,
-    () => playEnglishAudio(getLineAudioPath(song, line), line.en),
+    () => playEnglishAudio(lineAudioPath, line.en),
   ));
   actions.append(speak);
 
@@ -554,8 +590,11 @@ function renderEnglishTokens(text, wordClassName = "lyric-word", options = {}) {
       button.className = wordClassName;
       button.type = "button";
       button.textContent = part;
-      button.addEventListener("click", (event) => {
+      button.addEventListener("click", async (event) => {
         event.stopPropagation();
+        showLoadingPopover(part, button);
+        await wordDictionaryReady;
+        if (!button.isConnected) return;
         showPopover(getWordEntry(part), button);
       });
 
@@ -590,6 +629,18 @@ function formatLineIpaPart(value, wordIndex, wordCount) {
   return `${prefix}${bare}${suffix}`;
 }
 
+function showLoadingPopover(term, anchor) {
+  refs.wordPopover.replaceChildren();
+  const word = document.createElement("strong");
+  word.className = "popover-word";
+  word.textContent = term;
+  const loading = document.createElement("p");
+  loading.className = "popover-meaning";
+  loading.textContent = "正在加载词义…";
+  refs.wordPopover.append(word, loading);
+  positionWordPopover(anchor);
+}
+
 function showPopover(word, anchor) {
   refs.wordPopover.innerHTML = "";
 
@@ -610,10 +661,12 @@ function showPopover(word, anchor) {
   speak.title = "播放发音";
   speak.setAttribute("aria-label", `播放发音：${word.term}`);
   speak.append(createSpeakerIcon());
+  const wordAudioPath = getWordAudioPath(word.speak || word.term);
+  window.MusicalAudio.preloadLocalAudio(wordAudioPath);
   speak.addEventListener("click", (event) => {
     event.stopPropagation();
     const text = word.speak || word.term;
-    audioController.runUserAction(speak, () => playEnglishAudio(getWordAudioPath(text), text));
+    audioController.runUserAction(speak, () => playEnglishAudio(wordAudioPath, text));
   });
 
   const meaning = document.createElement("p");
@@ -629,6 +682,10 @@ function showPopover(word, anchor) {
     refs.wordPopover.append(note);
   }
 
+  positionWordPopover(anchor);
+}
+
+function positionWordPopover(anchor) {
   refs.wordPopover.hidden = false;
   const rect = anchor.getBoundingClientRect();
   const popoverRect = refs.wordPopover.getBoundingClientRect();
@@ -677,8 +734,8 @@ function stopCurrentPlayback() {
 function playLocalAudio(src, waitForEnd) {
   if (!src) return Promise.reject(new Error("Missing audio source"));
   stopCurrentPlayback();
-  const audio = new Audio(src);
-  audio.preload = "auto";
+  const audio = window.MusicalAudio.getCachedAudio(src);
+  if (!audio) return Promise.reject(new Error("Audio playback unavailable"));
   audioState.current = audio;
   if (!waitForEnd) return audio.play();
 
@@ -705,12 +762,12 @@ function playLocalAudio(src, waitForEnd) {
 }
 
 function getLineAudioPath(song, line) {
-  return `audio/lines/${encodeURIComponent(song.id)}/${encodeURIComponent(line.id)}.wav`;
+  return `audio/lines/${encodeURIComponent(song.id)}/${encodeURIComponent(line.id)}.mp3`;
 }
 
 function getWordAudioPath(text) {
   const key = normalizeToken(text);
-  return key ? `audio/words/${encodeURIComponent(key)}.wav` : "";
+  return key ? `audio/words/${encodeURIComponent(key)}.mp3` : "";
 }
 
 function speakEnglish(text, waitForEnd) {
@@ -766,9 +823,7 @@ function toggleCurrentSongPlayback() {
 }
 
 function preloadLineAudio(song, line) {
-  const audio = new Audio(getLineAudioPath(song, line));
-  audio.preload = "auto";
-  audio.load();
+  const audio = window.MusicalAudio.preloadLocalAudio(getLineAudioPath(song, line));
   audioState.preload = audio;
 }
 

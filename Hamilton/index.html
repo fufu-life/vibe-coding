@@ -12,6 +12,8 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="lyrics-data.js" as="script" />
+    <link rel="preload" href="word-data.js" as="script" fetchpriority="low" />
     <title>Hamilton 中英歌词</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -65,9 +67,7 @@
     <aside class="word-popover" id="wordPopover" hidden></aside>
     <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部" hidden>↑</button>
 
-    <script src="songs.js"></script>
     <script src="lyrics-data.js"></script>
-    <script src="word-data.js"></script>
     <script src="../shared/audio-playback.js"></script>
     <script src="script.js"></script>
     <script src="../shared/feedback-widget.js"></script>
@@ -77,10 +77,10 @@
         siteName: "Hamilton 中英歌词",
         recipient: "fulife@agent.qq.com",
         trigger: "#feedbackButton",
-        songs: (window.hamiltonSongs || []).map((song) => ({
-          value: song.id,
-          label: `${song.order}. ${song.title}`,
-        })),
+        songs: [...new Map((window.hamiltonLyricsRows || []).map((row) => [
+          row.song_id,
+          { value: row.song_id, label: `${row.song_order}. ${row.song_title}` },
+        ])).values()],
         getCurrentSongId: () => (typeof getCurrentSong === "function" ? getCurrentSong()?.id : undefined),
       });
     </script>

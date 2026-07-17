@@ -394,7 +394,7 @@ def main() -> None:
     songs = [build_song(path) for path in sorted(SOURCE_ROOT.glob("*.pdf"))]
     songs.sort(key=lambda song: song["order"])
     payload = "const hamiltonSongs = "
-    payload += json.dumps(songs, ensure_ascii=False, indent=2)
+    payload += json.dumps(songs, ensure_ascii=False, separators=(",", ":"))
     payload += ";\n\nwindow.hamiltonSongs = hamiltonSongs;\n"
     OUTPUT.write_text(payload, encoding="utf-8")
     print(f"Wrote {OUTPUT} with {len(songs)} songs and {sum(len(song['lines']) for song in songs)} lines")
