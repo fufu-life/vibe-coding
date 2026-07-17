@@ -617,6 +617,73 @@ h1 {
   letter-spacing: 0.16em;
 }
 
+.song-title-row {
+  display: block;
+  min-width: 0;
+}
+
+.song-title-row h1 {
+  display: inline;
+  min-width: 0;
+}
+
+.song-play-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-inline-start: 0.32em;
+  padding: 0;
+  border: 1px solid rgba(215, 199, 161, 0.46);
+  border-radius: 50%;
+  color: var(--accent);
+  background: rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  vertical-align: 0.08em;
+}
+
+.song-play-button:hover,
+.song-play-button:focus-visible,
+.song-play-button.is-playing {
+  border-color: rgba(215, 199, 161, 0.74);
+  background: rgba(215, 199, 161, 0.12);
+  outline: none;
+}
+
+.song-play-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.song-play-button svg {
+  width: 21px;
+  height: 18px;
+}
+
+.playlist-play-mark,
+.playlist-stop-mark {
+  fill: currentColor;
+  stroke: none;
+}
+
+.playlist-lines-mark {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+.playlist-stop-mark,
+.song-play-button.is-playing .playlist-play-mark,
+.song-play-button.is-playing .playlist-lines-mark {
+  display: none;
+}
+
+.song-play-button.is-playing .playlist-stop-mark {
+  display: block;
+}
+
 .musical-title-line {
   display: flex;
   flex-wrap: wrap;
@@ -940,6 +1007,16 @@ h1 {
   stroke-width: 1.8;
 }
 
+.speak-button.is-audio-loading {
+  opacity: 0.56;
+  pointer-events: none;
+}
+
+.lyric-row.is-sequence-active {
+  border-color: rgba(215, 199, 161, 0.58);
+  box-shadow: inset 3px 0 0 rgba(215, 199, 161, 0.72);
+}
+
 .empty-analysis {
   color: rgba(246, 244, 234, 0.72);
   line-height: 1.6;
@@ -1144,6 +1221,16 @@ h1 {
 
   .dzw-shell {
     width: min(100% - 14px, 680px);
+  }
+
+  .song-title-row {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .song-play-button {
+    width: 32px;
+    height: 32px;
   }
 
   .topbar {
@@ -1353,7 +1440,16 @@ body:not(.js-ready) .app-layout {
           </label>
 
           <header class="song-header">
-            <h1 id="songTitle"></h1>
+            <div class="song-title-row">
+              <h1 id="songTitle"></h1>
+              <button class="song-play-button" id="songPlayButton" type="button" aria-label="连续播放本曲" aria-pressed="false" title="连续播放本曲">
+                <svg viewBox="0 0 28 24" aria-hidden="true">
+                  <path class="playlist-play-mark" d="M3.5 5.2v13.6l10-6.8z"></path>
+                  <path class="playlist-lines-mark" d="M16.5 6h8M16.5 12h8M16.5 18h8"></path>
+                  <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5"></rect>
+                </svg>
+              </button>
+            </div>
           </header>
 
           <section class="song-annotations" id="songAnnotations" aria-label="本首歌注释" hidden></section>
@@ -33922,6 +34018,7 @@ const dazhuangwangSongs = [
 window.dazhuangwangSongs = dazhuangwangSongs;
 
     </script>
+    <script src="../shared/audio-playback.js"></script>
     <script>
 const DZW_SETTINGS_KEY = "dzw-display-settings-v2";
 const DZW_CURRENT_SONG_KEY = "dzw-current-song-id";
@@ -33948,6 +34045,7 @@ const refs = {
   songNav: document.querySelector("#songNav"),
   songSelect: document.querySelector("#songSelect"),
   songTitle: document.querySelector("#songTitle"),
+  songPlayButton: document.querySelector("#songPlayButton"),
   songAnnotations: document.querySelector("#songAnnotations"),
   lyricsList: document.querySelector("#lyricsList"),
   toggleButtons: [...document.querySelectorAll("[data-toggle]")],
@@ -33961,7 +34059,15 @@ const speechState = {
 
 const audioState = {
   current: null,
+  finish: null,
+  speechFinish: null,
+  preload: null,
 };
+
+const audioController = window.MusicalAudio.createController({
+  stopCurrent: stopCurrentPlayback,
+  onItemClear: clearSequenceHighlight,
+});
 
 const analyticsState = {
   activeSongId: "",
@@ -33983,6 +34089,7 @@ function init() {
   bindWordPopover();
   bindAnalyticsLifecycle();
   bindDragonflyCursor();
+  refs.songPlayButton?.addEventListener("click", toggleCurrentSongPlayback);
   renderCurrentSong();
 }
 
@@ -34042,10 +34149,12 @@ function bindHashChange() {
   window.addEventListener("hashchange", () => {
     const songId = getSongIdFromHash();
     if (isKnownSongId(songId) && songId !== state.currentSongId) {
+      audioController.stopAll();
       state.currentSongId = songId;
       localStorage.setItem(DZW_CURRENT_SONG_KEY, songId);
       hideWordPopover();
       renderCurrentSong();
+      resetSongScrollPosition();
     }
   });
 }
@@ -34279,6 +34388,7 @@ function selectSong(songId) {
     return;
   }
 
+  audioController.stopAll();
   state.currentSongId = songId;
   localStorage.setItem(DZW_CURRENT_SONG_KEY, songId);
   if (state.sidebarCollapsed) {
@@ -34293,7 +34403,11 @@ function selectSong(songId) {
   }
 
   renderCurrentSongWithTransition();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  resetSongScrollPosition();
+}
+
+function resetSongScrollPosition() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 }
 
 function renderCurrentSongWithTransition() {
@@ -34380,6 +34494,7 @@ function renderCurrentSong() {
 
   if (!song) {
     refs.songTitle.textContent = "暂无歌曲";
+    refs.songPlayButton.disabled = true;
     renderSongAnnotations(null);
     refs.lyricsList.innerHTML = "";
     return;
@@ -34388,6 +34503,7 @@ function renderCurrentSong() {
   const songTitle = getSongTitle(song);
   document.title = `${songTitle}｜大状王歌词粤拼`;
   refs.songTitle.textContent = songTitle;
+  refs.songPlayButton.disabled = !song.lines.length;
   renderSongAnnotations(song);
   refs.lyricsList.innerHTML = "";
   enterAnalyticsSong(song);
@@ -34657,12 +34773,12 @@ function renderSpeakToken(song, line, displayText, lineIndex) {
   speak.title = "朗读这一句";
   speak.setAttribute("aria-label", `朗读：${displayText}`);
   speak.append(createSpeakerIcon());
-  speak.addEventListener("click", async () => {
+  speak.addEventListener("click", () => audioController.runUserAction(speak, async () => {
     const speakText = getSpeakText(displayText);
     trackAudioPlay(song, line, lineIndex, displayText);
     if (line.audio) {
       try {
-        await playEmbeddedAudio(line.audio);
+        await playEmbeddedAudio(line.audio, false);
         return;
       } catch (error) {
         trackAudioPlayError(song, line, lineIndex, error);
@@ -34675,7 +34791,7 @@ function renderSpeakToken(song, line, displayText, lineIndex) {
       speak.title = "未找到粤语或香港中文语音";
       speak.disabled = true;
     }
-  });
+  }));
 
   item.append(spacer, speak);
   return item;
@@ -34688,20 +34804,117 @@ function getSpeakText(text) {
     .trim();
 }
 
-function playEmbeddedAudio(src) {
+function playEmbeddedAudio(src, waitForEnd) {
   if (!src) {
     return Promise.reject(new Error("Missing audio source"));
   }
-
-  if (audioState.current) {
-    audioState.current.pause();
-    audioState.current.currentTime = 0;
-  }
-
+  stopCurrentPlayback();
   const audio = new Audio(src);
   audio.preload = "auto";
   audioState.current = audio;
-  return audio.play();
+  if (!waitForEnd) return audio.play();
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
+      if (audioState.current === audio) audioState.current = null;
+      if (audioState.finish === stopAndResolve) audioState.finish = null;
+      if (error) reject(error);
+      else resolve();
+    };
+    const handleEnded = () => finish();
+    const handleError = () => finish(new Error("Audio playback failed"));
+    const stopAndResolve = () => finish();
+    audioState.finish = stopAndResolve;
+    audio.addEventListener("ended", handleEnded, { once: true });
+    audio.addEventListener("error", handleError, { once: true });
+    Promise.resolve(audio.play()).catch(finish);
+  });
+}
+
+function stopCurrentPlayback() {
+  if (audioState.finish) {
+    const finish = audioState.finish;
+    audioState.finish = null;
+    finish();
+  }
+  if (audioState.current) {
+    audioState.current.pause();
+    audioState.current.currentTime = 0;
+    audioState.current = null;
+  }
+  if (audioState.speechFinish) {
+    const finish = audioState.speechFinish;
+    audioState.speechFinish = null;
+    finish();
+  }
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  audioState.preload = null;
+}
+
+async function playDazhuangwangLineToEnd(line) {
+  if (line.audio) {
+    try {
+      await playEmbeddedAudio(line.audio, true);
+      return;
+    } catch {
+      // Fall through to Cantonese speech when the local file is unavailable.
+    }
+  }
+  const didSpeak = await speakCantoneseToEnd(getSpeakText(getLineText(line)));
+  if (!didSpeak) throw new Error("No Cantonese or Hong Kong Chinese speech voice found");
+}
+
+function toggleCurrentSongPlayback() {
+  const song = getCurrentSong();
+  if (!song?.lines.length) return;
+  audioController.toggleSequence({
+    button: refs.songPlayButton,
+    items: song.lines,
+    playItem: (line) => playDazhuangwangLineToEnd(line),
+    onItemStart: (line, index, nextLine) => {
+      setSequenceHighlight(line.id);
+      if (nextLine?.audio) preloadLineAudio(nextLine.audio);
+    },
+  });
+}
+
+function preloadLineAudio(src) {
+  const audio = new Audio(src);
+  audio.preload = "auto";
+  audio.load();
+  audioState.preload = audio;
+}
+
+function setSequenceHighlight(lineId) {
+  clearSequenceHighlight();
+  const row = document.getElementById(lineId);
+  row?.classList.add("is-sequence-active");
+  followSequenceCard(row);
+}
+
+function followSequenceCard(row) {
+  if (!row) return;
+  const rect = row.getBoundingClientRect();
+  const topBoundary = Math.min(180, window.innerHeight * 0.24);
+  const bottomBoundary = window.innerHeight - Math.min(150, window.innerHeight * 0.2);
+  if (rect.top >= topBoundary && rect.bottom <= bottomBoundary) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  row.scrollIntoView({
+    behavior: reduceMotion ? "auto" : "smooth",
+    block: "center",
+    inline: "nearest",
+  });
+}
+
+function clearSequenceHighlight() {
+  refs.lyricsList?.querySelectorAll(".lyric-row.is-sequence-active").forEach((row) => {
+    row.classList.remove("is-sequence-active");
+  });
 }
 
 function buildTokens(text, jyutpingText) {
@@ -35018,6 +35231,30 @@ function speakCantonese(text) {
   utterance.rate = 0.82;
   window.speechSynthesis.speak(utterance);
   return true;
+}
+
+function speakCantoneseToEnd(text) {
+  if (!("speechSynthesis" in window)) return Promise.resolve(false);
+  stopCurrentPlayback();
+  const voice = speechState.cantoneseVoice || findCantoneseVoice(window.speechSynthesis.getVoices());
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = voice?.lang || "zh-HK";
+  if (voice) utterance.voice = voice;
+  utterance.rate = 0.82;
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (success) => {
+      if (settled) return;
+      settled = true;
+      if (audioState.speechFinish === stopAndResolve) audioState.speechFinish = null;
+      resolve(success);
+    };
+    const stopAndResolve = () => finish(true);
+    audioState.speechFinish = stopAndResolve;
+    utterance.onend = () => finish(true);
+    utterance.onerror = () => finish(false);
+    window.speechSynthesis.speak(utterance);
+  });
 }
 
 function getViewportType() {

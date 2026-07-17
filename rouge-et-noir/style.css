@@ -18,6 +18,9 @@
   --font-en: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-zh: "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+  --feedback-accent: var(--gold-soft);
+  --feedback-deep: #14090a;
+  --feedback-surface: #2a1114;
 }
 
 * {
@@ -332,6 +335,73 @@ h1 {
   letter-spacing: 0;
 }
 
+.song-title-row {
+  display: block;
+  min-width: 0;
+}
+
+.song-title-row h1 {
+  display: inline;
+  min-width: 0;
+}
+
+.song-play-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-inline-start: 0.32em;
+  padding: 0;
+  border: 1px solid rgba(201, 164, 92, 0.5);
+  border-radius: 50%;
+  color: var(--gold-soft);
+  background: rgba(163, 35, 46, 0.3);
+  cursor: pointer;
+  vertical-align: 0.08em;
+}
+
+.song-play-button:hover,
+.song-play-button:focus-visible,
+.song-play-button.is-playing {
+  border-color: rgba(201, 164, 92, 0.82);
+  background: rgba(163, 35, 46, 0.52);
+  outline: none;
+}
+
+.song-play-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.song-play-button svg {
+  width: 21px;
+  height: 18px;
+}
+
+.playlist-play-mark,
+.playlist-stop-mark {
+  fill: currentColor;
+  stroke: none;
+}
+
+.playlist-lines-mark {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+.playlist-stop-mark,
+.song-play-button.is-playing .playlist-play-mark,
+.song-play-button.is-playing .playlist-lines-mark {
+  display: none;
+}
+
+.song-play-button.is-playing .playlist-stop-mark {
+  display: block;
+}
+
 .musical-title-line {
   display: flex;
   flex-wrap: wrap;
@@ -402,8 +472,10 @@ h1 .lyric-word:focus-visible {
 }
 
 .controls {
-  display: grid;
-  grid-template-columns: repeat(4, auto);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
   gap: 5px;
   width: max-content;
   max-width: 100%;
@@ -568,6 +640,17 @@ h1 .lyric-word:focus-visible {
 .sentence-speak:disabled {
   color: var(--quiet);
   cursor: not-allowed;
+}
+
+.sentence-speak.is-audio-loading,
+.popover-speak.is-audio-loading {
+  opacity: 0.56;
+  pointer-events: none;
+}
+
+.lyric-card.is-sequence-active {
+  border-color: rgba(201, 164, 92, 0.68);
+  box-shadow: inset 3px 0 0 rgba(201, 164, 92, 0.82), 0 14px 34px rgba(13, 4, 5, 0.22);
 }
 
 .sentence-speak svg {
@@ -942,8 +1025,19 @@ h1 .lyric-word:focus-visible {
     align-items: start;
   }
 
+  .song-title-row {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .song-play-button {
+    width: 33px;
+    height: 33px;
+  }
+
   .controls {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    flex-wrap: wrap;
+    justify-content: flex-start;
     width: 100%;
   }
 

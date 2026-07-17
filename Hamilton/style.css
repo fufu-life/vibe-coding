@@ -35,7 +35,7 @@ body {
 #effectCanvas {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 999999;
   width: 100vw;
   height: 100vh;
   pointer-events: none;
@@ -188,6 +188,37 @@ select {
 
 .content {
   min-width: 0;
+  opacity: 1;
+  transform: translateY(0);
+  filter: none;
+  transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
+  will-change: opacity, transform;
+}
+
+.content.is-song-changing {
+  opacity: 0;
+  transform: translateY(7px);
+  filter: blur(1px);
+}
+
+.content.is-song-settling .lyric-card {
+  animation: lyric-card-soft-in 260ms ease both;
+}
+
+.content.is-song-settling .lyric-card:nth-child(2n) {
+  animation-delay: 18ms;
+}
+
+@keyframes lyric-card-soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero {
@@ -236,6 +267,73 @@ h1 {
   font-size: clamp(1.55rem, 3.6vw, 3.2rem);
   line-height: 1;
   letter-spacing: 0.02em;
+}
+
+.song-title-row {
+  display: block;
+  min-width: 0;
+}
+
+.song-title-row h1 {
+  display: inline;
+  min-width: 0;
+}
+
+.song-play-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-inline-start: 0.32em;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--gold-bright);
+  background: rgba(255, 216, 120, 0.08);
+  cursor: pointer;
+  vertical-align: 0.08em;
+}
+
+.song-play-button:hover,
+.song-play-button:focus-visible,
+.song-play-button.is-playing {
+  border-color: var(--gold-bright);
+  background: rgba(255, 216, 120, 0.16);
+  outline: none;
+}
+
+.song-play-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.song-play-button svg {
+  width: 22px;
+  height: 19px;
+}
+
+.playlist-play-mark,
+.playlist-stop-mark {
+  fill: currentColor;
+  stroke: none;
+}
+
+.playlist-lines-mark {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+.playlist-stop-mark,
+.song-play-button.is-playing .playlist-play-mark,
+.song-play-button.is-playing .playlist-lines-mark {
+  display: none;
+}
+
+.song-play-button.is-playing .playlist-stop-mark {
+  display: block;
 }
 
 .hero-mark {
@@ -331,6 +429,27 @@ h1 {
   display: inline;
 }
 
+.en-line .lyric-token {
+  display: inline-grid;
+  grid-template-rows: auto auto;
+  align-items: start;
+  margin-right: 0.08em;
+  vertical-align: top;
+}
+
+.word-phonetic {
+  display: block;
+  color: rgba(255, 236, 184, 0.52);
+  font-family: var(--font-serif);
+  font-size: 0.66em;
+  line-height: 1.12;
+  white-space: nowrap;
+}
+
+.word-phonetic[hidden] {
+  display: none;
+}
+
 .lyric-word,
 .song-title-word {
   display: inline;
@@ -383,6 +502,17 @@ h1 {
   stroke: currentColor;
   stroke-linecap: round;
   stroke-width: 1.8;
+}
+
+.speak-button.is-audio-loading,
+.popover-speak.is-audio-loading {
+  opacity: 0.56;
+  pointer-events: none;
+}
+
+.lyric-card.is-sequence-active {
+  border-color: rgba(255, 216, 120, 0.62);
+  box-shadow: inset 3px 0 0 rgba(255, 216, 120, 0.78), var(--shadow);
 }
 
 .word-popover {
@@ -511,6 +641,16 @@ h1 {
   .hero {
     grid-template-columns: 1fr;
     padding: 20px;
+  }
+
+  .song-title-row {
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .song-play-button {
+    width: 34px;
+    height: 34px;
   }
 
   .hero-mark {

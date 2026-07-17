@@ -5,6 +5,7 @@ const test = require("node:test");
 const indexHtml = fs.readFileSync("Hamilton/index.html", "utf8");
 const scriptJs = fs.readFileSync("Hamilton/script.js", "utf8");
 const styleCss = fs.readFileSync("Hamilton/style.css", "utf8");
+const lyricsDataJs = fs.readFileSync("Hamilton/lyrics-data.js", "utf8");
 const wordDataJs = fs.existsSync("Hamilton/word-data.js") ? fs.readFileSync("Hamilton/word-data.js", "utf8") : "";
 const audioBuilderJs = fs.existsSync("Hamilton/scripts/build-audio.js")
   ? fs.readFileSync("Hamilton/scripts/build-audio.js", "utf8")
@@ -28,8 +29,22 @@ test("favorites UI and state are fully removed", () => {
 
 test("phonetics have a toolbar toggle matching the Chinese toggle behavior", () => {
   assert.match(indexHtml, /data-toggle="showIpa"[^>]*>音标<\/button>/);
+  assert.match(indexHtml, /id="feedbackButton"[^>]*>反馈<\/button>/);
+  assert.ok(indexHtml.indexOf('data-toggle="showIpa"') < indexHtml.indexOf('id="feedbackButton"'));
   assert.match(scriptJs, /settings:\s*\{\s*showZh:\s*true,\s*showIpa:\s*true,/);
-  assert.match(scriptJs, /ipa\.hidden\s*=\s*!state\.settings\.showIpa/);
+  assert.match(scriptJs, /phonetic\.hidden\s*=\s*!state\.settings\.showIpa/);
+  assert.match(scriptJs, /function getAlignedTokenIpa/);
+  assert.match(scriptJs, /function formatLineIpaPart/);
+  assert.match(styleCss, /\.word-phonetic/);
+});
+
+test("page mounts the shared feedback widget with current song selection", () => {
+  assert.match(indexHtml, /\.\.\/shared\/feedback-widget\.js/);
+  assert.match(indexHtml, /window\.MusicalFeedback\.mount/);
+  assert.match(indexHtml, /trigger:\s*"#feedbackButton"/);
+  assert.match(indexHtml, /window\.hamiltonSongs/);
+  assert.match(indexHtml, /getCurrentSongId:\s*\(\) =>/);
+  assert.match(indexHtml, /getCurrentSong\(\)\?\.id/);
 });
 
 test("page includes the shared Google Analytics tag", () => {
@@ -62,6 +77,14 @@ test("mobile lyric cards keep the line speaker away from the right edge", () => 
   assert.match(styleCss, /\.lyric-word,[\s\S]*\.song-title-word\s*\{[\s\S]*white-space:\s*normal;/);
 });
 
+test("song switching uses the soft transition pattern", () => {
+  assert.match(scriptJs, /function renderCurrentSongWithTransition/);
+  assert.match(scriptJs, /is-song-changing/);
+  assert.match(scriptJs, /is-song-settling/);
+  assert.match(styleCss, /\.content\.is-song-changing/);
+  assert.match(styleCss, /@keyframes lyric-card-soft-in/);
+});
+
 test("song titles and every lyric word use clickable word cards", () => {
   assert.match(scriptJs, /renderSongTitle\(/);
   assert.match(scriptJs, /renderEnglishTokens\(/);
@@ -75,28 +98,51 @@ test("song titles and every lyric word use clickable word cards", () => {
 });
 
 test("sentence and word pronunciation prefer local audio files", () => {
-  assert.match(scriptJs, /const audioState\s*=\s*\{\s*current:\s*null\s*\}/);
+  assert.match(scriptJs, /const audioState\s*=\s*\{\s*current:\s*null,/);
   assert.match(scriptJs, /function renderLine\(song, line\)/);
   assert.match(scriptJs, /renderLine\(song, line\)/);
   assert.match(scriptJs, /playEnglishAudio\(getLineAudioPath\(song, line\), line\.en\)/);
   assert.match(scriptJs, /playEnglishAudio\(getWordAudioPath\(text\), text\)/);
-  assert.match(scriptJs, /function playLocalAudio\(src\)/);
+  assert.match(scriptJs, /function playLocalAudio\(src, waitForEnd\)/);
   assert.match(scriptJs, /new Audio\(src\)/);
   assert.match(scriptJs, /audio\/lines\/\$\{encodeURIComponent\(song\.id\)\}/);
   assert.match(scriptJs, /audio\/words\/\$\{encodeURIComponent\(key\)\}/);
+  assert.match(indexHtml, /\.\.\/shared\/audio-playback\.js/);
+  assert.match(indexHtml, /id="songPlayButton"/);
+  assert.match(indexHtml, /playlist-stop-mark" x="8"/);
+  assert.match(scriptJs, /MusicalAudio\.createController/);
+  assert.match(scriptJs, /audioController\.runUserAction/);
+  assert.match(scriptJs, /audioController\.toggleSequence/);
+  assert.match(scriptJs, /function playLineToEnd/);
+  assert.match(scriptJs, /function followSequenceCard/);
+  assert.match(scriptJs, /scrollIntoView/);
+  assert.match(scriptJs, /function preloadLineAudio/);
+  assert.match(styleCss, /\.song-play-button/);
+  assert.match(styleCss, /\.lyric-card\.is-sequence-active/);
 });
 
 test("local audio build script covers lines and words", () => {
   assert.ok(audioBuilderJs, "Hamilton/scripts/build-audio.js should exist");
   assert.match(audioBuilderJs, /HAMILTON_TTS_VOICE/);
-  assert.match(audioBuilderJs, /collectLineJobs/);
-  assert.match(audioBuilderJs, /collectWordJobs/);
-  assert.match(audioBuilderJs, /audio", "lines"/);
-  assert.match(audioBuilderJs, /audio", "words"/);
-  assert.match(audioBuilderJs, /espeak-ng/);
-  assert.match(audioBuilderJs, /HAMILTON_TTS_SPEED/);
-  assert.match(audioBuilderJs, /MIN_AUDIO_BYTES/);
-  assert.match(audioBuilderJs, /--list/);
+  assert.match(audioBuilderJs, /build-natural-audio\.js/);
+  assert.match(audioBuilderJs, /runBuild\(\{/);
+  assert.match(audioBuilderJs, /HAMILTON_TTS_RATE/);
+  assert.match(audioBuilderJs, /kind:\s*"hamilton"/);
+});
+
+test("Hamilton uses aligned broad American IPA without corrupted symbols", () => {
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(lyricsDataJs, sandbox);
+  const tokenRe = /[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+/g;
+  const rows = sandbox.window.hamiltonLyricsRows;
+  const mismatched = rows.filter((row) => {
+    const words = row.english.match(tokenRe) || [];
+    const ipa = row.ipa.replace(/^\/|\/$/g, "").trim().split(/\s+/).filter(Boolean);
+    return words.length !== ipa.length;
+  });
+  assert.equal(mismatched.length, 0);
+  assert.doesNotMatch(rows.map((row) => row.ipa).join("\n"), /[?？�ʔɐᵻ]/);
+  assert.ok(rows.every((row) => /^\/[^/]+\/$/.test(row.ipa)), "line IPA should only keep the outer slash pair");
 });
 
 test("word cards do not contain placeholder meanings", () => {
@@ -105,9 +151,16 @@ test("word cards do not contain placeholder meanings", () => {
     "word from the lyric line",
     "暂未收录",
     "not in the local glossary yet",
+    "lyric term",
+    "title word",
   ].forEach((term) => {
     assert.equal(combined.includes(term), false, `found placeholder meaning: ${term}`);
   });
+});
+
+test("English word cards do not render an English definition paragraph", () => {
+  assert.doesNotMatch(scriptJs, /document\.createElement\("p"\)[\s\S]*popover-en/);
+  assert.doesNotMatch(scriptJs, /refs\.wordPopover\.append\(head, meaning, en\)/);
 });
 
 test("generated word data includes meanings for every entry", () => {
@@ -115,7 +168,7 @@ test("generated word data includes meanings for every entry", () => {
   require("node:vm").runInNewContext(wordDataJs, sandbox);
   const entries = Object.entries(sandbox.window.hamiltonWordEntries || {});
   assert.ok(entries.length > 0, "word data should contain entries");
-  const missing = entries.filter(([, entry]) => !entry.meaning || !entry.en);
+  const missing = entries.filter(([, entry]) => !entry.meaning);
   assert.deepEqual(missing.slice(0, 10), []);
 });
 

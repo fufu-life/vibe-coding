@@ -5,7 +5,7 @@ const CSV_PATH = "hamilton_lyrics_en_based.csv";
 
 let songs = [];
 let wordLookup = new Map();
-const audioState = { current: null };
+const audioState = { current: null, finish: null, speechFinish: null, preload: null };
 const analysisSongs = [...(window.hamiltonSongs || [])];
 const analysisByLine = buildAnalysisLookup(analysisSongs);
 const generatedWordEntries = window.hamiltonWordEntries || {};
@@ -17,15 +17,22 @@ const state = {
 
 const refs = {
   shell: document.querySelector(".app-shell"),
+  content: document.querySelector(".content"),
   sidebarToggle: document.querySelector("#sidebarToggle"),
   songList: document.querySelector("#songList"),
   songSelect: document.querySelector("#songSelect"),
   songTitle: document.querySelector("#songTitle"),
+  songPlayButton: document.querySelector("#songPlayButton"),
   lyrics: document.querySelector("#lyrics"),
   toggleButtons: [...document.querySelectorAll("[data-toggle]")],
   wordPopover: document.querySelector("#wordPopover"),
   backToTop: document.querySelector("#backToTop"),
 };
+
+const audioController = window.MusicalAudio.createController({
+  stopCurrent: stopCurrentPlayback,
+  onItemClear: clearSequenceHighlight,
+});
 
 const COMMON_WORD_GLOSSARY = {
   a: { ipa: "/ə/", en: "indefinite article", meaning: "不定冠词；一个", speak: "a" },
@@ -112,6 +119,7 @@ async function init() {
   bindHashChange();
   bindBackToTop();
   bindPopoverDismiss();
+  refs.songPlayButton?.addEventListener("click", toggleCurrentSongPlayback);
   primeSpeechVoices();
   refs.lyrics.innerHTML = '<p class="empty">正在读取歌词...</p>';
   try {
@@ -218,7 +226,7 @@ function addLineWordEntries(lookup, english, lineIpa, words) {
       term: token,
       ipa: glossary?.ipa || generated?.ipa || alignedIpa || lineIpa || "见本句音标",
       meaning: glossary?.meaning || glossary?.zh || generated?.meaning || `歌词用词：${token}`,
-      en: glossary?.en || generated?.en || "lyric term",
+      en: glossary?.en || generated?.en || "",
       note: glossary?.note || "",
       speak: glossary?.speak || generated?.speak || token,
     });
@@ -235,7 +243,7 @@ function addTitleWordEntries(lookup, title) {
       term: token,
       ipa: glossary?.ipa || generated?.ipa || "标题词",
       meaning: glossary?.meaning || generated?.meaning || `歌名词：${token}`,
-      en: glossary?.en || generated?.en || "title word",
+      en: glossary?.en || generated?.en || "",
       note: glossary || generated ? "" : "标题词没有可靠单词级 IPA 数据；可使用发音按钮听读。",
       speak: glossary?.speak || generated?.speak || token,
     });
@@ -243,7 +251,7 @@ function addTitleWordEntries(lookup, title) {
 }
 
 function tokenizeEnglish(text) {
-  return text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*/g) || [];
+  return text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+/g) || [];
 }
 
 function splitIpa(ipa) {
@@ -261,7 +269,7 @@ function normalizeToken(token) {
   return String(token)
     .toLowerCase()
     .replace(/[’]/g, "'")
-    .replace(/^[^a-z]+|[^a-z]+$/g, "");
+    .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
 }
 
 function getWordEntry(displayWord) {
@@ -272,7 +280,7 @@ function getWordEntry(displayWord) {
       term: displayWord,
       ipa: entry.ipa || "见本句音标",
       meaning: entry.meaning || entry.zh || `歌词用词：${displayWord}`,
-      en: entry.en || "lyric term",
+      en: entry.en || "",
       note: entry.note || "",
       speak: entry.speak || displayWord,
     };
@@ -281,7 +289,7 @@ function getWordEntry(displayWord) {
     term: displayWord,
     ipa: "见发音",
     meaning: `歌词用词：${displayWord}`,
-    en: "lyric term",
+    en: "",
     note: "可用发音按钮听浏览器朗读。",
     speak: displayWord,
   };
@@ -349,10 +357,12 @@ function bindHashChange() {
   window.addEventListener("hashchange", () => {
     const songId = getSongIdFromHash();
     if (isKnownSongId(songId) && songId !== state.currentSongId) {
+      audioController.stopAll();
       state.currentSongId = songId;
       localStorage.setItem(CURRENT_SONG_KEY, songId);
       hidePopover();
       renderCurrentSong();
+      resetSongScrollPosition();
     }
   });
 }
@@ -380,6 +390,8 @@ function bindPopoverDismiss() {
 
 function selectSong(songId) {
   if (!isKnownSongId(songId)) return;
+  if (songId === state.currentSongId) return;
+  audioController.stopAll();
   state.currentSongId = songId;
   localStorage.setItem(CURRENT_SONG_KEY, songId);
   if (state.sidebarCollapsed) {
@@ -391,8 +403,27 @@ function selectSong(songId) {
     window.history.pushState(null, "", hash);
   }
   hidePopover();
-  renderCurrentSong();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  renderCurrentSongWithTransition();
+  resetSongScrollPosition();
+}
+
+function resetSongScrollPosition() {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+}
+
+function renderCurrentSongWithTransition() {
+  if (!refs.content) {
+    renderCurrentSong();
+    return;
+  }
+  refs.content.classList.remove("is-song-settling");
+  refs.content.classList.add("is-song-changing");
+  window.setTimeout(() => {
+    renderCurrentSong();
+    refs.content.classList.remove("is-song-changing");
+    refs.content.classList.add("is-song-settling");
+    window.setTimeout(() => refs.content.classList.remove("is-song-settling"), 360);
+  }, 170);
 }
 
 function updateControls() {
@@ -451,12 +482,14 @@ function renderCurrentSong() {
 
   if (!song) {
     refs.songTitle.textContent = "Hamilton";
+    refs.songPlayButton.disabled = true;
     refs.lyrics.innerHTML = '<p class="empty">没有可显示的歌曲。</p>';
     return;
   }
 
   document.title = `${song.title}｜Hamilton 中英歌词`;
   renderSongTitle(song);
+  refs.songPlayButton.disabled = !song.lines.length;
 
   refs.lyrics.innerHTML = "";
   song.lines.forEach((line) => refs.lyrics.append(renderLine(song, line)));
@@ -465,13 +498,14 @@ function renderCurrentSong() {
 function renderLine(song, line) {
   const card = document.createElement("article");
   card.className = "lyric-card";
+  card.dataset.lineId = line.id;
 
   const main = document.createElement("div");
   main.className = "line-main";
 
   const en = document.createElement("p");
   en.className = "en-line";
-  en.append(renderEnglishTokens(line.en));
+  en.append(renderEnglishTokens(line.en, "lyric-word", { showPhonetics: true, line }));
 
   const zh = document.createElement("p");
   zh.className = "zh-line";
@@ -479,13 +513,6 @@ function renderLine(song, line) {
   zh.textContent = line.zh;
 
   main.append(en);
-  if (line.ipa) {
-    const ipa = document.createElement("p");
-    ipa.className = "ipa-line";
-    ipa.hidden = !state.settings.showIpa;
-    ipa.textContent = line.ipa;
-    main.append(ipa);
-  }
   main.append(zh);
 
   const actions = document.createElement("div");
@@ -496,7 +523,10 @@ function renderLine(song, line) {
   speak.title = "朗读这一句";
   speak.setAttribute("aria-label", `朗读：${line.en}`);
   speak.append(createSpeakerIcon());
-  speak.addEventListener("click", () => playEnglishAudio(getLineAudioPath(song, line), line.en));
+  speak.addEventListener("click", () => audioController.runUserAction(
+    speak,
+    () => playEnglishAudio(getLineAudioPath(song, line), line.en),
+  ));
   actions.append(speak);
 
   card.append(main, actions);
@@ -508,12 +538,15 @@ function renderSongTitle(song) {
   refs.songTitle.append(renderEnglishTokens(song.title, "song-title-word"));
 }
 
-function renderEnglishTokens(text, wordClassName = "lyric-word") {
+function renderEnglishTokens(text, wordClassName = "lyric-word", options = {}) {
   const fragment = document.createDocumentFragment();
-  const parts = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|[^A-Za-z]+/g) || [text];
+  const parts = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+|[^A-Za-z0-9]+/g) || [text];
+  const words = tokenizeEnglish(text);
+  const ipaParts = splitIpa(options.line?.ipa || "");
+  let wordIndex = 0;
 
   parts.forEach((part) => {
-    if (/^[A-Za-z]/.test(part)) {
+    if (/^[A-Za-z0-9]/.test(part)) {
       const token = document.createElement("span");
       token.className = "lyric-token";
 
@@ -527,13 +560,34 @@ function renderEnglishTokens(text, wordClassName = "lyric-word") {
       });
 
       token.append(button);
+      if (options.showPhonetics) {
+        const phonetic = document.createElement("span");
+        phonetic.className = "word-phonetic";
+        phonetic.hidden = !state.settings.showIpa;
+        phonetic.textContent = getAlignedTokenIpa(part, wordIndex, words.length, ipaParts);
+        token.append(phonetic);
+      }
       fragment.append(token);
+      wordIndex += 1;
     } else {
       fragment.append(document.createTextNode(part));
     }
   });
 
   return fragment;
+}
+
+function getAlignedTokenIpa(token, wordIndex, wordCount, ipaParts) {
+  if (ipaParts.length === wordCount && ipaParts[wordIndex]) return formatLineIpaPart(ipaParts[wordIndex], wordIndex, wordCount);
+  return formatLineIpaPart(getWordEntry(token).ipa || "", wordIndex, wordCount);
+}
+
+function formatLineIpaPart(value, wordIndex, wordCount) {
+  const bare = trimIpaSlashes(value);
+  if (!bare || /见|标题词/u.test(bare)) return "";
+  const prefix = wordIndex === 0 ? "/" : "";
+  const suffix = wordIndex === wordCount - 1 ? "/" : "";
+  return `${prefix}${bare}${suffix}`;
 }
 
 function showPopover(word, anchor) {
@@ -559,19 +613,15 @@ function showPopover(word, anchor) {
   speak.addEventListener("click", (event) => {
     event.stopPropagation();
     const text = word.speak || word.term;
-    playEnglishAudio(getWordAudioPath(text), text);
+    audioController.runUserAction(speak, () => playEnglishAudio(getWordAudioPath(text), text));
   });
 
   const meaning = document.createElement("p");
   meaning.className = "popover-meaning";
   meaning.textContent = word.meaning;
 
-  const en = document.createElement("p");
-  en.className = "popover-en";
-  en.textContent = word.en;
-
   head.append(title, ipa, speak);
-  refs.wordPopover.append(head, meaning, en);
+  refs.wordPopover.append(head, meaning);
   if (word.note) {
     const note = document.createElement("p");
     note.className = "popover-note";
@@ -595,24 +645,63 @@ function hidePopover() {
 async function playEnglishAudio(src, fallbackText) {
   if (src) {
     try {
-      await playLocalAudio(src);
+      await playLocalAudio(src, false);
       return;
     } catch {
       // Keep browser TTS as a fallback when a local file is missing or blocked.
     }
   }
-  speakEnglish(fallbackText);
+  await speakEnglish(fallbackText, false);
 }
 
-function playLocalAudio(src) {
+function stopCurrentPlayback() {
+  if (audioState.finish) {
+    const finish = audioState.finish;
+    audioState.finish = null;
+    finish();
+  }
   if (audioState.current) {
     audioState.current.pause();
     audioState.current.currentTime = 0;
+    audioState.current = null;
   }
+  if (audioState.speechFinish) {
+    const finish = audioState.speechFinish;
+    audioState.speechFinish = null;
+    finish();
+  }
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  audioState.preload = null;
+}
+
+function playLocalAudio(src, waitForEnd) {
+  if (!src) return Promise.reject(new Error("Missing audio source"));
+  stopCurrentPlayback();
   const audio = new Audio(src);
   audio.preload = "auto";
   audioState.current = audio;
-  return audio.play();
+  if (!waitForEnd) return audio.play();
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
+      if (audioState.current === audio) audioState.current = null;
+      if (audioState.finish === stopAndResolve) audioState.finish = null;
+      if (error) reject(error);
+      else resolve();
+    };
+    const handleEnded = () => finish();
+    const handleError = () => finish(new Error("Audio playback failed"));
+    const stopAndResolve = () => finish();
+    audioState.finish = stopAndResolve;
+    audio.addEventListener("ended", handleEnded, { once: true });
+    audio.addEventListener("error", handleError, { once: true });
+    Promise.resolve(audio.play()).catch(finish);
+  });
 }
 
 function getLineAudioPath(song, line) {
@@ -624,16 +713,90 @@ function getWordAudioPath(text) {
   return key ? `audio/words/${encodeURIComponent(key)}.wav` : "";
 }
 
-function speakEnglish(text) {
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
+function speakEnglish(text, waitForEnd) {
+  if (!("speechSynthesis" in window)) return Promise.reject(new Error("Speech synthesis unavailable"));
+  stopCurrentPlayback();
   const utterance = new SpeechSynthesisUtterance(text.replace(/^[A-Z][A-Z .,'&/-]{1,40}:\s*/, ""));
   const voice = getPreferredEnglishVoice();
   if (voice) utterance.voice = voice;
   utterance.lang = "en-US";
   utterance.rate = 0.82;
   utterance.pitch = 1.06;
-  window.speechSynthesis.speak(utterance);
+  if (!waitForEnd) {
+    window.speechSynthesis.speak(utterance);
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      if (audioState.speechFinish === stopAndResolve) audioState.speechFinish = null;
+      if (error) reject(error);
+      else resolve();
+    };
+    const stopAndResolve = () => finish();
+    audioState.speechFinish = stopAndResolve;
+    utterance.onend = () => finish();
+    utterance.onerror = () => finish(new Error("Speech synthesis failed"));
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+async function playLineToEnd(song, line) {
+  try {
+    await playLocalAudio(getLineAudioPath(song, line), true);
+  } catch {
+    await speakEnglish(line.en, true);
+  }
+}
+
+function toggleCurrentSongPlayback() {
+  const song = getCurrentSong();
+  if (!song?.lines.length) return;
+  audioController.toggleSequence({
+    button: refs.songPlayButton,
+    items: song.lines,
+    playItem: (line) => playLineToEnd(song, line),
+    onItemStart: (line, index, nextLine) => {
+      setSequenceHighlight(line.id);
+      if (nextLine) preloadLineAudio(song, nextLine);
+    },
+  });
+}
+
+function preloadLineAudio(song, line) {
+  const audio = new Audio(getLineAudioPath(song, line));
+  audio.preload = "auto";
+  audio.load();
+  audioState.preload = audio;
+}
+
+function setSequenceHighlight(lineId) {
+  clearSequenceHighlight();
+  const card = Array.from(refs.lyrics.querySelectorAll(".lyric-card")).find((item) => item.dataset.lineId === lineId);
+  card?.classList.add("is-sequence-active");
+  followSequenceCard(card);
+}
+
+function followSequenceCard(card) {
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  const topBoundary = Math.min(180, window.innerHeight * 0.24);
+  const bottomBoundary = window.innerHeight - Math.min(150, window.innerHeight * 0.2);
+  if (rect.top >= topBoundary && rect.bottom <= bottomBoundary) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  card.scrollIntoView({
+    behavior: reduceMotion ? "auto" : "smooth",
+    block: "center",
+    inline: "nearest",
+  });
+}
+
+function clearSequenceHighlight() {
+  refs.lyrics?.querySelectorAll(".lyric-card.is-sequence-active").forEach((card) => {
+    card.classList.remove("is-sequence-active");
+  });
 }
 
 function primeSpeechVoices() {

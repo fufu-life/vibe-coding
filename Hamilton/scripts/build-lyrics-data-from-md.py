@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_MD = ROOT.parent / "lyrics" / "Hamilton (Original Broadway Cast Recording) (3367211).md"
+SOURCE_MD = ROOT.parent.parent / "lyrics" / "Hamilton (Original Broadway Cast Recording) (3367211).md"
 OUTPUT_JS = ROOT / "lyrics-data.js"
 
 SONG_HEADING_RE = re.compile(r"^##\s+(\d+)\.\s+(.+?)\s*$")
