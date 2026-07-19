@@ -130,7 +130,7 @@ test("the three independent pages keep their own audio and fallback implementati
   assert.match(dazhuangwang, /function speakCantoneseToEnd/);
 });
 
-test("dazhuangwang excludes the non-Chinese Hmm vocalization from phonetics and playback", () => {
+test("dazhuangwang excludes lines without local audio from whole-song playback", () => {
   const show = libraryShows.find((item) => item.id === "dazhuangwang");
   const directory = path.join(root, getShowDirectory(show));
   const sandbox = { window: {} };
@@ -145,7 +145,12 @@ test("dazhuangwang excludes the non-Chinese Hmm vocalization from phonetics and 
   assert.equal(line.noAudio, true);
   assert.equal(line.jyutping, "");
   assert.equal(line.audio, "");
-  assert.match(script, /items: song\.lines\.filter\(\(line\) => !line\.noAudio\)/);
+  assert.match(script, /items: song\.lines\.filter\(\(line\) => line\.audio && !line\.noAudio\)/);
+  const song12 = sandbox.window.dazhuangwangSongs.find((song) => song.order === 12);
+  const sanskritLines = song12.lines.filter((item) => item.noJyutping);
+  assert.equal(sanskritLines.length, 13);
+  assert.equal(sanskritLines.every((item) => item.audio === ""), true);
+  assert.equal(song12.lines.filter((item) => item.audio && !item.noAudio).length, 29);
   assert.equal(fs.existsSync(path.join(directory, "audio/19-倾听/dzw-19-001.wav")), false);
 });
 
@@ -160,6 +165,21 @@ test("dazhuangwang uses the complete Jyutping initial for 啱", () => {
   assert.equal(target.text, "啱");
   assert.equal(target.jyutping, "ngaam1");
   assert.equal(firstSong.lines.some((line) => line.text === "啱" && line.jyutping === "aam1"), false);
+});
+
+test("dazhuangwang keeps 噃 and its bo3 reading synchronized", () => {
+  const show = libraryShows.find((item) => item.id === "dazhuangwang");
+  const directory = path.join(root, getShowDirectory(show));
+  const sandbox = { window: {} };
+  vm.runInNewContext(fs.readFileSync(path.join(directory, "songs.js"), "utf8"), sandbox);
+  const target = sandbox.window.dazhuangwangSongs
+    .flatMap((song) => song.lines)
+    .find((line) => line.id === "dzw-18-115");
+
+  assert.equal(target.text, "並唔係噃 一試就能服眾 佢係老竇");
+  assert.equal(target.simplified, "并唔系噃 一试就能服众 佢系老窦");
+  assert.equal(target.jyutping, "bing6 m4 hai6 bo3 jat1 si3 zau6 nang4 fuk6 zung3 keoi5 hai6 lou5 dau6");
+  assert.doesNotMatch(target.text + target.simplified, /皤/);
 });
 
 test("dazhuangwang deploys compact MP3 sentence audio without stale WAV references", () => {

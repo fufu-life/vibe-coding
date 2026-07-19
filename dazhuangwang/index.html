@@ -9507,7 +9507,7 @@ body:not(.js-ready) .app-layout {
           <div class="static-singer">方唐镜</div>
           <div class="static-text">
             <div class="static-jyutping">bing6 m4 hai6 bo3 jat1 si3 zau6 nang4 fuk6 zung3 keoi5 hai6 lou5 dau6</div>
-            <div class="static-lyric">並唔系皤 一试就能服众 佢系老窦</div>
+            <div class="static-lyric">并唔系噃 一试就能服众 佢系老窦</div>
           </div>
         </div>
         <div class="static-line">
@@ -11387,7 +11387,7 @@ function toggleCurrentSongPlayback() {
   if (!song?.lines.length) return;
   audioController.toggleSequence({
     button: refs.songPlayButton,
-    items: song.lines.filter((line) => !line.noAudio),
+    items: song.lines.filter((line) => line.audio && !line.noAudio),
     playItem: (line) => playDazhuangwangLineToEnd(line),
     onItemStart: (line, index, nextLine) => {
       setSequenceHighlight(line.id);
