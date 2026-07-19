@@ -11,9 +11,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INPUT_JS = ROOT / "lyrics-data.js"
 OUTPUT_JS = ROOT / "word-data.js"
+OVERRIDES_JSON = ROOT / "word-overrides.json"
 DEFAULT_DICT = Path("/tmp/ecdict.csv")
 
-TOKEN_RE = re.compile(r"[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*")
+TOKEN_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)?(?:-[^\W\d_]+)*", re.UNICODE)
+DROPPED_G_RE = re.compile(r"\b([A-Za-z]+in)['’](?=\W|$)", re.IGNORECASE)
 DOMAIN_LABEL_RE = re.compile(r"\[(?:计|医|化|经|法)\][^；;]*")
 
 SPECIAL_GLOSSARY = {
@@ -180,6 +182,17 @@ def extract_rows() -> list[dict[str, str]]:
     return json.loads(text[len(prefix) :].strip().removesuffix(";"))
 
 
+def load_overrides() -> dict[str, dict[str, str]]:
+    raw = json.loads(OVERRIDES_JSON.read_text(encoding="utf-8"))
+    return {
+        normalize_token(key): {
+            "meaning": value["meaning"],
+            "en": value.get("en", "Hamilton lyric usage"),
+        }
+        for key, value in raw.items()
+    }
+
+
 def load_dictionary(path: Path) -> dict[str, dict[str, str]]:
     if not path.exists():
         raise FileNotFoundError(
@@ -200,9 +213,9 @@ def load_dictionary(path: Path) -> dict[str, dict[str, str]]:
     return entries
 
 
-def clean_translation(value: str) -> str:
+def clean_translation(value: str | None) -> str:
     lines = []
-    for raw in value.replace("\\r", "").replace("\\n", "\n").replace("\r", "").splitlines():
+    for raw in (value or "").replace("\\r", "").replace("\\n", "\n").replace("\r", "").splitlines():
         line = clean_domain_noise(raw.strip())
         if not line or line.startswith("[网络]"):
             continue
@@ -224,9 +237,9 @@ def clean_domain_noise(value: str) -> str:
     return "；".join(parts)
 
 
-def clean_definition(value: str, key: str) -> str:
+def clean_definition(value: str | None, key: str) -> str:
     lines = []
-    for raw in value.replace("\\n", "\n").splitlines():
+    for raw in (value or "").replace("\\n", "\n").splitlines():
         line = raw.strip()
         if line and is_useful_definition_line(key, line):
             lines.append(line)
@@ -264,8 +277,8 @@ def ipa_for_word(token: str) -> str:
     return f"/{ipa}/" if ipa else ""
 
 
-def dictionary_candidates(key: str) -> list[str]:
-    candidates = [key]
+def dictionary_candidates(key: str, prefer_restored_ing: bool = False) -> list[str]:
+    candidates = [f"{key}g", key] if prefer_restored_ing else [key]
     if key.endswith("in") and len(key) > 4:
         candidates.append(f"{key}g")
     if key.endswith("in'") and len(key) > 5:
@@ -283,7 +296,7 @@ def dictionary_candidates(key: str) -> list[str]:
     return list(dict.fromkeys(candidates))
 
 
-def classify_missing(key: str, token: str) -> dict[str, str]:
+def classify_missing(key: str, token: str) -> dict[str, str] | None:
     if key in CONTRACTIONS:
         return {"meaning": CONTRACTIONS[key], "en": "English contraction"}
     if key in SPECIAL_GLOSSARY:
@@ -295,15 +308,11 @@ def classify_missing(key: str, token: str) -> dict[str, str]:
         return {"meaning": f"歌词断词或说唱垫词：{token}", "en": "lyric syllable"}
     if re.fullmatch(r"a+h+|o+h+|u+h+|m+m+|h+a+|y+o+", key) or re.search(r"(ah|ay|oh|oo|uh|ya|yo|da|na){2,}", key):
         return {"meaning": f"拟声词或说唱垫词：{token}", "en": "vocalization"}
-    if re.fullmatch(r"[a-z]{1,3}", key):
-        return {"meaning": f"缩写或歌词音节：{token}", "en": "abbreviation or lyric syllable"}
-    if token[:1].isupper():
-        return {"meaning": f"专有名词：{token}", "en": "proper noun"}
-    return {"meaning": f"歌词用词：{token}", "en": "lyric term"}
+    return None
 
 
-def priority_lookup(key: str) -> dict[str, str] | None:
-    for candidate in dictionary_candidates(key):
+def priority_lookup(key: str, prefer_restored_ing: bool) -> dict[str, str] | None:
+    for candidate in dictionary_candidates(key, prefer_restored_ing):
         if candidate in CONTRACTIONS:
             return {"meaning": CONTRACTIONS[candidate], "en": "English contraction"}
         if candidate in SPECIAL_GLOSSARY:
@@ -312,20 +321,41 @@ def priority_lookup(key: str) -> dict[str, str] | None:
     return None
 
 
-def lookup_meaning(key: str, token: str, dictionary: dict[str, dict[str, str]]) -> dict[str, str]:
-    priority = priority_lookup(key)
+def lookup_meaning(
+    key: str,
+    token: str,
+    dictionary: dict[str, dict[str, str]],
+    overrides: dict[str, dict[str, str]],
+    prefer_restored_ing: bool,
+) -> dict[str, str]:
+    if key in overrides:
+        return overrides[key]
+    priority = priority_lookup(key, prefer_restored_ing)
     if priority:
         return priority
-    for candidate in dictionary_candidates(key):
+    for candidate in dictionary_candidates(key, prefer_restored_ing):
         if candidate in dictionary:
             return dictionary[candidate]
-    return classify_missing(key, token)
+    fallback = classify_missing(key, token)
+    if fallback:
+        return fallback
+    raise ValueError(
+        f"No reviewed meaning for {token!r} ({key}). Add it to {OVERRIDES_JSON}; "
+        "generic proper-noun and lyric-term placeholders are forbidden."
+    )
 
 
 def main() -> None:
     dictionary_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_DICT
     dictionary = load_dictionary(dictionary_path)
     rows = extract_rows()
+    overrides = load_overrides()
+    dropped_g_keys = {
+        normalize_token(match.group(1))
+        for row in rows
+        for source in (row["song_title"], row["english"])
+        for match in DROPPED_G_RE.finditer(source)
+    }
     original_tokens: dict[str, str] = {}
     for row in rows:
         for source in (row["song_title"], row["english"]):
@@ -335,7 +365,13 @@ def main() -> None:
 
     word_entries = {}
     for key, token in sorted(original_tokens.items()):
-        entry = lookup_meaning(key, token, dictionary)
+        entry = lookup_meaning(
+            key,
+            token,
+            dictionary,
+            overrides,
+            prefer_restored_ing=key in dropped_g_keys,
+        )
         word_entries[key] = {
             "ipa": ipa_for_word(token),
             "meaning": entry["meaning"],

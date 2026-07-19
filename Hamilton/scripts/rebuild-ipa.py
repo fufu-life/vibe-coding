@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LYRICS_FILE = ROOT / "lyrics-data.js"
 WORD_FILE = ROOT / "word-data.js"
-TOKEN_RE = re.compile(r"[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+")
+TOKEN_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)?(?:-[^\W\d_]+)*|\d+", re.UNICODE)
 VOWELS = set("aeiouyɑæəɚɝɛɜɪɔʊʌɒœøɨɯ")
 
 IPA_OVERRIDES = {
@@ -30,6 +30,27 @@ IPA_OVERRIDES = {
     "where": "wɛr",
     "your": "jʊr",
     "you're": "jʊr",
+    "ami": "ami",
+    "bonsoir": "bɔ̃swaʁ",
+    "c'est": "sɛ",
+    "casse": "kas",
+    "cinq": "sɛ̃k",
+    "deux": "dø",
+    "huit": "ɥit",
+    "je": "ʒə",
+    "m'appelle": "mapɛl",
+    "moi": "mwa",
+    "mon": "mɔ̃",
+    "neuf": "nœf",
+    "oui": "wi",
+    "pièce": "pjɛs",
+    "quatre": "katʁ",
+    "résistance": "ʁezistɑ̃s",
+    "sept": "sɛt",
+    "six": "sis",
+    "toi": "twa",
+    "trois": "tʁwa",
+    "un": "œ̃",
 }
 
 ENTRY_OVERRIDES = {

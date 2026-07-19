@@ -283,7 +283,7 @@ function addTitleWordEntries(lookup, title) {
 }
 
 function tokenizeEnglish(text) {
-  return text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+/g) || [];
+  return text.match(/[\p{L}]+(?:['’][\p{L}]+)?(?:-[\p{L}]+)*|\d+/gu) || [];
 }
 
 function splitIpa(ipa) {
@@ -576,13 +576,13 @@ function renderSongTitle(song) {
 
 function renderEnglishTokens(text, wordClassName = "lyric-word", options = {}) {
   const fragment = document.createDocumentFragment();
-  const parts = text.match(/[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+|[^A-Za-z0-9]+/g) || [text];
+  const parts = text.match(/[\p{L}]+(?:['’][\p{L}]+)?(?:-[\p{L}]+)*|\d+|[^\p{L}\d]+/gu) || [text];
   const words = tokenizeEnglish(text);
   const ipaParts = splitIpa(options.line?.ipa || "");
   let wordIndex = 0;
 
   parts.forEach((part) => {
-    if (/^[A-Za-z0-9]/.test(part)) {
+    if (/^[\p{L}\d]/u.test(part)) {
       const token = document.createElement("span");
       token.className = "lyric-token";
 

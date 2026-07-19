@@ -146,7 +146,7 @@ test("local audio build script covers lines and words", () => {
 test("Hamilton uses aligned broad American IPA without corrupted symbols", () => {
   const sandbox = { window: {} };
   require("node:vm").runInNewContext(lyricsDataJs, sandbox);
-  const tokenRe = /[A-Za-z]+(?:['’][A-Za-z]+)?(?:-[A-Za-z]+)*|\d+/g;
+  const tokenRe = /[\p{L}]+(?:['’][\p{L}]+)?(?:-[\p{L}]+)*|\d+/gu;
   const rows = sandbox.window.hamiltonLyricsRows;
   const mismatched = rows.filter((row) => {
     const words = row.english.match(tokenRe) || [];
@@ -169,6 +169,7 @@ test("word cards do not contain placeholder meanings", () => {
   ].forEach((term) => {
     assert.equal(combined.includes(term), false, `found placeholder meaning: ${term}`);
   });
+  assert.doesNotMatch(wordDataJs, /专有名词：|歌词用词：|\[人名\]/);
 });
 
 test("English word cards do not render an English definition paragraph", () => {
@@ -183,6 +184,91 @@ test("generated word data includes meanings for every entry", () => {
   assert.ok(entries.length > 0, "word data should contain entries");
   const missing = entries.filter(([, entry]) => !entry.meaning);
   assert.deepEqual(missing.slice(0, 10), []);
+});
+
+test("dropped-g lyric forms use the intended verbs instead of surnames", () => {
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(wordDataJs, sandbox);
+  const entries = sandbox.window.hamiltonWordEntries;
+  const expected = {
+    askin: /询问|请求/,
+    clerkin: /文书工作|职员/,
+    comin: /来|到来/,
+    goin: /去|前往|将要/,
+    makin: /制作|促成|赚取/,
+    nothin: /什么也没有|没有东西/,
+    talkin: /说话|谈论/,
+    workin: /工作|运作/,
+  };
+
+  Object.entries(expected).forEach(([word, meaning]) => {
+    assert.ok(entries[word], `${word} should exist`);
+    assert.match(entries[word].meaning, meaning);
+    assert.doesNotMatch(entries[word].meaning, /人名|姓氏/);
+  });
+});
+
+test("ordinary inflected words are not mistaken for acronyms", () => {
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(wordDataJs, sandbox);
+  const entries = sandbox.window.hamiltonWordEntries;
+  const expected = {
+    aims: /瞄准|目标/,
+    bets: /赌注|下注/,
+    bucks: /美元|块钱/,
+    gets: /得到|变得|到达/,
+    ideas: /想法|观念/,
+    lets: /让|允许/,
+    pops: /爸爸|老爸/,
+  };
+  const acronymNoise = /考试|工业管理系统|政府电子|电信服务|设计奖|地方交易系统|大众音乐会/;
+
+  Object.entries(expected).forEach(([word, meaning]) => {
+    assert.ok(entries[word], `${word} should exist`);
+    assert.match(entries[word].meaning, meaning);
+    assert.doesNotMatch(entries[word].meaning, acronymNoise);
+  });
+});
+
+test("French lyric words keep reviewed Chinese meanings and French IPA", () => {
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(wordDataJs, sandbox);
+  const entries = sandbox.window.hamiltonWordEntries;
+  assert.match(entries.ami.meaning, /朋友/);
+  assert.equal(entries.ami.ipa, "/ami/");
+  assert.match(entries["c'est"].meaning, /这是|那是/);
+  assert.equal(entries["c'est"].ipa, "/sɛ/");
+  assert.match(entries.pièce.meaning, /作品|一部分/);
+  assert.equal(entries.pièce.ipa, "/pjɛs/");
+  assert.match(entries.résistance.meaning, /抵抗|精华/);
+  assert.equal(entries.résistance.ipa, "/ʁezistɑ̃s/");
+  ["pi%C3%A8ce.mp3", "r%C3%A9sistance.mp3"].forEach((filename) => {
+    const audioPath = `Hamilton/audio/words/${filename}`;
+    assert.ok(fs.existsSync(audioPath), `${audioPath} should exist`);
+    assert.ok(fs.statSync(audioPath).size > 512, `${audioPath} should not be empty`);
+  });
+});
+
+test("reviewed Hamilton lyric translations have no blanks or fallback text", () => {
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(lyricsDataJs, sandbox);
+  const rows = sandbox.window.hamiltonLyricsRows;
+  const unresolved = rows.filter((row) =>
+    !row.chinese_translation?.trim()
+    || /暂未|未收录|待校对|translation unavailable|word from the lyric line/i.test(row.chinese_translation),
+  );
+  assert.equal(unresolved.length, 0);
+
+  const translationFor = (songId, lineIndex) => rows.find(
+    (row) => row.song_id === songId && row.line_index === String(lineIndex),
+  )?.chinese_translation;
+  assert.equal(translationFor("01-alexander-hamilton", 5), "长大后竟成为英雄和学者？");
+  assert.match(translationFor("01-alexander-hamilton", 41), /记账做工|文书/);
+  assert.match(translationFor("01-alexander-hamilton", 56), /侧台/);
+  assert.equal(translationFor("02-aaron-burr-sir", 47), "是我！");
+  assert.equal(translationFor("26-take-a-break", 1), "一 二 三 四");
+  assert.match(translationFor("46-who-lives-who-dies-who-tells-your-story", 64), /第一所私立孤儿院/);
+  assert.match(translationFor("46-who-lives-who-dies-who-tells-your-story", 74), /我的故事/);
 });
 
 test("common do verb forms use lyric-appropriate definitions", () => {
