@@ -16,7 +16,7 @@ function size(relativePath) {
 test("dazhuangwang starts its external lyric download from the document head", () => {
   const index = read("dazhuangwang/index.html");
   assert.match(index, /<link rel="preload" href="songs\.js" as="script" \/>/);
-  assert.match(index, /<script src="songs\.js"><\/script>/);
+  assert.match(index, /<script src="songs\.js" onerror="handleCriticalAssetError\(\)"><\/script>/);
   assert.doesNotMatch(index, /const dazhuangwangSongs = \[/);
   assert.ok(size("dazhuangwang/index.html") < 600_000);
   assert.ok(size("dazhuangwang/songs.js") < 600_000);
@@ -27,7 +27,7 @@ test("Hamilton renders lyrics before loading analysis and word dictionaries", ()
   const script = read("Hamilton/script.js");
   assert.match(index, /<link rel="preload" href="lyrics-data\.js" as="script" \/>/);
   assert.match(index, /<link rel="preload" href="word-data\.js" as="script" fetchpriority="low" \/>/);
-  assert.match(index, /<script src="lyrics-data\.js"><\/script>/);
+  assert.match(index, /<script src="lyrics-data\.js" onerror="handleCriticalAssetError\(\)"><\/script>/);
   assert.doesNotMatch(index, /<script src="(?:songs|word-data)\.js"><\/script>/);
   assert.match(script, /renderCurrentSong\(\);\s*wordDictionaryReady = loadWordDictionary/);
   assert.match(script, /showLoadingPopover\(part, button\);\s*await wordDictionaryReady/);

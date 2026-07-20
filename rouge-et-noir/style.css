@@ -317,12 +317,49 @@ button {
 }
 
 .hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   align-items: end;
-  padding: 0 0 24px;
+  padding: 0 52px 24px 0;
   border-bottom: 1px solid var(--line);
+}
+
+.home-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(201, 164, 92, 0.5);
+  border-radius: 50%;
+  color: var(--gold-soft);
+  text-decoration: none;
+  background: rgba(20, 9, 10, 0.88);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.home-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.home-button:hover,
+.home-button:focus-visible {
+  color: var(--ink);
+  border-color: var(--red-2);
+  background: var(--red);
+  outline: none;
 }
 
 h1 {

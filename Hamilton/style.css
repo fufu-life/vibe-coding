@@ -251,6 +251,42 @@ select {
   z-index: 1;
 }
 
+.home-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--gold-bright);
+  text-decoration: none;
+  background: rgba(20, 13, 6, 0.78);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.home-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.home-button:hover,
+.home-button:focus-visible {
+  color: #1b1205;
+  border-color: var(--gold-bright);
+  background: var(--gold-bright);
+  outline: none;
+}
+
 .musical-name {
   margin: 0 0 4px;
   color: var(--gold-bright);

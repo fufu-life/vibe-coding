@@ -26,7 +26,10 @@ test("library groups all twenty shows by language", () => {
   ]);
   assert.equal(libraryShows.length, 20);
   assert.match(indexHtml, /id="languageGroups"/);
-  assert.match(indexHtml, /<script src="shows\.js"><\/script>\s*<script src="library\.js"><\/script>/);
+  assert.match(
+    indexHtml,
+    /<script src="shows\.js" onerror="handleCriticalAssetError\(\)"><\/script>\s*<script src="library\.js" onerror="handleCriticalAssetError\(\)"><\/script>/,
+  );
 });
 
 test("show names and Cantonese feature labels stay accurate", () => {
