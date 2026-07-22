@@ -403,22 +403,30 @@ h1 {
   margin: 0;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: clamp(1.55rem, 3.6vw, 3.2rem);
+  font-size: clamp(1.55rem, 3vw, 2.7rem);
   line-height: 1;
   letter-spacing: 0.02em;
 }
 
 .song-title-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   min-width: 0;
 }
 
 .song-title-row h1 {
   display: block;
-  flex: 0 1 auto;
   min-width: 0;
+}
+
+.toolbar-playback-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+}
+
+.toolbar-playback-tools .song-play-button,
+.toolbar-playback-tools .playback-rate-button {
+  flex: 0 0 auto;
 }
 
 .song-play-button {
@@ -1125,11 +1133,6 @@ body.has-playback-dock .back-to-top {
 
   .lyrics-search-control.is-open {
     width: min(300px, calc(100vw - 100px));
-  }
-
-  .song-title-row {
-    align-items: center;
-    gap: 9px;
   }
 
   .song-play-button {

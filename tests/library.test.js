@@ -17,14 +17,14 @@ test("library uses the requested title and introduction", () => {
   );
 });
 
-test("library groups all twenty shows by language", () => {
+test("library groups all twenty-five shows by language", () => {
   assert.deepEqual(libraryLanguages, [
     { id: "yue", label: "粤语音乐剧" },
     { id: "en", label: "英语音乐剧" },
     { id: "de", label: "德语音乐剧" },
     { id: "fr", label: "法语音乐剧" },
   ]);
-  assert.equal(libraryShows.length, 20);
+  assert.equal(libraryShows.length, 25);
   assert.match(indexHtml, /id="languageGroups"/);
   assert.match(
     indexHtml,
@@ -64,7 +64,7 @@ test("every shelf card uses a local title-bearing show logo", () => {
 test("every show card links directly to its page instead of a folder", () => {
   const links = libraryShows.map((show) => show.href);
 
-  assert.equal(links.length, 20);
+  assert.equal(links.length, 25);
   assert.ok(links.every((href) => href.endsWith("/index.html")));
   for (const href of links) {
     assert.ok(fs.existsSync(path.join(root, href)), `Missing show page: ${href}`);
@@ -109,7 +109,7 @@ test("deployed cards prefetch their first-screen data without probing undeployed
   assert.doesNotMatch(libraryScript, /window\.libraryShows\.flatMap\([^)]*prefetch/);
 });
 
-test("library and all twenty show pages keep the shared Google Analytics tag", () => {
+test("library and all twenty-five show pages keep the shared Google Analytics tag", () => {
   const pages = [
     ["library", indexHtml],
     ...libraryShows.map((show) => [

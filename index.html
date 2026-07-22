@@ -297,6 +297,41 @@
         --cover-bright: #3c1219;
       }
 
+      .show-card.chicago {
+        --accent: #c51f2b;
+        --accent-soft: rgba(197, 31, 43, 0.24);
+        --cover-deep: #090708;
+        --cover-bright: #2c1115;
+      }
+
+      .show-card.dear-evan-hansen {
+        --accent: #70b7ca;
+        --accent-soft: rgba(42, 122, 170, 0.22);
+        --cover-deep: #07141b;
+        --cover-bright: #163d50;
+      }
+
+      .show-card.six-the-musical {
+        --accent: #d52ba6;
+        --accent-soft: rgba(213, 43, 166, 0.25);
+        --cover-deep: #10051c;
+        --cover-bright: #40205f;
+      }
+
+      .show-card.suffs {
+        --accent: #e3ba25;
+        --accent-soft: rgba(227, 186, 37, 0.22);
+        --cover-deep: #1d1527;
+        --cover-bright: #6d4a87;
+      }
+
+      .show-card.sunset-boulevard {
+        --accent: #d78024;
+        --accent-soft: rgba(215, 128, 36, 0.22);
+        --cover-deep: #070707;
+        --cover-bright: #3b2111;
+      }
+
       .cover {
         display: grid;
         place-items: center;
@@ -328,6 +363,18 @@
       .show-card.donjuan .cover,
       .show-card.moliere .cover,
       .show-card.cyrano .cover {
+        background:
+          radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--accent), transparent 60%), transparent 34%),
+          linear-gradient(155deg, rgba(255, 255, 255, 0.13), transparent 30%),
+          repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 16px),
+          linear-gradient(180deg, var(--cover-bright), var(--cover-deep));
+      }
+
+      .show-card.chicago .cover,
+      .show-card.dear-evan-hansen .cover,
+      .show-card.six-the-musical .cover,
+      .show-card.suffs .cover,
+      .show-card.sunset-boulevard .cover {
         background:
           radial-gradient(circle at 50% 18%, color-mix(in srgb, var(--accent), transparent 60%), transparent 34%),
           linear-gradient(155deg, rgba(255, 255, 255, 0.13), transparent 30%),

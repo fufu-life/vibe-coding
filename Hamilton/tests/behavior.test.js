@@ -138,7 +138,10 @@ test("sentence and word pronunciation prefer local audio files", () => {
 });
 
 test("approved playback-rate cycle controls sentences and playlists but not word audio", () => {
-  assert.match(indexHtml, /id="songPlayButton"[\s\S]*id="playbackRateButton"[^>]*>1\.0×<\/button>/);
+  const feedbackIndex = indexHtml.indexOf('id="feedbackButton"');
+  const playbackIndex = indexHtml.indexOf('class="toolbar-playback-tools"');
+  assert.ok(feedbackIndex !== -1 && playbackIndex > feedbackIndex);
+  assert.match(indexHtml, /class="toolbar-playback-tools"[\s\S]*id="songPlayButton"[\s\S]*id="playbackRateButton"[^>]*>1\.0×<\/button>/);
   assert.match(indexHtml, /\.\.\/shared\/playback-rate\.js/);
   assert.match(playbackRateJs, /\[1, 1\.25, 1\.5, 2, 3\]/);
   assert.match(scriptJs, /storageKey:\s*PLAYBACK_RATE_KEY/);

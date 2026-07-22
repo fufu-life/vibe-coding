@@ -418,8 +418,10 @@ const pageTools = window.MusicalLyricsPageTools.create({
   songs: sortedSongs,
   rateStorageKey: PLAYBACK_RATE_KEY,
   hero: document.querySelector(".hero"),
-  homeButton: document.querySelector(".home-button"),
+  actionContainer: document.querySelector(".desktop-search-slot"),
+  mobileActionContainer: document.querySelector(".mobile-search-row"),
   titleRow: document.querySelector(".song-title-row"),
+  rateContainer: document.querySelector(".song-playback-tools"),
   lyrics: document.querySelector(".lyrics-column"),
   mobilePicker: document.querySelector(".mobile-song-picker"),
   getCurrentSong,
@@ -2120,6 +2122,7 @@ function setSequenceHighlight(lineId, index, total) {
     const button = card.querySelector(".sentence-speak");
     button?.classList.add("is-sequence-stop");
     button?.setAttribute("aria-label", "停止全曲播放");
+    button?.setAttribute("title", "停止全曲播放");
   }
   pageTools.setProgress(index, total);
   followSequenceCard(card);
@@ -2145,6 +2148,7 @@ function clearSequenceHighlight() {
     const button = card.querySelector(".sentence-speak");
     button?.classList.remove("is-sequence-stop");
     button?.setAttribute("aria-label", "播放整句发音");
+    button?.setAttribute("title", "播放整句发音");
   });
 }
 

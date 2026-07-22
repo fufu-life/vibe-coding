@@ -28,8 +28,11 @@
     const hero = options.hero;
     const homeButton = options.homeButton;
     const titleRow = options.titleRow;
+    const rateContainer = options.rateContainer || titleRow;
     const lyrics = options.lyrics;
     const mobilePicker = options.mobilePicker;
+    const actionContainer = options.actionContainer;
+    const mobileActionContainer = options.mobileActionContainer;
     if (!hero || !titleRow || !lyrics) throw new Error("Lyrics page tools require hero, title row, and lyrics elements");
 
     const heroActions = document.createElement("div");
@@ -57,6 +60,19 @@
     searchForm.append(searchToggle, searchInput, searchClose);
     heroActions.prepend(searchForm);
 
+    if (actionContainer || mobileActionContainer) {
+      const mobileActionsQuery = window.matchMedia(options.mobileActionsQuery || "(max-width: 860px)");
+      const placeHeroActions = () => {
+        if (mobileActionsQuery.matches && mobileActionContainer) {
+          mobileActionContainer.append(heroActions);
+        } else if (actionContainer) {
+          actionContainer.prepend(heroActions);
+        }
+      };
+      placeHeroActions();
+      mobileActionsQuery.addEventListener("change", placeHeroActions);
+    }
+
     const results = document.createElement("section");
     results.className = "lyrics-tools-results";
     results.hidden = true;
@@ -77,7 +93,7 @@
     rateButton.type = "button";
     rateButton.className = "lyrics-tools-rate";
     rateButton.textContent = "1.0×";
-    titleRow.append(rateButton);
+    rateContainer.append(rateButton);
 
     const dock = document.createElement("aside");
     dock.className = "lyrics-tools-dock";

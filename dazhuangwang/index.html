@@ -152,6 +152,62 @@ select {
   border-color: var(--accent);
 }
 
+.home-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(215, 199, 161, 0.38);
+  border-radius: 50%;
+  color: rgba(226, 214, 178, 0.9);
+  background: rgba(3, 47, 42, 0.58);
+  text-decoration: none;
+}
+
+.home-button:hover,
+.home-button:focus-visible {
+  color: var(--ink);
+  border-color: rgba(215, 199, 161, 0.62);
+  background: rgba(215, 199, 161, 0.12);
+  outline: none;
+}
+
+.home-button svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.controls .lyrics-tools-hero-actions {
+  position: static;
+  flex: 0 0 auto;
+}
+
+.musical-title-line .home-button {
+  width: auto;
+  min-width: 0;
+  padding: 0 9px;
+  border-color: rgba(215, 199, 161, 0.38);
+  border-radius: 999px;
+  color: rgba(226, 214, 178, 0.9);
+  background: rgba(3, 47, 42, 0.58);
+  font-size: 0.76rem;
+}
+
+.lyrics-tools-search.is-open .lyrics-tools-search-toggle,
+.lyrics-tools-search.is-open .lyrics-tools-search-close {
+  width: 30px;
+  height: 30px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
 body.about-modal-open {
   overflow: hidden;
 }
@@ -462,9 +518,13 @@ body.about-modal-open {
   position: relative;
   display: grid;
   gap: 0;
-  padding-right: 48px;
+  padding-right: 0;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
+}
+
+.song-header-tools {
+  display: none;
 }
 
 .song-annotations {
@@ -628,19 +688,31 @@ h1 {
 .song-title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   min-width: 0;
 }
 
-.song-title-row h1 {
+.song-title-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.song-title-heading h1 {
   display: block;
   flex: 0 1 auto;
   min-width: 0;
 }
 
+.song-title-row .title-dragonfly {
+  width: 38px;
+  height: 31px;
+  flex: 0 0 auto;
+}
+
 .song-play-button {
   display: inline-grid;
-  flex: 0 0 auto;
   place-items: center;
   width: 36px;
   height: 36px;
@@ -652,6 +724,17 @@ h1 {
   background: rgba(0, 0, 0, 0.16);
   cursor: pointer;
   vertical-align: 0.08em;
+}
+
+.song-playback-tools {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.song-playback-tools .lyrics-tools-rate {
+  flex: 0 0 auto;
 }
 
 .song-play-button:hover,
@@ -1018,6 +1101,27 @@ h1 {
   stroke-width: 1.8;
 }
 
+.speak-button.is-sequence-stop svg {
+  display: none;
+}
+
+.speak-button.is-sequence-stop::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin: auto;
+  border-radius: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.speak-button.is-sequence-stop {
+  position: relative;
+  line-height: 0;
+}
+
 .speak-button.is-audio-loading {
   opacity: 0.56;
   pointer-events: none;
@@ -1141,6 +1245,22 @@ h1 {
     display: none;
   }
 
+  .song-header {
+    padding-right: 0;
+  }
+
+  .song-header-tools {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .song-header-tools .lyrics-tools-hero-actions {
+    position: static;
+    width: 100%;
+    max-width: none;
+    justify-content: space-between;
+  }
+
   .mobile-song-picker {
     display: grid;
     gap: 8px;
@@ -1236,12 +1356,22 @@ h1 {
 
   .song-title-row {
     align-items: center;
-    gap: 8px;
   }
 
   .song-play-button {
     width: 32px;
     height: 32px;
+  }
+
+  .song-title-row .title-dragonfly {
+    width: 30px;
+    height: 25px;
+  }
+
+  .song-playback-tools .lyrics-tools-rate {
+    min-width: 42px;
+    padding: 0 5px;
+    font-size: 0.72rem;
   }
 
   .topbar {
@@ -1420,7 +1550,7 @@ body:not(.js-ready) .app-layout {
       <header class="topbar">
         <div class="musical-title-line">
           <p class="musical-title">大状王</p>
-          <img class="title-dragonfly" src="assets/dragonfly-title.png" alt="" aria-hidden="true" />
+          <a class="home-button" href="../index.html" aria-label="返回音乐剧展示架" title="返回音乐剧展示架">返回</a>
         </div>
         <section class="controls" aria-label="显示设置">
           <button class="toggle" type="button" data-toggle="useTraditional" aria-pressed="false" aria-label="切换为繁体中文">
@@ -1453,15 +1583,21 @@ body:not(.js-ready) .app-layout {
 
           <header class="song-header">
             <div class="song-title-row">
-              <h1 id="songTitle"></h1>
-              <button class="song-play-button" id="songPlayButton" type="button" aria-label="连续播放本曲" aria-pressed="false" title="连续播放本曲">
-                <svg viewBox="0 0 28 24" aria-hidden="true">
-                  <path class="playlist-play-mark" d="M3.5 5.2v13.6l10-6.8z"></path>
-                  <path class="playlist-lines-mark" d="M16.5 6h8M16.5 12h8M16.5 18h8"></path>
-                  <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5"></rect>
-                </svg>
-              </button>
+              <div class="song-title-heading">
+                <h1 id="songTitle"></h1>
+                <img class="title-dragonfly" src="assets/dragonfly-title.png" alt="" aria-hidden="true" />
+              </div>
+              <div class="song-playback-tools" aria-label="本曲播放控制">
+                <button class="song-play-button" id="songPlayButton" type="button" aria-label="连续播放本曲" aria-pressed="false" title="连续播放本曲">
+                  <svg viewBox="0 0 28 24" aria-hidden="true">
+                    <path class="playlist-play-mark" d="M3.5 5.2v13.6l10-6.8z"></path>
+                    <path class="playlist-lines-mark" d="M16.5 6h8M16.5 12h8M16.5 18h8"></path>
+                    <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5"></rect>
+                  </svg>
+                </button>
+              </div>
             </div>
+            <div class="song-header-tools" aria-label="歌曲工具"></div>
           </header>
 
           <section class="song-annotations" id="songAnnotations" aria-label="本首歌注释" hidden></section>
@@ -10670,8 +10806,10 @@ const pageTools = window.MusicalLyricsPageTools.create({
   songs,
   rateStorageKey: DZW_PLAYBACK_RATE_KEY,
   hero: document.querySelector(".song-header"),
-  homeButton: null,
+  actionContainer: document.querySelector(".controls"),
+  mobileActionContainer: document.querySelector(".song-header-tools"),
   titleRow: document.querySelector(".song-title-row"),
+  rateContainer: document.querySelector(".song-playback-tools"),
   lyrics: refs.lyricsList,
   mobilePicker: document.querySelector(".mobile-song-picker"),
   hideWhileSearching: [refs.songAnnotations],
@@ -11573,6 +11711,7 @@ function setSequenceHighlight(lineId, index, total) {
     const button = row.querySelector(".speak-button");
     button?.classList.add("is-sequence-stop");
     button?.setAttribute("aria-label", "停止全曲播放");
+    button?.setAttribute("title", "停止全曲播放");
   }
   pageTools.setProgress(index, total);
   followSequenceCard(row);
@@ -11598,6 +11737,7 @@ function clearSequenceHighlight() {
     const button = row.querySelector(".speak-button");
     button?.classList.remove("is-sequence-stop");
     button?.setAttribute("aria-label", "朗读这一句");
+    button?.setAttribute("title", "朗读这一句");
   });
 }
 

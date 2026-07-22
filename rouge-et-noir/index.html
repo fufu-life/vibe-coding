@@ -29,15 +29,18 @@
       <header class="topbar">
         <div class="musical-title-line">
           <p class="app-kicker">Le Rouge et le Noir, l'Opéra Rock</p>
-          <span class="reference-note">内容仅供参考</span>
+          <a class="home-button" href="../index.html" aria-label="返回音乐剧展示架" title="返回音乐剧展示架">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+          </a>
         </div>
         <div class="topbar-tools">
+          <div class="desktop-search-slot" aria-label="歌词搜索"></div>
           <section class="controls" aria-label="显示设置">
             <button class="toggle is-active" type="button" data-toggle="showZh" aria-pressed="true">
               中文
             </button>
             <button class="toggle" type="button" data-toggle="showEn" aria-pressed="false">
-              English
+              英文
             </button>
             <button class="toggle" type="button" data-toggle="showAnalysis" aria-pressed="false">
               解析
@@ -51,6 +54,7 @@
           </section>
         </div>
       </header>
+      <div class="mobile-search-row" aria-label="歌词搜索"></div>
 
       <div class="app-layout">
         <aside class="song-sidebar" aria-label="歌曲导航">
@@ -72,19 +76,18 @@
           </label>
 
           <header class="hero">
-            <a class="home-button" href="../index.html" aria-label="返回音乐剧展示架" title="返回音乐剧展示架">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
-            </a>
             <div class="hero-copy">
               <div class="song-title-row">
                 <h1 id="currentSongTitle"></h1>
-                <button class="song-play-button" id="songPlayButton" type="button" aria-label="连续播放本曲" aria-pressed="false" title="连续播放本曲">
-                  <svg viewBox="0 0 28 24" aria-hidden="true">
-                    <path class="playlist-play-mark" d="M3.5 5.2v13.6l10-6.8z" />
-                    <path class="playlist-lines-mark" d="M16.5 6h8M16.5 12h8M16.5 18h8" />
-                    <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5" />
-                  </svg>
-                </button>
+                <div class="song-playback-tools" aria-label="本曲播放控制">
+                  <button class="song-play-button" id="songPlayButton" type="button" aria-label="连续播放本曲" aria-pressed="false" title="连续播放本曲">
+                    <svg viewBox="0 0 28 24" aria-hidden="true">
+                      <path class="playlist-play-mark" d="M3.5 5.2v13.6l10-6.8z" />
+                      <path class="playlist-lines-mark" d="M16.5 6h8M16.5 12h8M16.5 18h8" />
+                      <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <p class="title-translation" id="currentSongZhTitle"></p>
               <p class="story-position" id="storyPosition"></p>

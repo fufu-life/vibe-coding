@@ -34,6 +34,15 @@
   box-shadow: 0 14px 32px var(--shadow);
 }
 
+.lyrics-tools-search.is-open .lyrics-tools-search-toggle,
+.lyrics-tools-search.is-open .lyrics-tools-search-close {
+  width: 30px;
+  height: 30px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
 .lyrics-tools-search-toggle,
 .lyrics-tools-search-close {
   display: grid;
@@ -248,12 +257,18 @@ body.has-lyrics-tools-dock .back-to-top {
 }
 
 .speak-button.is-sequence-stop {
+  position: relative;
   font-size: 0;
+  line-height: 0;
 }
 
 .speak-button.is-sequence-stop::before {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 10px;
   height: 10px;
+  margin: auto;
   border-radius: 2px;
   background: currentColor;
   content: "";
