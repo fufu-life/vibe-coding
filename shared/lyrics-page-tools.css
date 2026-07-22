@@ -106,6 +106,46 @@
   white-space: nowrap;
 }
 
+.musical-rate-menu {
+  position: fixed;
+  z-index: 80;
+  display: grid;
+  min-width: 76px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--panel) 96%, #000 4%);
+  box-shadow: 0 14px 36px var(--shadow);
+  backdrop-filter: blur(12px);
+}
+
+.musical-rate-menu[hidden] {
+  display: none;
+}
+
+.musical-rate-menu-option {
+  min-height: 30px;
+  border: 0;
+  border-radius: 5px;
+  padding: 0 10px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.musical-rate-menu-option:hover,
+.musical-rate-menu-option:focus-visible,
+.musical-rate-menu-option.is-selected {
+  color: var(--panel);
+  background: var(--highlight, var(--accent));
+  outline: none;
+}
+
 .lyrics-tools-results[hidden],
 .lyrics-tools-dock[hidden] {
   display: none;
@@ -266,8 +306,8 @@ body.has-lyrics-tools-dock .back-to-top {
   position: absolute;
   inset: 0;
   display: block;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   margin: auto;
   border-radius: 2px;
   background: currentColor;
@@ -293,5 +333,22 @@ body.has-lyrics-tools-dock .back-to-top {
   body.has-lyrics-tools-dock .back-to-top {
     right: 14px;
     bottom: calc(max(11px, env(safe-area-inset-bottom)) + 72px);
+  }
+}
+
+@media (max-width: 480px) {
+  .musical-rate-menu {
+    min-width: 70px;
+  }
+
+  .musical-rate-menu-option {
+    min-height: 28px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+
+  .speak-button.is-sequence-stop::before {
+    width: 7px;
+    height: 7px;
   }
 }

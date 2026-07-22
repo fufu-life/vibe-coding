@@ -471,6 +471,46 @@ h1 {
   outline: none;
 }
 
+.musical-rate-menu {
+  position: fixed;
+  z-index: 80;
+  display: grid;
+  min-width: 76px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+  color: var(--ink);
+  background: rgba(30, 22, 7, 0.96);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(12px);
+}
+
+.musical-rate-menu[hidden] {
+  display: none;
+}
+
+.musical-rate-menu-option {
+  min-height: 30px;
+  border: 0;
+  border-radius: 5px;
+  padding: 0 10px;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.musical-rate-menu-option:hover,
+.musical-rate-menu-option:focus-visible,
+.musical-rate-menu-option.is-selected {
+  color: var(--bg);
+  background: var(--gold-bright);
+  outline: none;
+}
+
 .song-play-button:hover,
 .song-play-button:focus-visible,
 .song-play-button.is-playing {
@@ -1144,6 +1184,21 @@ body.has-playback-dock .back-to-top {
     min-width: 48px;
     height: 32px;
     padding-inline: 7px;
+  }
+
+  .musical-rate-menu {
+    min-width: 70px;
+  }
+
+  .musical-rate-menu-option {
+    min-height: 28px;
+    padding-inline: 8px;
+    font-size: 0.72rem;
+  }
+
+  .speak-button.is-sequence-stop::before {
+    width: 10px;
+    height: 10px;
   }
 
   .hero-mark {

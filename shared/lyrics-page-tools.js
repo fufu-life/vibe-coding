@@ -142,7 +142,7 @@
     function syncRate(rate) {
       const label = globalScope.MusicalPlaybackRate.formatRate(rate);
       dockRate.textContent = label;
-      dockRate.setAttribute("aria-label", `当前播放速度 ${label}；点击切换`);
+      dockRate.setAttribute("aria-label", `选择播放速度，当前 ${label}`);
       dockRate.title = `播放速度：${label}`;
     }
     syncRate(rateControl.getRate());
@@ -241,7 +241,7 @@
       else renderSearch(searchInput.value);
     });
     searchClose.addEventListener("click", closeSearch);
-    dockRate.addEventListener("click", () => rateControl.cycle());
+    dockRate.addEventListener("click", () => rateControl.toggleMenu(dockRate));
     dockPause.addEventListener("click", () => {
       if (controller?.isSequencePaused()) controller.resumeSequence();
       else controller?.pauseSequence();

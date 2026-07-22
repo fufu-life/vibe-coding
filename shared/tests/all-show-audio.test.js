@@ -67,8 +67,8 @@ function readDisplayedLyricText(show) {
   ]).filter(Boolean).join("\n");
 }
 
-test("all twenty show pages load the shared audio guard and expose a playlist button", () => {
-  assert.equal(libraryShows.length, 20);
+test("all show pages load the shared audio guard and expose a playlist button", () => {
+  assert.equal(libraryShows.length, 25);
   libraryShows.forEach((show) => {
     const { index, script, style } = readShowFiles(show);
     assert.match(index, /\.\.\/shared\/audio-playback\.js/, `${show.id}: shared audio controller`);
@@ -89,6 +89,24 @@ test("all twenty show pages load the shared audio guard and expose a playlist bu
     assert.match(style, /\.song-play-button/, `${show.id}: playlist button styling`);
     assert.match(style, /\.is-sequence-active/, `${show.id}: current-line styling`);
     assert.match(style, /\.is-audio-loading/, `${show.id}: loading feedback`);
+  });
+});
+
+test("all show pages expose search, playback rate, pause, and persistent stop controls", () => {
+  libraryShows.forEach((show) => {
+    const { index, script } = readShowFiles(show);
+    assert.match(index, /\.\.\/shared\/playback-rate\.js/, show.id + ": playback-rate module");
+    assert.match(index, /\.\.\/shared\/lyrics-search\.js/, show.id + ": lyrics-search module");
+    assert.match(script, /pauseCurrent:\s*pauseCurrentPlayback/, show.id + ": pause callback");
+    assert.match(script, /resumeCurrent:\s*resumeCurrentPlayback/, show.id + ": resume callback");
+    assert.match(script, /is-sequence-stop/, show.id + ": current-line stop state");
+    if (show.id === "hamilton") {
+      assert.match(index, /id="playbackDock"/, show.id + ": custom playback dock");
+      assert.match(script, /bindSearch\(\)/, show.id + ": custom search UI");
+    } else {
+      assert.match(index, /\.\.\/shared\/lyrics-page-tools\.js/, show.id + ": shared page tools");
+      assert.match(script, /MusicalLyricsPageTools\.create/, show.id + ": shared page tools initialization");
+    }
   });
 });
 
@@ -123,11 +141,11 @@ test("the three independent pages keep their own audio and fallback implementati
   const dazhuangwang = readShowFiles(libraryShows.find((show) => show.id === "dazhuangwang")).script;
 
   assert.match(hamilton, /function playLineToEnd/);
-  assert.match(hamilton, /speakEnglish\(line\.en, true\)/);
+  assert.match(hamilton, /speakEnglish\(line\.en, true, \{ rate \}\)/);
   assert.match(rouge, /function playLineToEnd/);
-  assert.match(rouge, /speakFrench\(line\.fr, true\)/);
+  assert.match(rouge, /speakFrench\(line\.fr, true, \{ rateControlled: true \}\)/);
   assert.match(dazhuangwang, /function playDazhuangwangLineToEnd/);
-  assert.match(dazhuangwang, /function speakCantoneseToEnd/);
+  assert.match(dazhuangwang, /speakCantoneseToEnd\(getSpeakText\(getLineText\(line\)\), \{ rateControlled: true \}\)/);
 });
 
 test("dazhuangwang excludes lines without local audio from whole-song playback", () => {

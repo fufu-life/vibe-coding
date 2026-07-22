@@ -477,7 +477,7 @@ function initPlaybackRateControl() {
 }
 
 function bindPlaybackDock() {
-  refs.playbackDockRate?.addEventListener("click", () => playbackRateControl?.cycle());
+  refs.playbackDockRate?.addEventListener("click", () => playbackRateControl?.toggleMenu(refs.playbackDockRate));
   refs.playbackDockPause?.addEventListener("click", () => {
     if (audioController.isSequencePaused()) audioController.resumeSequence();
     else audioController.pauseSequence();
@@ -489,7 +489,7 @@ function syncPlaybackDockRate(rate) {
   if (!refs.playbackDockRate) return;
   const label = window.MusicalPlaybackRate.formatRate(rate);
   refs.playbackDockRate.textContent = label;
-  refs.playbackDockRate.setAttribute("aria-label", `当前播放速度 ${label}；点击切换`);
+  refs.playbackDockRate.setAttribute("aria-label", `选择播放速度，当前 ${label}`);
   refs.playbackDockRate.title = `播放速度：${label}`;
 }
 

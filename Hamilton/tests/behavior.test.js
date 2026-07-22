@@ -137,13 +137,15 @@ test("sentence and word pronunciation prefer local audio files", () => {
   assert.match(styleCss, /\.lyric-card\.is-sequence-active/);
 });
 
-test("approved playback-rate cycle controls sentences and playlists but not word audio", () => {
+test("approved playback-rate menu controls sentences and playlists but not word audio", () => {
   const feedbackIndex = indexHtml.indexOf('id="feedbackButton"');
   const playbackIndex = indexHtml.indexOf('class="toolbar-playback-tools"');
   assert.ok(feedbackIndex !== -1 && playbackIndex > feedbackIndex);
   assert.match(indexHtml, /class="toolbar-playback-tools"[\s\S]*id="songPlayButton"[\s\S]*id="playbackRateButton"[^>]*>1\.0×<\/button>/);
   assert.match(indexHtml, /\.\.\/shared\/playback-rate\.js/);
-  assert.match(playbackRateJs, /\[1, 1\.25, 1\.5, 2, 3\]/);
+  assert.match(playbackRateJs, /\[0\.5, 0\.75, 1, 1\.25, 1\.5, 2, 3\]/);
+  assert.match(playbackRateJs, /className = "musical-rate-menu"/);
+  assert.match(playbackRateJs, /function toggleMenu/);
   assert.match(scriptJs, /storageKey:\s*PLAYBACK_RATE_KEY/);
   assert.match(scriptJs, /audio\.defaultPlaybackRate = rate/);
   assert.match(scriptJs, /audio\.playbackRate = rate/);
@@ -152,6 +154,8 @@ test("approved playback-rate cycle controls sentences and playlists but not word
   assert.match(scriptJs, /gapMs:\s*window\.MusicalAudio\.SEQUENCE_GAP_MS \/ getPlaybackRate\(\)/);
   assert.match(scriptJs, /0\.82 \* rate/);
   assert.match(styleCss, /\.playback-rate-button/);
+  assert.match(styleCss, /\.musical-rate-menu/);
+  assert.match(scriptJs, /playbackRateControl\?\.toggleMenu\(refs\.playbackDockRate\)/);
 });
 
 test("full-song playback exposes a persistent pause and stop controller", () => {

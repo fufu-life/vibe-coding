@@ -841,14 +841,16 @@ function renderLyricLine(song, line) {
       trackAudioPlay(song, line, lineNumber, "line", line.fr);
     });
   });
-  fr.append(document.createTextNode(" "), sentenceSpeakButton);
-
   if (line.repeatCount) {
     const repeatBadge = document.createElement("span");
     repeatBadge.className = "repeat-badge";
     repeatBadge.textContent = `x${line.repeatCount}`;
     fr.append(document.createTextNode(" "), repeatBadge);
   }
+
+  const frRow = document.createElement("div");
+  frRow.className = "fr-row";
+  frRow.append(fr, sentenceSpeakButton);
 
   const en = document.createElement("p");
   en.className = "en";
@@ -860,7 +862,7 @@ function renderLyricLine(song, line) {
   zh.hidden = !appState.settings.showZh;
   zh.textContent = formatChineseLyric(line.zh);
 
-  textBlock.append(fr, en, zh);
+  textBlock.append(frRow, en, zh);
 
   const actions = document.createElement("div");
   actions.className = "card-actions";

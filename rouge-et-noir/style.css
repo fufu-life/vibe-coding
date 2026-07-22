@@ -640,7 +640,16 @@ h1 .lyric-word:focus-visible {
   min-width: 0;
 }
 
+.fr-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
 .fr {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   font-family: var(--font-fr);
   font-size: clamp(1.08rem, 1.75vw, 1.42rem);
@@ -692,6 +701,11 @@ h1 .lyric-word:focus-visible {
   cursor: pointer;
 }
 
+.fr-row .sentence-speak {
+  flex: 0 0 auto;
+  margin-top: 0.16em;
+}
+
 .sentence-speak:hover,
 .sentence-speak:focus-visible {
   border-color: rgba(201, 164, 92, 0.72);
@@ -736,8 +750,8 @@ h1 .lyric-word:focus-visible {
   position: absolute;
   inset: 0;
   display: block;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   margin: auto;
   border-radius: 1px;
   background: currentColor;
@@ -1149,7 +1163,8 @@ h1 .lyric-word:focus-visible {
   }
 
   .controls {
-    width: 100%;
+    width: max-content;
+    max-width: 100%;
   }
 
   .lyric-card {
@@ -1199,6 +1214,11 @@ h1 .lyric-word:focus-visible {
     width: 23px;
     height: 23px;
     transform: translateY(-0.03em);
+  }
+
+  .sentence-speak.speak-button.is-sequence-stop::before {
+    width: 6px;
+    height: 6px;
   }
 
   .sentence-speak svg {
