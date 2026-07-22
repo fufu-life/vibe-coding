@@ -1,7 +1,17 @@
 const SETTINGS_KEY = "hamilton-display-settings";
 const CURRENT_SONG_KEY = "hamilton-current-song-id";
 const SIDEBAR_KEY = "hamilton-sidebar-collapsed";
+const PLAYBACK_RATE_KEY = "hamilton-playback-rate";
 const CSV_PATH = "hamilton_lyrics_en_based.csv";
+const SEARCH_RESULT_LIMIT = 100;
+const LINE_IPA_OVERRIDES = {
+  "ham-02-001": "/ˌsɛvənˈtin-ˌsɛvəti-ˈsɪks nu jɔrk sɪti/",
+  "ham-09-018": "/ˌsɛvənˈtin-ˈeɪti/",
+  "ham-09-019": "/ˌsɛvənˈtin-ˈeɪti/",
+  "ham-20-001": "/ðə bætəl əv jɔrktaʊn ˌsɛvənˈtin-ˌeɪtiˈwʌn/",
+  "ham-24-003": "/ˌsɛvənˈtin-ˌeɪtiˈnaɪn/",
+  "ham-42-001": "/ðə ɪlɛkʃən əv ˌeɪˈtin-ˈhʌndrəd/",
+};
 
 let songs = [];
 let wordLookup = new Map();
@@ -9,11 +19,23 @@ let analysisSongs = [];
 let analysisByLine = new Map();
 let generatedWordEntries = {};
 let wordDictionaryReady = Promise.resolve();
-const audioState = { current: null, finish: null, speechFinish: null, preload: null };
+let playbackRateControl = null;
+const audioState = {
+  current: null,
+  finish: null,
+  speechFinish: null,
+  preload: null,
+  rateControlled: false,
+};
 const state = {
   settings: { showZh: true, showIpa: true, ...sanitizeSettings(loadJson(SETTINGS_KEY, {})) },
   currentSongId: "",
   sidebarCollapsed: loadJson(SIDEBAR_KEY, false),
+  searchIndex: [],
+  searchOpen: false,
+  searchActive: false,
+  searchQuery: "",
+  pendingLineId: "",
 };
 
 const refs = {
@@ -24,18 +46,43 @@ const refs = {
   songSelect: document.querySelector("#songSelect"),
   songTitle: document.querySelector("#songTitle"),
   songPlayButton: document.querySelector("#songPlayButton"),
+  playbackRateButton: document.querySelector("#playbackRateButton"),
+  playbackDock: document.querySelector("#playbackDock"),
+  playbackDockSong: document.querySelector("#playbackDockSong"),
+  playbackDockProgress: document.querySelector("#playbackDockProgress"),
+  playbackDockRate: document.querySelector("#playbackDockRate"),
+  playbackDockPause: document.querySelector("#playbackDockPause"),
+  playbackDockStop: document.querySelector("#playbackDockStop"),
   lyrics: document.querySelector("#lyrics"),
+  mobilePicker: document.querySelector(".mobile-picker"),
   toggleButtons: [...document.querySelectorAll("[data-toggle]")],
   wordPopover: document.querySelector("#wordPopover"),
   backToTop: document.querySelector("#backToTop"),
+  searchForm: document.querySelector("#lyricsSearchForm"),
+  searchToggle: document.querySelector("#lyricsSearchToggle"),
+  searchInput: document.querySelector("#lyricsSearchInput"),
+  searchClose: document.querySelector("#lyricsSearchClose"),
+  searchResults: document.querySelector("#searchResults"),
+  searchResultsTitle: document.querySelector("#searchResultsTitle"),
+  searchResultsSummary: document.querySelector("#searchResultsSummary"),
+  searchResultsList: document.querySelector("#searchResultsList"),
 };
 
 const audioController = window.MusicalAudio.createController({
   stopCurrent: stopCurrentPlayback,
+  pauseCurrent: pauseCurrentPlayback,
+  resumeCurrent: resumeCurrentPlayback,
+  onSequenceStateChange: updatePlaybackDockVisibility,
+  onSequencePauseChange: updatePlaybackDockPauseState,
   onItemClear: clearSequenceHighlight,
 });
 
 const COMMON_WORD_GLOSSARY = {
+  "1776": { ipa: "/ˌsɛvənˈtin ˌsɛvəti ˈsɪks/", en: "year", meaning: "1776年", speak: "seventeen seventy-six" },
+  "1780": { ipa: "/ˌsɛvənˈtin ˈeɪti/", en: "year", meaning: "1780年", speak: "seventeen eighty" },
+  "1781": { ipa: "/ˌsɛvənˈtin ˌeɪtiˈwʌn/", en: "year", meaning: "1781年", speak: "seventeen eighty-one" },
+  "1789": { ipa: "/ˌsɛvənˈtin ˌeɪtiˈnaɪn/", en: "year", meaning: "1789年", speak: "seventeen eighty-nine" },
+  "1800": { ipa: "/ˌeɪˈtin ˈhʌndrəd/", en: "year", meaning: "1800年", speak: "eighteen hundred" },
   a: { ipa: "/ə/", en: "indefinite article", meaning: "不定冠词；一个", speak: "a" },
   an: { ipa: "/ən/", en: "indefinite article", meaning: "不定冠词；一个", speak: "an" },
   and: { ipa: "/ænd/", en: "and", meaning: "和；并且", speak: "and" },
@@ -116,7 +163,10 @@ init();
 
 async function init() {
   initQuillCursor();
+  initPlaybackRateControl();
+  bindPlaybackDock();
   bindControls();
+  bindSearch();
   bindHashChange();
   bindBackToTop();
   bindPopoverDismiss();
@@ -125,6 +175,11 @@ async function init() {
   refs.lyrics.innerHTML = '<p class="empty">正在读取歌词...</p>';
   try {
     songs = await loadSongs();
+    state.searchIndex = window.MusicalLyricsSearch.buildIndex(songs, {
+      getLinePrimary: (line) => line.en,
+      getLineSecondary: (line) => line.zh,
+    });
+    setSearchAvailability(true);
     state.currentSongId = resolveInitialSongId();
     renderCurrentSong();
     wordDictionaryReady = loadWordDictionary().catch((error) => {
@@ -133,6 +188,7 @@ async function init() {
     loadAnalysisData().catch((error) => {
       console.error("Deferred Hamilton analysis data failed to load", error);
     });
+    applyHashState();
   } catch (error) {
     console.error(error);
     refs.songTitle.textContent = "Hamilton 中英歌词";
@@ -184,12 +240,13 @@ async function loadSongsFromCsv() {
 function buildSongsFromRows(rows) {
   const grouped = new Map();
   const nextWordLookup = new Map();
+  const pendingSpeakersBySong = new Map();
   rows.forEach((row) => {
     const order = Number(row.song_order);
     const title = row.song_title?.trim();
-    const english = row.english?.trim();
+    const rawEnglish = row.english?.trim();
     const zh = row.chinese_translation?.trim();
-    if (!Number.isFinite(order) || !title || !english) return;
+    if (!Number.isFinite(order) || !title || !rawEnglish) return;
 
     const key = `${order}|${title}`;
     if (!grouped.has(key)) {
@@ -202,16 +259,31 @@ function buildSongsFromRows(rows) {
       });
     }
 
+    const metadata = parseLeadingLineMetadata(rawEnglish, row.ipa);
+    if (!metadata.english) {
+      if (metadata.speakers.length) {
+        pendingSpeakersBySong.set(key, metadata.speakers);
+      }
+      return;
+    }
+
     const song = grouped.get(key);
     const lineIndex = Number(row.line_index) || song.lines.length + 1;
+    const lineId = `ham-${String(order).padStart(2, "0")}-${String(lineIndex).padStart(3, "0")}`;
+    const english = metadata.english;
+    const speakers = metadata.speakers.length
+      ? metadata.speakers
+      : pendingSpeakersBySong.get(key) || [];
+    pendingSpeakersBySong.delete(key);
     const analysis = analysisByLine.get(`${order}|${normalizeEnglishKey(english)}`) || { words: [] };
-    const ipa = row.ipa?.trim() || "";
+    const ipa = LINE_IPA_OVERRIDES[lineId] || metadata.ipa;
     addLineWordEntries(nextWordLookup, english, ipa, analysis.words || []);
     song.lines.push({
-      id: `ham-${String(order).padStart(2, "0")}-${String(lineIndex).padStart(3, "0")}`,
+      id: lineId,
       en: english,
       ipa,
       zh,
+      speakers,
       note: row.note?.trim() || "",
       analysis,
     });
@@ -223,6 +295,48 @@ function buildSongsFromRows(rows) {
   builtSongs.forEach((song) => addTitleWordEntries(nextWordLookup, song.title));
   wordLookup = nextWordLookup;
   return builtSongs;
+}
+
+function parseLeadingLineMetadata(english, ipa) {
+  let lyric = String(english || "").trim();
+  const speakers = [];
+  let ipaPartsToRemove = 0;
+
+  while (lyric.startsWith("[")) {
+    const match = lyric.match(/^\[([^\]]{1,80})\]\s*/);
+    if (!match) break;
+
+    const label = match[1].trim();
+    lyric = lyric.slice(match[0].length).trim();
+    if (/^\d{1,2}:\d{2}(?:\.\d+)?$/.test(label)) {
+      ipaPartsToRemove += label.split(/[:.]/).filter(Boolean).length;
+    } else if (label) {
+      speakers.push(label);
+      ipaPartsToRemove += tokenizeEnglish(label).length;
+    }
+  }
+
+  const speakerMatch = lyric.match(/^([A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ0-9 .,'’‘&/()-]{1,60})\s*[:：]\s*/);
+  if (speakerMatch) {
+    const speaker = speakerMatch[1].replace(/[‘’']+$/, "").trim();
+    if (speaker) {
+      speakers.push(speaker);
+      ipaPartsToRemove += tokenizeEnglish(speakerMatch[1]).length;
+    }
+    lyric = lyric.slice(speakerMatch[0].length).trim();
+  }
+
+  const originalIpa = String(ipa || "").trim();
+  if (!ipaPartsToRemove) {
+    return { english: lyric, ipa: originalIpa, speakers };
+  }
+
+  const lyricIpaParts = splitIpa(originalIpa).slice(ipaPartsToRemove);
+  return {
+    english: lyric,
+    ipa: lyricIpaParts.length ? `/${lyricIpaParts.join(" ")}/` : "",
+    speakers,
+  };
 }
 
 function buildAnalysisLookup(sourceSongs) {
@@ -347,9 +461,57 @@ function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
 }
 
+function initPlaybackRateControl() {
+  playbackRateControl = window.MusicalPlaybackRate.createControl({
+    button: refs.playbackRateButton,
+    storageKey: PLAYBACK_RATE_KEY,
+    onChange(rate) {
+      if (audioState.current && audioState.rateControlled) {
+        audioState.current.defaultPlaybackRate = rate;
+        audioState.current.playbackRate = rate;
+      }
+      syncPlaybackDockRate(rate);
+    },
+  });
+  syncPlaybackDockRate(getPlaybackRate());
+}
+
+function bindPlaybackDock() {
+  refs.playbackDockRate?.addEventListener("click", () => playbackRateControl?.cycle());
+  refs.playbackDockPause?.addEventListener("click", () => {
+    if (audioController.isSequencePaused()) audioController.resumeSequence();
+    else audioController.pauseSequence();
+  });
+  refs.playbackDockStop?.addEventListener("click", () => audioController.stopSequence());
+}
+
+function syncPlaybackDockRate(rate) {
+  if (!refs.playbackDockRate) return;
+  const label = window.MusicalPlaybackRate.formatRate(rate);
+  refs.playbackDockRate.textContent = label;
+  refs.playbackDockRate.setAttribute("aria-label", `当前播放速度 ${label}；点击切换`);
+  refs.playbackDockRate.title = `播放速度：${label}`;
+}
+
+function getPlaybackRate() {
+  return playbackRateControl?.getRate() || 1;
+}
+
+function getHashParams() {
+  return new URLSearchParams(window.location.hash.replace(/^#/, ""));
+}
+
 function getSongIdFromHash() {
-  const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  return params.get("song");
+  return getHashParams().get("song");
+}
+
+function getLineIdFromHash() {
+  return getHashParams().get("line") || "";
+}
+
+function getSearchQueryFromHash() {
+  const params = getHashParams();
+  return params.has("search") ? params.get("search") || "" : null;
 }
 
 function resolveInitialSongId() {
@@ -386,17 +548,38 @@ function bindControls() {
 }
 
 function bindHashChange() {
-  window.addEventListener("hashchange", () => {
-    const songId = getSongIdFromHash();
-    if (isKnownSongId(songId) && songId !== state.currentSongId) {
-      audioController.stopAll();
+  window.addEventListener("hashchange", applyHashState);
+  window.addEventListener("popstate", applyHashState);
+}
+
+function applyHashState() {
+  const searchQuery = getSearchQueryFromHash();
+  if (searchQuery !== null) {
+    openSearchControl({ focus: false });
+    if (window.MusicalLyricsSearch.normalizeSearchText(searchQuery)) {
+      showSearchResults(searchQuery, { updateHistory: false });
+    } else {
+      exitSearchMode({ collapse: false, clearInput: false });
+    }
+    return;
+  }
+
+  const songId = getSongIdFromHash();
+  const lineId = getLineIdFromHash();
+  const songChanged = isKnownSongId(songId) && songId !== state.currentSongId;
+  const wasSearching = state.searchActive || state.searchOpen;
+  if (songChanged || wasSearching || lineId) {
+    audioController.stopAll();
+    if (isKnownSongId(songId)) {
       state.currentSongId = songId;
       localStorage.setItem(CURRENT_SONG_KEY, songId);
-      hidePopover();
-      renderCurrentSong();
-      resetSongScrollPosition();
     }
-  });
+    state.pendingLineId = lineId;
+    exitSearchMode({ collapse: true, clearInput: true });
+    hidePopover();
+    renderCurrentSong();
+    if (!lineId) resetSongScrollPosition();
+  }
 }
 
 function bindBackToTop() {
@@ -420,10 +603,221 @@ function bindPopoverDismiss() {
   window.addEventListener("scroll", hidePopover, { passive: true });
 }
 
+function setSearchAvailability(available) {
+  refs.searchToggle.disabled = !available;
+  if (!available) refs.searchToggle.title = "歌词正在加载";
+  else refs.searchToggle.title = "搜索歌词";
+}
+
+function bindSearch() {
+  refs.searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!state.searchOpen) {
+      openSearchControl();
+      return;
+    }
+    submitSearch(refs.searchInput.value);
+  });
+
+  refs.searchInput.addEventListener("input", () => {
+    refs.searchInput.setCustomValidity("");
+    refs.searchInput.removeAttribute("aria-invalid");
+  });
+  refs.searchClose.addEventListener("click", closeSearchAndReturn);
+  window.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !state.searchOpen) return;
+    event.preventDefault();
+    closeSearchAndReturn();
+  });
+}
+
+function openSearchControl({ focus = true } = {}) {
+  if (refs.searchToggle.disabled) return;
+  state.searchOpen = true;
+  refs.searchForm.classList.add("is-open");
+  refs.searchToggle.setAttribute("aria-expanded", "true");
+  refs.searchToggle.setAttribute("aria-label", "提交歌词搜索");
+  refs.searchToggle.title = "提交歌词搜索";
+  refs.searchInput.disabled = false;
+  refs.searchClose.disabled = false;
+  if (focus) window.requestAnimationFrame(() => refs.searchInput.focus());
+}
+
+function submitSearch(queryValue) {
+  const query = String(queryValue || "").trim();
+  if (!window.MusicalLyricsSearch.normalizeSearchText(query)) {
+    refs.searchInput.setCustomValidity("请输入歌词或歌名");
+    refs.searchInput.setAttribute("aria-invalid", "true");
+    refs.searchInput.reportValidity();
+    return;
+  }
+  showSearchResults(query, { updateHistory: true });
+}
+
+function showSearchResults(queryValue, { updateHistory = false } = {}) {
+  const query = String(queryValue || "").trim();
+  audioController.stopAll();
+  hidePopover();
+  openSearchControl({ focus: false });
+  state.searchActive = true;
+  state.searchQuery = query;
+  refs.searchInput.value = query;
+  refs.searchResults.hidden = false;
+  refs.lyrics.hidden = true;
+  refs.mobilePicker.hidden = true;
+  refs.content.classList.add("is-search-mode");
+  renderSearchResults(query);
+  if (updateHistory) {
+    const hash = `#search=${encodeURIComponent(query)}`;
+    if (window.location.hash !== hash) window.history.pushState(null, "", hash);
+  }
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+}
+
+function exitSearchMode({ collapse = true, clearInput = true } = {}) {
+  state.searchActive = false;
+  state.searchQuery = "";
+  refs.searchResults.hidden = true;
+  refs.lyrics.hidden = false;
+  refs.mobilePicker.hidden = false;
+  refs.content.classList.remove("is-search-mode");
+  if (clearInput) refs.searchInput.value = "";
+  refs.searchInput.setCustomValidity("");
+  refs.searchInput.removeAttribute("aria-invalid");
+  if (!collapse) return;
+  state.searchOpen = false;
+  refs.searchForm.classList.remove("is-open");
+  refs.searchToggle.setAttribute("aria-expanded", "false");
+  refs.searchToggle.setAttribute("aria-label", "搜索歌词");
+  refs.searchToggle.title = "搜索歌词";
+  refs.searchInput.disabled = true;
+  refs.searchClose.disabled = true;
+}
+
+function closeSearchAndReturn() {
+  exitSearchMode({ collapse: true, clearInput: true });
+  const hash = `#song=${encodeURIComponent(state.currentSongId)}`;
+  if (window.location.hash !== hash) window.history.pushState(null, "", hash);
+  refs.searchToggle.focus();
+}
+
+function appendHighlightedText(element, value, query) {
+  const text = String(value || "");
+  const ranges = window.MusicalLyricsSearch.getHighlightRanges(text, query);
+  if (!ranges.length) {
+    element.textContent = text;
+    return;
+  }
+  let cursor = 0;
+  ranges.forEach((range) => {
+    if (range.start > cursor) element.append(document.createTextNode(text.slice(cursor, range.start)));
+    const mark = document.createElement("mark");
+    mark.textContent = text.slice(range.start, range.end);
+    element.append(mark);
+    cursor = range.end;
+  });
+  if (cursor < text.length) element.append(document.createTextNode(text.slice(cursor)));
+}
+
+function renderSearchResults(query) {
+  const outcome = window.MusicalLyricsSearch.searchIndex(state.searchIndex, query, { limit: SEARCH_RESULT_LIMIT });
+  refs.searchResultsTitle.textContent = `“${query}”的搜索结果`;
+  refs.searchResultsList.replaceChildren();
+
+  if (!outcome.total) {
+    refs.searchResultsSummary.textContent = "没有找到匹配的歌曲或歌词。";
+    const empty = document.createElement("div");
+    empty.className = "search-empty-state";
+    const title = document.createElement("p");
+    title.className = "search-empty-title";
+    title.textContent = `没有找到“${query}”`;
+    const guidance = document.createElement("p");
+    guidance.textContent = "可以缩短关键词、检查拼写，或改用歌词中的其他词语。";
+    empty.append(title, guidance);
+    refs.searchResultsList.append(empty);
+    return;
+  }
+
+  const groups = new Map();
+  outcome.results.forEach((record) => {
+    if (!groups.has(record.songId)) {
+      groups.set(record.songId, { record, titleMatched: false, lines: [] });
+    }
+    const group = groups.get(record.songId);
+    if (record.type === "title") group.titleMatched = true;
+    else group.lines.push(record);
+  });
+
+  const modeNote = outcome.mode === "fuzzy" ? "；未找到完全匹配，已显示相近拼写" : "";
+  const limitNote = outcome.truncated ? `；仅显示前 ${SEARCH_RESULT_LIMIT} 处，请缩小搜索范围` : "";
+  refs.searchResultsSummary.textContent = `找到 ${outcome.songCount} 首歌曲，共 ${outcome.total} 处匹配${modeNote}${limitNote}。`;
+
+  groups.forEach((group) => {
+    const section = document.createElement("section");
+    section.className = "search-song-group";
+
+    const heading = document.createElement("button");
+    heading.className = "search-song-heading";
+    heading.type = "button";
+    heading.addEventListener("click", () => navigateToSearchResult(group.record.songId));
+    const order = document.createElement("span");
+    order.className = "search-song-order";
+    order.textContent = String(group.record.songOrder).padStart(2, "0");
+    const title = document.createElement("span");
+    title.className = "search-song-title";
+    appendHighlightedText(title, group.record.songTitle, query);
+    heading.append(order, title);
+    if (group.titleMatched) {
+      const badge = document.createElement("span");
+      badge.className = "search-title-match";
+      badge.textContent = "歌名";
+      heading.append(badge);
+    }
+    section.append(heading);
+
+    const lines = document.createElement("div");
+    lines.className = "search-line-results";
+    group.lines.forEach((record) => {
+      const button = document.createElement("button");
+      button.className = "search-line-result";
+      button.type = "button";
+      button.addEventListener("click", () => navigateToSearchResult(record.songId, record.lineId));
+      const primary = document.createElement("span");
+      primary.className = "search-line-primary";
+      appendHighlightedText(primary, record.primary, query);
+      button.append(primary);
+      if (record.secondary) {
+        const secondary = document.createElement("span");
+        secondary.className = "search-line-secondary";
+        appendHighlightedText(secondary, record.secondary, query);
+        button.append(secondary);
+      }
+      lines.append(button);
+    });
+    if (group.lines.length) section.append(lines);
+    refs.searchResultsList.append(section);
+  });
+}
+
+function navigateToSearchResult(songId, lineId = "") {
+  if (!isKnownSongId(songId)) return;
+  audioController.stopAll();
+  state.currentSongId = songId;
+  state.pendingLineId = lineId;
+  localStorage.setItem(CURRENT_SONG_KEY, songId);
+  exitSearchMode({ collapse: true, clearInput: true });
+  const lineHash = lineId ? `&line=${encodeURIComponent(lineId)}` : "";
+  window.history.pushState(null, "", `#song=${encodeURIComponent(songId)}${lineHash}`);
+  hidePopover();
+  renderCurrentSongWithTransition();
+  if (!lineId) resetSongScrollPosition();
+}
+
 function selectSong(songId) {
   if (!isKnownSongId(songId)) return;
-  if (songId === state.currentSongId) return;
+  if (songId === state.currentSongId && !state.searchActive) return;
   audioController.stopAll();
+  exitSearchMode({ collapse: true, clearInput: true });
   state.currentSongId = songId;
   localStorage.setItem(CURRENT_SONG_KEY, songId);
   if (state.sidebarCollapsed) {
@@ -525,6 +919,26 @@ function renderCurrentSong() {
 
   refs.lyrics.innerHTML = "";
   song.lines.forEach((line) => refs.lyrics.append(renderLine(song, line)));
+  revealPendingLine();
+}
+
+function revealPendingLine() {
+  const lineId = state.pendingLineId;
+  if (!lineId) return;
+  state.pendingLineId = "";
+  window.requestAnimationFrame(() => {
+    const card = Array.from(refs.lyrics.querySelectorAll(".lyric-card"))
+      .find((item) => item.dataset.lineId === lineId);
+    if (!card) return;
+    card.classList.add("is-search-target");
+    card.setAttribute("tabindex", "-1");
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.focus({ preventScroll: true });
+    window.setTimeout(() => {
+      card.classList.remove("is-search-target");
+      card.removeAttribute("tabindex");
+    }, 2400);
+  });
 }
 
 function renderLine(song, line) {
@@ -534,6 +948,19 @@ function renderLine(song, line) {
 
   const main = document.createElement("div");
   main.className = "line-main";
+
+  if (line.speakers?.length) {
+    const speakerTags = document.createElement("div");
+    speakerTags.className = "speaker-tags";
+    speakerTags.setAttribute("aria-label", "演唱角色");
+    line.speakers.forEach((speaker) => {
+      const tag = document.createElement("span");
+      tag.className = "speaker-tag";
+      tag.textContent = speaker;
+      speakerTags.append(tag);
+    });
+    main.append(speakerTags);
+  }
 
   const en = document.createElement("p");
   en.className = "en-line";
@@ -559,10 +986,16 @@ function renderLine(song, line) {
   const primeLineAudio = () => window.MusicalAudio.preloadLocalAudio(lineAudioPath);
   speak.addEventListener("pointerenter", primeLineAudio, { once: true });
   speak.addEventListener("focus", primeLineAudio, { once: true });
-  speak.addEventListener("click", () => audioController.runUserAction(
-    speak,
-    () => playEnglishAudio(lineAudioPath, line.en),
-  ));
+  speak.addEventListener("click", () => {
+    if (audioController.isSequenceActive() && card.classList.contains("is-sequence-active")) {
+      audioController.stopSequence();
+      return;
+    }
+    audioController.runUserAction(
+      speak,
+      () => playEnglishAudio(lineAudioPath, line.en, { rateControlled: true }),
+    );
+  });
   actions.append(speak);
 
   card.append(main, actions);
@@ -699,16 +1132,17 @@ function hidePopover() {
   refs.wordPopover.hidden = true;
 }
 
-async function playEnglishAudio(src, fallbackText) {
+async function playEnglishAudio(src, fallbackText, { rateControlled = false } = {}) {
+  const rate = rateControlled ? getPlaybackRate() : 1;
   if (src) {
     try {
-      await playLocalAudio(src, false);
+      await playLocalAudio(src, false, { rate, rateControlled });
       return;
     } catch {
       // Keep browser TTS as a fallback when a local file is missing or blocked.
     }
   }
-  await speakEnglish(fallbackText, false);
+  await speakEnglish(fallbackText, false, { rate });
 }
 
 function stopCurrentPlayback() {
@@ -722,6 +1156,7 @@ function stopCurrentPlayback() {
     audioState.current.currentTime = 0;
     audioState.current = null;
   }
+  audioState.rateControlled = false;
   if (audioState.speechFinish) {
     const finish = audioState.speechFinish;
     audioState.speechFinish = null;
@@ -731,12 +1166,31 @@ function stopCurrentPlayback() {
   audioState.preload = null;
 }
 
-function playLocalAudio(src, waitForEnd) {
+function pauseCurrentPlayback() {
+  if (audioState.current && !audioState.current.paused) audioState.current.pause();
+  if ("speechSynthesis" in window && window.speechSynthesis.speaking) {
+    window.speechSynthesis.pause();
+  }
+}
+
+function resumeCurrentPlayback() {
+  if (audioState.current?.paused) {
+    Promise.resolve(audioState.current.play()).catch(() => audioController.stopSequence());
+  }
+  if ("speechSynthesis" in window && window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+  }
+}
+
+function playLocalAudio(src, waitForEnd, { rate = 1, rateControlled = false } = {}) {
   if (!src) return Promise.reject(new Error("Missing audio source"));
   stopCurrentPlayback();
   const audio = window.MusicalAudio.getCachedAudio(src);
   if (!audio) return Promise.reject(new Error("Audio playback unavailable"));
+  audio.defaultPlaybackRate = rate;
+  audio.playbackRate = rate;
   audioState.current = audio;
+  audioState.rateControlled = rateControlled;
   if (!waitForEnd) return audio.play();
 
   return new Promise((resolve, reject) => {
@@ -747,6 +1201,7 @@ function playLocalAudio(src, waitForEnd) {
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
       if (audioState.current === audio) audioState.current = null;
+      if (audioState.current !== audio) audioState.rateControlled = false;
       if (audioState.finish === stopAndResolve) audioState.finish = null;
       if (error) reject(error);
       else resolve();
@@ -770,14 +1225,14 @@ function getWordAudioPath(text) {
   return key ? `audio/words/${encodeURIComponent(key)}.mp3` : "";
 }
 
-function speakEnglish(text, waitForEnd) {
+function speakEnglish(text, waitForEnd, { rate = 1 } = {}) {
   if (!("speechSynthesis" in window)) return Promise.reject(new Error("Speech synthesis unavailable"));
   stopCurrentPlayback();
   const utterance = new SpeechSynthesisUtterance(text.replace(/^[A-Z][A-Z .,'&/-]{1,40}:\s*/, ""));
   const voice = getPreferredEnglishVoice();
   if (voice) utterance.voice = voice;
   utterance.lang = "en-US";
-  utterance.rate = 0.82;
+  utterance.rate = Math.min(10, Math.max(0.1, 0.82 * rate));
   utterance.pitch = 1.06;
   if (!waitForEnd) {
     window.speechSynthesis.speak(utterance);
@@ -801,10 +1256,11 @@ function speakEnglish(text, waitForEnd) {
 }
 
 async function playLineToEnd(song, line) {
+  const rate = getPlaybackRate();
   try {
-    await playLocalAudio(getLineAudioPath(song, line), true);
+    await playLocalAudio(getLineAudioPath(song, line), true, { rate, rateControlled: true });
   } catch {
-    await speakEnglish(line.en, true);
+    await speakEnglish(line.en, true, { rate });
   }
 }
 
@@ -815,8 +1271,9 @@ function toggleCurrentSongPlayback() {
     button: refs.songPlayButton,
     items: song.lines,
     playItem: (line) => playLineToEnd(song, line),
+    gapMs: window.MusicalAudio.SEQUENCE_GAP_MS / getPlaybackRate(),
     onItemStart: (line, index, nextLine) => {
-      setSequenceHighlight(line.id);
+      setSequenceHighlight(line.id, index, song.lines.length);
       if (nextLine) preloadLineAudio(song, nextLine);
     },
   });
@@ -827,10 +1284,17 @@ function preloadLineAudio(song, line) {
   audioState.preload = audio;
 }
 
-function setSequenceHighlight(lineId) {
+function setSequenceHighlight(lineId, index, total) {
   clearSequenceHighlight();
   const card = Array.from(refs.lyrics.querySelectorAll(".lyric-card")).find((item) => item.dataset.lineId === lineId);
-  card?.classList.add("is-sequence-active");
+  if (card) {
+    card.classList.add("is-sequence-active");
+    const button = card.querySelector(".speak-button");
+    button?.classList.add("is-sequence-stop");
+    button?.setAttribute("aria-label", "停止全曲播放");
+    button?.setAttribute("title", "停止全曲播放");
+  }
+  if (refs.playbackDockProgress) refs.playbackDockProgress.textContent = `第 ${index + 1} / ${total} 句`;
   followSequenceCard(card);
 }
 
@@ -851,7 +1315,39 @@ function followSequenceCard(card) {
 function clearSequenceHighlight() {
   refs.lyrics?.querySelectorAll(".lyric-card.is-sequence-active").forEach((card) => {
     card.classList.remove("is-sequence-active");
+    const button = card.querySelector(".speak-button");
+    button?.classList.remove("is-sequence-stop");
+    const line = getCurrentSong()?.lines.find((item) => item.id === card.dataset.lineId);
+    if (button && line) {
+      button.setAttribute("aria-label", `朗读：${line.en}`);
+      button.setAttribute("title", "朗读这一句");
+    }
   });
+}
+
+function updatePlaybackDockVisibility(active) {
+  if (!refs.playbackDock) return;
+  refs.playbackDock.hidden = !active;
+  document.body.classList.toggle("has-playback-dock", active);
+  if (active) {
+    refs.playbackDockSong.textContent = getCurrentSong()?.title || "Hamilton";
+    refs.playbackDockProgress.textContent = "准备播放";
+    updatePlaybackDockPauseState(false);
+  }
+}
+
+function updatePlaybackDockPauseState(paused) {
+  if (!refs.playbackDockPause) return;
+  refs.playbackDockPause.classList.toggle("is-paused", paused);
+  refs.playbackDockPause.setAttribute("aria-label", paused ? "继续全曲播放" : "暂停全曲播放");
+  refs.playbackDockPause.title = paused ? "继续全曲播放" : "暂停全曲播放";
+  if (refs.playbackDockProgress && paused) {
+    refs.playbackDockProgress.dataset.playbackLabel = refs.playbackDockProgress.textContent;
+    refs.playbackDockProgress.textContent = `${refs.playbackDockProgress.textContent} · 已暂停`;
+  } else if (refs.playbackDockProgress?.dataset.playbackLabel) {
+    refs.playbackDockProgress.textContent = refs.playbackDockProgress.dataset.playbackLabel;
+    delete refs.playbackDockProgress.dataset.playbackLabel;
+  }
 }
 
 function primeSpeechVoices() {

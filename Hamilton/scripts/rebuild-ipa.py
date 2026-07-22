@@ -129,7 +129,16 @@ def main() -> None:
     rows = load_js(LYRICS_FILE, "window.hamiltonLyricsRows = ")
     entries = load_js(WORD_FILE, "window.hamiltonWordEntries = ")
     line_tokens = [token for row in rows for token in TOKEN_RE.findall(row.get("english", ""))]
-    for token in dict.fromkeys(line_tokens):
+    lyric_tokens = [
+        token
+        for row in rows
+        for token in TOKEN_RE.findall(re.sub(r"^(?:\[[^\]]{1,80}\])+\s*", "", row.get("english", "")))
+    ]
+    lyric_numeric_keys = {token for token in lyric_tokens if token.isdigit()}
+    for key in list(entries):
+        if key.isdigit() and key not in lyric_numeric_keys:
+            del entries[key]
+    for token in dict.fromkeys(lyric_tokens):
         if token.isdigit() and token not in entries:
             entries[token] = {"ipa": "", "meaning": f"数字：{token}", "en": "number", "speak": token}
     entry_tokens = [str(entry.get("speak") or key) for key, entry in entries.items()]

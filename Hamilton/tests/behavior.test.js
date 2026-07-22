@@ -10,6 +10,9 @@ const wordDataJs = fs.existsSync("Hamilton/word-data.js") ? fs.readFileSync("Ham
 const audioBuilderJs = fs.existsSync("Hamilton/scripts/build-audio.js")
   ? fs.readFileSync("Hamilton/scripts/build-audio.js", "utf8")
   : "";
+const playbackRateJs = fs.readFileSync("shared/playback-rate.js", "utf8");
+const lyricsSearchJs = fs.readFileSync("shared/lyrics-search.js", "utf8");
+const pronunciationOverrides = JSON.parse(fs.readFileSync("scripts/tts-pronunciation-overrides.json", "utf8"));
 
 test("favorites UI and state are fully removed", () => {
   const combined = `${indexHtml}\n${scriptJs}\n${styleCss}`;
@@ -112,9 +115,9 @@ test("sentence and word pronunciation prefer local audio files", () => {
   assert.match(scriptJs, /const audioState\s*=\s*\{\s*current:\s*null,/);
   assert.match(scriptJs, /function renderLine\(song, line\)/);
   assert.match(scriptJs, /renderLine\(song, line\)/);
-  assert.match(scriptJs, /playEnglishAudio\(lineAudioPath, line\.en\)/);
+  assert.match(scriptJs, /playEnglishAudio\(lineAudioPath, line\.en, \{ rateControlled: true \}\)/);
   assert.match(scriptJs, /playEnglishAudio\(wordAudioPath, text\)/);
-  assert.match(scriptJs, /function playLocalAudio\(src, waitForEnd\)/);
+  assert.match(scriptJs, /function playLocalAudio\(src, waitForEnd, \{ rate = 1, rateControlled = false \} = \{\}\)/);
   assert.match(scriptJs, /MusicalAudio\.getCachedAudio\(src\)/);
   assert.match(scriptJs, /MusicalAudio\.preloadLocalAudio/);
   assert.match(scriptJs, /\.mp3/);
@@ -134,6 +137,85 @@ test("sentence and word pronunciation prefer local audio files", () => {
   assert.match(styleCss, /\.lyric-card\.is-sequence-active/);
 });
 
+test("approved playback-rate cycle controls sentences and playlists but not word audio", () => {
+  assert.match(indexHtml, /id="songPlayButton"[\s\S]*id="playbackRateButton"[^>]*>1\.0×<\/button>/);
+  assert.match(indexHtml, /\.\.\/shared\/playback-rate\.js/);
+  assert.match(playbackRateJs, /\[1, 1\.25, 1\.5, 2, 3\]/);
+  assert.match(scriptJs, /storageKey:\s*PLAYBACK_RATE_KEY/);
+  assert.match(scriptJs, /audio\.defaultPlaybackRate = rate/);
+  assert.match(scriptJs, /audio\.playbackRate = rate/);
+  assert.match(scriptJs, /playEnglishAudio\(lineAudioPath, line\.en, \{ rateControlled: true \}\)/);
+  assert.match(scriptJs, /playEnglishAudio\(wordAudioPath, text\)/);
+  assert.match(scriptJs, /gapMs:\s*window\.MusicalAudio\.SEQUENCE_GAP_MS \/ getPlaybackRate\(\)/);
+  assert.match(scriptJs, /0\.82 \* rate/);
+  assert.match(styleCss, /\.playback-rate-button/);
+});
+
+test("full-song playback exposes a persistent pause and stop controller", () => {
+  assert.match(indexHtml, /id="playbackDock"[\s\S]*id="playbackDockPause"[\s\S]*id="playbackDockStop"/);
+  assert.match(indexHtml, /id="playbackDockProgress"[^>]*aria-live="polite"/);
+  assert.match(scriptJs, /pauseCurrent:\s*pauseCurrentPlayback/);
+  assert.match(scriptJs, /resumeCurrent:\s*resumeCurrentPlayback/);
+  assert.match(scriptJs, /audioController\.pauseSequence\(\)/);
+  assert.match(scriptJs, /audioController\.resumeSequence\(\)/);
+  assert.match(scriptJs, /isSequenceActive\(\)[\s\S]*is-sequence-active/);
+  assert.match(scriptJs, /第 \$\{index \+ 1\} \/ \$\{total\} 句/);
+  assert.match(styleCss, /\.playback-dock\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styleCss, /\.speak-button\.is-sequence-stop::before/);
+  assert.match(styleCss, /body\.has-playback-dock \.back-to-top/);
+});
+
+test("lyrics search expands to the left of home and searches titles plus bilingual lyrics", () => {
+  assert.ok(indexHtml.indexOf('id="lyricsSearchToggle"') < indexHtml.indexOf('class="home-button"'));
+  assert.match(indexHtml, /id="lyricsSearchInput"[^>]*placeholder="搜索歌名或歌词"/);
+  assert.match(indexHtml, /id="searchResults"[\s\S]*id="searchResultsSummary"[\s\S]*id="searchResultsList"/);
+  assert.match(indexHtml, /\.\.\/shared\/lyrics-search\.js/);
+  assert.match(lyricsSearchJs, /function normalizeSearchText/);
+  assert.match(lyricsSearchJs, /function fuzzyScore/);
+  assert.match(scriptJs, /MusicalLyricsSearch\.buildIndex\(songs/);
+  assert.match(scriptJs, /getLinePrimary:\s*\(line\) => line\.en/);
+  assert.match(scriptJs, /getLineSecondary:\s*\(line\) => line\.zh/);
+  assert.match(scriptJs, /#search=\$\{encodeURIComponent\(query\)\}/);
+  assert.match(scriptJs, /&line=\$\{encodeURIComponent\(lineId\)\}/);
+  assert.match(scriptJs, /SEARCH_RESULT_LIMIT = 100/);
+  assert.match(scriptJs, /没有找到匹配的歌曲或歌词/);
+  assert.match(scriptJs, /请输入歌词或歌名/);
+  assert.match(scriptJs, /is-search-target/);
+});
+
+test("search and playback controls have narrow-screen overflow guards", () => {
+  assert.match(styleCss, /\.hero-actions\s*\{[\s\S]*max-width:\s*calc\(100% - 28px\)/);
+  assert.match(styleCss, /\.lyrics-search-control\.is-open\s*\{[\s\S]*width:\s*min\(340px, calc\(100vw - 120px\)\)/);
+  assert.match(styleCss, /@media \(max-width: 860px\)[\s\S]*\.lyrics-search-control\.is-open\s*\{[\s\S]*calc\(100vw - 100px\)/);
+  assert.match(styleCss, /@media \(max-width: 360px\)/);
+  assert.match(styleCss, /\.search-line-primary\s*\{[\s\S]*overflow-wrap:\s*anywhere/);
+});
+
+test("timestamps and speaker names are metadata rather than spoken lyrics", () => {
+  assert.match(scriptJs, /function parseLeadingLineMetadata/);
+  assert.match(scriptJs, /\^\\d\{1,2\}:\\d\{2\}/);
+  assert.match(scriptJs, /const speakerMatch = lyric\.match/);
+  assert.match(scriptJs, /speakers\.push\(speaker\)/);
+  assert.match(scriptJs, /pendingSpeakersBySong/);
+  assert.match(scriptJs, /metadata\.english/);
+  assert.match(scriptJs, /const speakers = metadata\.speakers/);
+  assert.match(scriptJs, /\n\s+speakers,/);
+  assert.match(scriptJs, /speakerTags\.className = "speaker-tags"/);
+  assert.match(scriptJs, /tag\.className = "speaker-tag"/);
+  assert.match(styleCss, /\.speaker-tags/);
+  assert.match(styleCss, /\.speaker-tag/);
+  const sandbox = { window: {} };
+  require("node:vm").runInNewContext(wordDataJs, sandbox);
+  ["00", "06", "08", "66"].forEach((timestampPart) => {
+    assert.equal(timestampPart in sandbox.window.hamiltonWordEntries, false);
+  });
+});
+
+test("search history responds to browser back and forward navigation", () => {
+  assert.match(scriptJs, /addEventListener\("hashchange", applyHashState\)/);
+  assert.match(scriptJs, /addEventListener\("popstate", applyHashState\)/);
+});
+
 test("local audio build script covers lines and words", () => {
   assert.ok(audioBuilderJs, "Hamilton/scripts/build-audio.js should exist");
   assert.match(audioBuilderJs, /HAMILTON_TTS_VOICE/);
@@ -141,6 +223,16 @@ test("local audio build script covers lines and words", () => {
   assert.match(audioBuilderJs, /runBuild\(\{/);
   assert.match(audioBuilderJs, /HAMILTON_TTS_RATE/);
   assert.match(audioBuilderJs, /kind:\s*"hamilton"/);
+  assert.match(fs.readFileSync("shared/build-natural-audio.js", "utf8"), /MUSICAL_AUDIO_IDS/);
+  assert.equal(pronunciationOverrides.Hamilton.lines["ham-02-001"], "Seventeen seventy-six. New York City");
+  assert.equal(pronunciationOverrides.Hamilton.lines["ham-11-044"], "But Alexander, I'll never forget the first");
+  assert.equal(pronunciationOverrides.Hamilton.words["1776"], "seventeen seventy-six");
+  assert.equal(pronunciationOverrides.Hamilton.words["1780"], "seventeen eighty");
+  assert.equal(pronunciationOverrides.Hamilton.words["1781"], "seventeen eighty-one");
+  assert.equal(pronunciationOverrides.Hamilton.words["1789"], "seventeen eighty-nine");
+  assert.equal(pronunciationOverrides.Hamilton.words["1800"], "eighteen hundred");
+  assert.match(scriptJs, /"1776": \{ ipa: "\/ˌsɛvənˈtin ˌsɛvəti ˈsɪks\/"/);
+  assert.match(scriptJs, /"ham-02-001": "\/ˌsɛvənˈtin-ˌsɛvəti-ˈsɪks nu jɔrk sɪti\/"/);
 });
 
 test("Hamilton uses aligned broad American IPA without corrupted symbols", () => {

@@ -74,20 +74,50 @@
     const schedule = options.schedule || ((callback, ms) => globalScope.setTimeout(callback, ms));
     const cancelSchedule = options.cancelSchedule || ((timer) => globalScope.clearTimeout(timer));
     const stopCurrent = options.stopCurrent || (() => {});
+    const pauseCurrent = options.pauseCurrent || (() => {});
+    const resumeCurrent = options.resumeCurrent || (() => {});
     let lastAcceptedAt = Number.NEGATIVE_INFINITY;
     let userRequestPending = false;
     let sequenceActive = false;
+    let sequencePaused = false;
     let sequenceToken = 0;
     let sequenceButton = null;
+    let resumeSequenceWaiters = [];
+
+    function releasePausedSequence() {
+      const waiters = resumeSequenceWaiters;
+      resumeSequenceWaiters = [];
+      waiters.forEach((resolve) => resolve());
+    }
+
+    function waitUntilSequenceResumes(token) {
+      if (!sequencePaused || !sequenceActive || token !== sequenceToken) return Promise.resolve();
+      return new Promise((resolve) => resumeSequenceWaiters.push(resolve));
+    }
+
+    function setSequencePaused(paused) {
+      if (!sequenceActive || sequencePaused === paused) return false;
+      sequencePaused = paused;
+      if (paused) pauseCurrent();
+      else {
+        resumeCurrent();
+        releasePausedSequence();
+      }
+      options.onSequencePauseChange?.(paused);
+      return true;
+    }
 
     function stopSequence() {
       if (!sequenceActive) return false;
       sequenceActive = false;
+      sequencePaused = false;
       sequenceToken += 1;
+      releasePausedSequence();
       stopCurrent();
       setSequenceButton(sequenceButton, false);
       sequenceButton = null;
       options.onSequenceStateChange?.(false);
+      options.onSequencePauseChange?.(false);
       options.onItemClear?.();
       return true;
     }
@@ -151,6 +181,7 @@
       lastAcceptedAt = acceptedAt;
       stopCurrent();
       sequenceActive = true;
+      sequencePaused = false;
       sequenceButton = button || null;
       const token = ++sequenceToken;
       setSequenceButton(sequenceButton, true);
@@ -158,6 +189,8 @@
 
       return (async () => {
         for (let index = 0; index < items.length; index += 1) {
+          if (!sequenceActive || token !== sequenceToken) break;
+          await waitUntilSequenceResumes(token);
           if (!sequenceActive || token !== sequenceToken) break;
           const item = items[index];
           onItemStart?.(item, index, items[index + 1] || null);
@@ -170,14 +203,17 @@
           const hasNextItem = index < items.length - 1;
           if (hasNextItem && gapMs > 0 && sequenceActive && token === sequenceToken) {
             await delay(gapMs);
+            await waitUntilSequenceResumes(token);
           }
         }
 
         if (sequenceActive && token === sequenceToken) {
           sequenceActive = false;
+          sequencePaused = false;
           setSequenceButton(sequenceButton, false);
           sequenceButton = null;
           options.onSequenceStateChange?.(false);
+          options.onSequencePauseChange?.(false);
           options.onItemClear?.();
           onComplete?.();
         }
@@ -188,9 +224,12 @@
     return {
       runUserAction,
       toggleSequence,
+      pauseSequence: () => setSequencePaused(true),
+      resumeSequence: () => setSequencePaused(false),
       stopSequence,
       stopAll,
       isSequenceActive: () => sequenceActive,
+      isSequencePaused: () => sequencePaused,
       isUserRequestPending: () => userRequestPending,
     };
   }

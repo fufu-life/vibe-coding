@@ -266,6 +266,10 @@ def speak_text(token: str) -> str:
     return token.replace("’", "'")
 
 
+def strip_leading_metadata(text: str) -> str:
+    return re.sub(r"^(?:\[[^\]]{1,80}\])+\s*", "", text).strip()
+
+
 def ipa_for_word(token: str) -> str:
     result = subprocess.run(
         ["espeak-ng", "-q", "--ipa=3", "-v", "en-us", speak_text(token)],
@@ -353,12 +357,12 @@ def main() -> None:
     dropped_g_keys = {
         normalize_token(match.group(1))
         for row in rows
-        for source in (row["song_title"], row["english"])
+        for source in (row["song_title"], strip_leading_metadata(row["english"]))
         for match in DROPPED_G_RE.finditer(source)
     }
     original_tokens: dict[str, str] = {}
     for row in rows:
-        for source in (row["song_title"], row["english"]):
+        for source in (row["song_title"], strip_leading_metadata(row["english"])):
             for token in TOKEN_RE.findall(source):
                 key = normalize_token(token)
                 original_tokens.setdefault(key, speak_text(token))

@@ -1,4 +1,9 @@
 {
+  "1776": { "ipa": "/ˌsɛvənˈtin ˌsɛvəti ˈsɪks/", "meaning": "1776年", "en": "year", "speak": "seventeen seventy-six" },
+  "1780": { "ipa": "/ˌsɛvənˈtin ˈeɪti/", "meaning": "1780年", "en": "year", "speak": "seventeen eighty" },
+  "1781": { "ipa": "/ˌsɛvənˈtin ˌeɪtiˈwʌn/", "meaning": "1781年", "en": "year", "speak": "seventeen eighty-one" },
+  "1789": { "ipa": "/ˌsɛvənˈtin ˌeɪtiˈnaɪn/", "meaning": "1789年", "en": "year", "speak": "seventeen eighty-nine" },
+  "1800": { "ipa": "/ˌeɪˈtin ˈhʌndrəd/", "meaning": "1800年", "en": "year", "speak": "eighteen hundred" },
   "aaa-ooo": { "meaning": "啊——呜——（和声拟声）", "en": "vocalization" },
   "aarron": { "meaning": "亚伦（Aaron 的误拼；剧中指 Aaron Burr）", "en": "misspelling of Aaron" },
   "abandonin": { "meaning": "放弃；撤离（abandoning 的口语省音）", "en": "colloquial abandoning" },

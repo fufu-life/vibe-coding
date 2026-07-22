@@ -39,9 +39,21 @@
 
       <main class="content">
         <header class="hero">
-          <a class="home-button" href="../index.html" aria-label="返回音乐剧展示架" title="返回音乐剧展示架">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
-          </a>
+          <div class="hero-actions">
+            <form class="lyrics-search-control" id="lyricsSearchForm" role="search" novalidate>
+              <button class="search-toggle-button" id="lyricsSearchToggle" type="submit" aria-label="搜索歌词" aria-expanded="false" title="搜索歌词" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="5.8" /><path d="m15.2 15.2 4.2 4.2" /></svg>
+              </button>
+              <label class="visually-hidden" for="lyricsSearchInput">搜索歌名或歌词</label>
+              <input id="lyricsSearchInput" type="search" inputmode="search" autocomplete="off" placeholder="搜索歌名或歌词" disabled />
+              <button class="search-close-button" id="lyricsSearchClose" type="button" aria-label="清除搜索并返回歌词" title="清除搜索并返回歌词" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" /></svg>
+              </button>
+            </form>
+            <a class="home-button" href="../index.html" aria-label="返回音乐剧展示架" title="返回音乐剧展示架">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+            </a>
+          </div>
           <div class="hero-copy">
             <p class="musical-name">Hamilton</p>
             <div class="song-title-row">
@@ -53,6 +65,7 @@
                   <rect class="playlist-stop-mark" x="8" y="6" width="12" height="12" rx="1.5" />
                 </svg>
               </button>
+              <button class="playback-rate-button" id="playbackRateButton" type="button" aria-label="播放速度 1.0×" title="播放速度：1.0×">1.0×</button>
             </div>
             <div class="toolbar" aria-label="显示设置">
               <button class="toggle is-active" type="button" data-toggle="showZh" aria-pressed="true">中文</button>
@@ -68,11 +81,38 @@
           <select id="songSelect"></select>
         </label>
 
+        <section class="search-results" id="searchResults" aria-labelledby="searchResultsTitle" hidden>
+          <header class="search-results-header">
+            <p class="search-results-kicker">歌词搜索</p>
+            <h2 id="searchResultsTitle">搜索结果</h2>
+            <p class="search-results-summary" id="searchResultsSummary" role="status"></p>
+          </header>
+          <div class="search-results-list" id="searchResultsList"></div>
+        </section>
+
         <section class="lyrics" id="lyrics" aria-label="歌词"></section>
       </main>
     </div>
 
     <aside class="word-popover" id="wordPopover" hidden></aside>
+    <aside class="playback-dock" id="playbackDock" aria-label="全曲播放控制" hidden>
+      <div class="playback-dock-copy">
+        <span class="playback-dock-song" id="playbackDockSong">Hamilton</span>
+        <strong class="playback-dock-progress" id="playbackDockProgress" aria-live="polite">准备播放</strong>
+      </div>
+      <div class="playback-dock-controls">
+        <button class="playback-dock-rate" id="playbackDockRate" type="button" aria-label="播放速度 1.0×">1.0×</button>
+        <button class="playback-dock-pause" id="playbackDockPause" type="button" aria-label="暂停全曲播放" title="暂停全曲播放">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path class="dock-pause-mark" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />
+            <path class="dock-play-mark" d="M8 5.5v13l10-6.5z" />
+          </svg>
+        </button>
+        <button class="playback-dock-stop" id="playbackDockStop" type="button" aria-label="停止全曲播放" title="停止全曲播放">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
+        </button>
+      </div>
+    </aside>
     <button class="back-to-top" id="backToTop" type="button" aria-label="返回顶部" hidden>↑</button>
 
     <script>
@@ -153,6 +193,8 @@
     </script>
     <script src="lyrics-data.js" onerror="handleCriticalAssetError()"></script>
     <script src="../shared/audio-playback.js" onerror="handleCriticalAssetError()"></script>
+    <script src="../shared/playback-rate.js" onerror="handleCriticalAssetError()"></script>
+    <script src="../shared/lyrics-search.js" onerror="handleCriticalAssetError()"></script>
     <script src="script.js" onerror="handleCriticalAssetError()"></script>
     <script src="../shared/feedback-widget.js"></script>
     <script>

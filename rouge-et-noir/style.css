@@ -373,12 +373,15 @@ h1 {
 }
 
 .song-title-row {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
 }
 
 .song-title-row h1 {
-  display: inline;
+  display: block;
+  flex: 0 1 auto;
   min-width: 0;
 }
 
@@ -388,7 +391,7 @@ h1 {
   place-items: center;
   width: 36px;
   height: 36px;
-  margin-inline-start: 0.32em;
+  margin-inline-start: 0;
   padding: 0;
   border: 1px solid rgba(201, 164, 92, 0.5);
   border-radius: 50%;

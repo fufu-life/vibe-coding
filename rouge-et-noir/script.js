@@ -1,6 +1,7 @@
 const SETTINGS_KEY = "lgmg-display-settings";
 const CURRENT_SONG_KEY = "lgmg-current-song-id";
 const SIDEBAR_COLLAPSED_KEY = "lgmg-sidebar-collapsed";
+const PLAYBACK_RATE_KEY = "lgmg-playback-rate";
 
 const defaultSettings = {
   showZh: true,
@@ -410,12 +411,39 @@ const audioState = {
   finish: null,
   speechFinish: null,
   preload: null,
+  rateControlled: false,
 };
+
+const pageTools = window.MusicalLyricsPageTools.create({
+  songs: sortedSongs,
+  rateStorageKey: PLAYBACK_RATE_KEY,
+  hero: document.querySelector(".hero"),
+  homeButton: document.querySelector(".home-button"),
+  titleRow: document.querySelector(".song-title-row"),
+  lyrics: document.querySelector(".lyrics-column"),
+  mobilePicker: document.querySelector(".mobile-song-picker"),
+  getCurrentSong,
+  getSongTitleSecondary: (song) => song.titleZh || "",
+  getLinePrimary: (line) => line.fr || "",
+  getLineSecondary: (line) => [line.en, line.zh].filter(Boolean).join(" · "),
+  onNavigate: navigateToSearchResult,
+  onRateChange(rate) {
+    if (audioState.current && audioState.rateControlled) {
+      audioState.current.defaultPlaybackRate = rate;
+      audioState.current.playbackRate = rate;
+    }
+  },
+});
 
 const audioController = window.MusicalAudio.createController({
   stopCurrent: stopCurrentPlayback,
+  pauseCurrent: pauseCurrentPlayback,
+  resumeCurrent: resumeCurrentPlayback,
+  onSequenceStateChange: pageTools.setSequenceActive,
+  onSequencePauseChange: pageTools.setSequencePaused,
   onItemClear: clearSequenceHighlight,
 });
+pageTools.connectController(audioController);
 
 const songTransition = {
   outTimer: null,
@@ -599,6 +627,26 @@ function selectSong(songId) {
   resetSongScrollPosition();
 }
 
+function navigateToSearchResult(songId, lineId = "") {
+  if (!isKnownSongId(songId)) return;
+  audioController.stopAll();
+  appState.currentSongId = songId;
+  localStorage.setItem(CURRENT_SONG_KEY, songId);
+  appState.expanded.clear();
+  hideWordPopup();
+  renderCurrentSong();
+  if (!lineId) {
+    resetSongScrollPosition();
+    return;
+  }
+  requestAnimationFrame(() => {
+    const card = document.getElementById(lineId);
+    card?.classList.add("is-search-target");
+    card?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => card?.classList.remove("is-search-target"), 1800);
+  });
+}
+
 function resetSongScrollPosition() {
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
 }
@@ -765,7 +813,7 @@ function renderLyricLine(song, line) {
   fr.append(renderFrenchText(song, line.fr, isPhoneticsExpanded, line));
 
   const sentenceSpeakButton = document.createElement("button");
-  sentenceSpeakButton.className = "sentence-speak";
+  sentenceSpeakButton.className = "sentence-speak speak-button";
   sentenceSpeakButton.type = "button";
   sentenceSpeakButton.setAttribute("aria-label", `朗读整句：${line.fr}`);
   sentenceSpeakButton.append(createSpeakerIcon());
@@ -773,10 +821,13 @@ function renderLyricLine(song, line) {
   const primeLineAudio = () => window.MusicalAudio.preloadLocalAudio(lineAudioPath);
   sentenceSpeakButton.addEventListener("pointerenter", primeLineAudio, { once: true });
   sentenceSpeakButton.addEventListener("focus", primeLineAudio, { once: true });
-  sentenceSpeakButton.addEventListener("click", () => audioController.runUserAction(
-    sentenceSpeakButton,
-    async () => {
-      const didSpeak = await playFrenchAudio(lineAudioPath, line.fr);
+  sentenceSpeakButton.addEventListener("click", () => {
+    if (audioController.isSequenceActive() && card.classList.contains("is-sequence-active")) {
+      audioController.stopSequence();
+      return;
+    }
+    audioController.runUserAction(sentenceSpeakButton, async () => {
+      const didSpeak = await playFrenchAudio(lineAudioPath, line.fr, { rateControlled: true });
 
       if (!didSpeak) {
         sentenceSpeakButton.title = "未找到法语语音";
@@ -786,8 +837,8 @@ function renderLyricLine(song, line) {
       }
 
       trackAudioPlay(song, line, lineNumber, "line", line.fr);
-    },
-  ));
+    });
+  });
   fr.append(document.createTextNode(" "), sentenceSpeakButton);
 
   if (line.repeatCount) {
@@ -1885,17 +1936,17 @@ function hideWordPopup() {
   wordPopup.hidden = true;
 }
 
-async function playFrenchAudio(src, fallbackText) {
+async function playFrenchAudio(src, fallbackText, { rateControlled = false } = {}) {
   if (src) {
     try {
-      await playLocalAudio(src, false);
+      await playLocalAudio(src, false, { rateControlled });
       return true;
     } catch {
       // Fall back to speech synthesis when the generated file is missing.
     }
   }
 
-  return speakFrench(fallbackText, false);
+  return speakFrench(fallbackText, false, { rateControlled });
 }
 
 function stopCurrentPlayback() {
@@ -1909,6 +1960,7 @@ function stopCurrentPlayback() {
     audioState.current.currentTime = 0;
     audioState.current = null;
   }
+  audioState.rateControlled = false;
   if (audioState.speechFinish) {
     const finish = audioState.speechFinish;
     audioState.speechFinish = null;
@@ -1918,14 +1970,30 @@ function stopCurrentPlayback() {
   audioState.preload = null;
 }
 
-function playLocalAudio(src, waitForEnd) {
+function pauseCurrentPlayback() {
+  if (audioState.current && !audioState.current.paused) audioState.current.pause();
+  if ("speechSynthesis" in window && window.speechSynthesis.speaking) window.speechSynthesis.pause();
+}
+
+function resumeCurrentPlayback() {
+  if (audioState.current?.paused) {
+    Promise.resolve(audioState.current.play()).catch(() => audioController.stopSequence());
+  }
+  if ("speechSynthesis" in window && window.speechSynthesis.paused) window.speechSynthesis.resume();
+}
+
+function playLocalAudio(src, waitForEnd, { rateControlled = false } = {}) {
   if (!src) {
     return Promise.reject(new Error("Missing audio source"));
   }
   stopCurrentPlayback();
   const audio = window.MusicalAudio.getCachedAudio(src);
   if (!audio) return Promise.reject(new Error("Audio playback unavailable"));
+  const rate = rateControlled ? pageTools.getRate() : 1;
+  audio.defaultPlaybackRate = rate;
+  audio.playbackRate = rate;
   audioState.current = audio;
+  audioState.rateControlled = rateControlled;
   if (!waitForEnd) return audio.play();
 
   return new Promise((resolve, reject) => {
@@ -1978,7 +2046,7 @@ function normalizeFrenchAudioText(text) {
     .trim();
 }
 
-function speakFrench(text, waitForEnd) {
+function speakFrench(text, waitForEnd, { rateControlled = false } = {}) {
   if (!("speechSynthesis" in window)) {
     return Promise.resolve(false);
   }
@@ -1994,7 +2062,7 @@ function speakFrench(text, waitForEnd) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "fr-FR";
   utterance.voice = frenchVoice;
-  utterance.rate = 0.86;
+  utterance.rate = 0.86 * (rateControlled ? pageTools.getRate() : 1);
   if (!waitForEnd) {
     window.speechSynthesis.speak(utterance);
     return Promise.resolve(true);
@@ -2017,9 +2085,9 @@ function speakFrench(text, waitForEnd) {
 
 async function playLineToEnd(song, line) {
   try {
-    await playLocalAudio(getLineAudioPath(song, line), true);
+    await playLocalAudio(getLineAudioPath(song, line), true, { rateControlled: true });
   } catch {
-    const didSpeak = await speakFrench(line.fr, true);
+    const didSpeak = await speakFrench(line.fr, true, { rateControlled: true });
     if (!didSpeak) throw new Error("No French line audio found");
   }
 }
@@ -2031,8 +2099,9 @@ function toggleCurrentSongPlayback() {
     button: refs.songPlayButton,
     items: song.lines,
     playItem: (line) => playLineToEnd(song, line),
+    gapMs: window.MusicalAudio.SEQUENCE_GAP_MS / pageTools.getRate(),
     onItemStart: (line, index, nextLine) => {
-      setSequenceHighlight(line.id);
+      setSequenceHighlight(line.id, index, song.lines.length);
       if (nextLine) preloadLineAudio(song, nextLine);
     },
   });
@@ -2043,10 +2112,16 @@ function preloadLineAudio(song, line) {
   audioState.preload = audio;
 }
 
-function setSequenceHighlight(lineId) {
+function setSequenceHighlight(lineId, index, total) {
   clearSequenceHighlight();
   const card = document.getElementById(lineId);
-  card?.classList.add("is-sequence-active");
+  if (card) {
+    card.classList.add("is-sequence-active");
+    const button = card.querySelector(".sentence-speak");
+    button?.classList.add("is-sequence-stop");
+    button?.setAttribute("aria-label", "停止全曲播放");
+  }
+  pageTools.setProgress(index, total);
   followSequenceCard(card);
 }
 
@@ -2067,6 +2142,9 @@ function followSequenceCard(card) {
 function clearSequenceHighlight() {
   refs.lyricsList?.querySelectorAll(".lyric-card.is-sequence-active").forEach((card) => {
     card.classList.remove("is-sequence-active");
+    const button = card.querySelector(".sentence-speak");
+    button?.classList.remove("is-sequence-stop");
+    button?.setAttribute("aria-label", "播放整句发音");
   });
 }
 
