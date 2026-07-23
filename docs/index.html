@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+
+  <script>
+    (() => {
+      const oldPrefix = "/vibe-coding";
+      const newSite = "https://fufu-life.github.io/musicals";
+
+      const remainingPath = location.pathname.startsWith(oldPrefix)
+        ? location.pathname.slice(oldPrefix.length)
+        : "/";
+
+      location.replace(
+        newSite +
+        (remainingPath || "/") +
+        location.search +
+        location.hash
+      );
+    })();
+  </script>
+
+  <meta
+    http-equiv="refresh"
+    content="0; url=https://fufu-life.github.io/musicals/"
+  >
+
+  <title>网站正在迁移</title>
+</head>
+<body>
+  <p>
+    网站已迁移至
+    <a href="https://fufu-life.github.io/musicals/">
+      阿浮的音乐剧歌词集
+    </a>
+  </p>
+</body>
+</html>
